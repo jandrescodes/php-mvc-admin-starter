@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.15.2`
+**Current release tag:** `3.15.3`
 
 ## No Build Process
 
@@ -251,7 +251,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 - **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
 - **Auth checks:** use `Auth::check()`, `Auth::hasPermission()`, `Auth::id()`, `Auth::user()` — never read `$_SESSION` directly for auth state outside of `App\Core\Auth`.
 - **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST — including failure paths on sensitive endpoints (e.g. password change). All three functions live in `app/Core/helpers.php`. Destructive actions that are not AJAX (including logout) must be `POST` routes with CSRF validation, never `GET`.
-- **Remember-me invalidation:** Call `$userModel->clearRememberToken($userId)` (via `Auth::clearRememberCookie()`) whenever a password is changed, regardless of who triggered the change (user self-service or admin edit). This revokes any active remember-me session for the affected user.
+- **Remember-me invalidation:** Call `$userModel->clearRememberToken($userId)` (via `Auth::clearRememberCookie()`) whenever a password is changed, regardless of who triggered the change (user self-service, admin edit, invitation acceptance, or forgot-password reset). `User::updatePassword()` and `UserPasswordTrait::resetPassword()` both call `clearRememberToken()` internally — never bypass either with a raw SQL UPDATE on the `password` column.
 - **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`. MIME type is validated server-side via `(new \finfo(FILEINFO_MIME_TYPE))->file($tmp_name)` — never use `$_FILES['type']` (client-controlled). Extension whitelist: `jpg`, `jpeg`, `png`, `gif`, `webp`. `public/uploads/users/.htaccess` blocks PHP execution.

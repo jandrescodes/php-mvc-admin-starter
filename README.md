@@ -4,14 +4,46 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.15.2-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.15.3-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
 
 > A solid starting point for PHP web applications that need a secure admin panel out of the box.
 
+[Features](#features) •
+[Installation](#installation) •
+[Documentation](#developer-docs) •
+[Contributing](#contributing) •
+[License](#license)
+
 </div>
+
+## Table of Contents
+
+- [PHP MVC Admin Starter](#php-mvc-admin-starter)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Screenshots](#screenshots)
+    - [Login](#login)
+    - [Dashboard](#dashboard)
+    - [User Management](#user-management)
+    - [Role \& Permissions](#role--permissions)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Configuration `.env`](#configuration-env)
+  - [Adding a New Module](#adding-a-new-module)
+  - [Architecture](#architecture)
+  - [Testing](#testing)
+  - [Tech Stack](#tech-stack)
+  - [Security](#security)
+  - [Developer Docs](#developer-docs)
+  - [AI Integration](#ai-integration)
+  - [Contributing](#contributing)
+  - [Changelog](#changelog)
+  - [License](#license)
 
 ## Features
 
@@ -27,6 +59,38 @@ A PHP starter template with authentication, user management, and role-based perm
 - **PDF generation** — Built-in report generation with TCPDF
 - **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules and auth standalone pages
 - **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included
+
+## Screenshots
+
+### Login
+
+Session-based login with brute-force lockout and remember-me support.
+
+![Login](docs/screenshots/login.png)
+
+---
+
+### Dashboard
+
+Metrics overview with Chart.js charts and event-driven cache invalidation.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+---
+
+### User Management
+
+Full CRUD with profile images, activation/deactivation, and email invitations.
+
+![Users](docs/screenshots/users.png)
+
+---
+
+### Role & Permissions
+
+Role catalog with role↔permission assignment and system-role protection.
+
+![Roles](docs/screenshots/roles.png)
 
 ## Requirements
 
@@ -75,7 +139,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.15.2
+APP_VERSION=3.15.3
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -208,8 +272,11 @@ See [docs/AI_SETUP.md](docs/AI_SETUP.md) for full details on how to use and exte
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+Contributions are welcome — bug reports, feature ideas, and pull requests alike.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide, including development setup, code standards, and the PR process.
 We follow [Conventional Commits](https://conventionalcommits.org/) and [Semantic Versioning](https://semver.org/).
+
+If you find this project useful, consider giving it a ⭐ on GitHub — it helps others discover it.
 
 ## Changelog
 

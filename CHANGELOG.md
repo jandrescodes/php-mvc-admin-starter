@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.15.3] - 2026-07-13
+
+### Fixed
+
+- **Remember-me cookie not revoked on password reset via token** — `UserPasswordTrait::resetPassword()` (used by `InvitationController::acceptInvitation()` and `PasswordResetController::resetPassword()`) updated the password hash but never called `clearRememberToken()`, unlike `User::updatePassword()`. An attacker's stolen remember-me cookie stayed valid after the account owner accepted an invitation or completed a forgot-password reset. `clearRememberToken($id)` is now called after a successful password update in `resetPassword()`, matching `updatePassword()`.
+
+### Docs
+
+- **README polished for open source** — added PRs-welcome/Conventional-Commits badges, a quick-nav link row, a full Table of Contents, and a Screenshots section (login, dashboard, users, roles).
+- **`CONTRIBUTING.md` name fix** — replaced leftover "ProyectoBase" references (title, intro, PHPDoc `@package` examples, closing line) with "PHP MVC Admin Starter" / `PhpMvcAdminStarter`.
+
+---
+
 ## [3.15.2] - 2026-06-25
 
 ### Security
@@ -812,6 +825,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.15.3]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.2...3.15.3
 [3.15.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.1...3.15.2
 [3.15.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.0...3.15.1
 [3.15.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.14.0...3.15.0

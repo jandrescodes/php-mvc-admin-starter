@@ -1,6 +1,6 @@
-# Contributing to ProyectoBase
+# Contributing to PHP MVC Admin Starter
 
-Thank you for considering contributing to ProyectoBase! This document outlines the guidelines and standards for contributing to this PHP MVC authentication starter project.
+Thank you for considering contributing to PHP MVC Admin Starter! This document outlines the guidelines and standards for contributing to this PHP MVC authentication starter project.
 
 ## Table of Contents
 
@@ -50,7 +50,7 @@ git checkout -b feature/your-feature-name
 - **Model traits** — when a model exceeds ~400 lines, split concerns into PHP traits under `app/Models/Traits/`. Traits access `$this->connection` and `$this->table` directly. Group by responsibility (auth queries, password lifecycle, statistics).
 - **CSRF on destructive non-AJAX routes** — logout and any other destructive action that is not an AJAX endpoint must use a `POST` route with a CSRF token, never `GET`. Call `$this->csrfCheck()` at the top of the controller method. See `AuthController::logout()` and `views/layouts/header.php` as reference.
 - **CSRF token rotation** — call `regenerateCSRFToken()` unconditionally (before the success/failure branch) on sensitive endpoints so the token rotates even when the model write fails.
-- **Remember-me invalidation** — call `$userModel->clearRememberToken($userId)` after any successful password change, regardless of who triggered it. `User::updatePassword()` does this automatically — never bypass it with a raw SQL UPDATE on the `password` column.
+- **Remember-me invalidation** — call `$userModel->clearRememberToken($userId)` after any successful password change, regardless of who triggered it (self-service, admin edit, invitation acceptance, or forgot-password reset). `User::updatePassword()` and `UserPasswordTrait::resetPassword()` do this automatically — never bypass either with a raw SQL UPDATE on the `password` column.
 - **File uploads** — always route through `ImageService`. MIME type must be validated server-side via `finfo` on `tmp_name`; never trust `$_FILES['type']` (client-controlled). Extension must be whitelisted. `public/uploads/users/.htaccess` blocks PHP execution and must not be removed.
 - **JS string interpolation** — use `json_encode()` when passing PHP values into `<script>` blocks. `addslashes()` does not escape `</script>` and is unsafe for JS context.
 
@@ -80,7 +80,7 @@ All PHP classes, methods, and files must include PHPDoc documentation:
  *
  * Detailed description if necessary
  *
- * @package ProyectoBase
+ * @package PhpMvcAdminStarter
  * @subpackage [Module Name] (e.g., Controllers\Users, Models, Services)
  * @author Jandres25
  * @version 1.0
@@ -101,7 +101,7 @@ JavaScript functions and modules should include JSDoc documentation:
  *
  * Detailed description of the module's purpose
  *
- * @package ProyectoBase
+ * @package PhpMvcAdminStarter
  * @subpackage JavaScript\[Module]
  * @author Jandres25
  * @version 1.0
@@ -281,4 +281,4 @@ This project adheres to a code of conduct. By participating, you are expected to
 - Help others learn and grow
 - Maintain professional communication
 
-Thank you for contributing to ProyectoBase! 🚀
+Thank you for contributing to PHP MVC Admin Starter! 🚀
