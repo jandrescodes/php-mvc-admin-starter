@@ -68,7 +68,11 @@ trait UserPasswordTrait
             );
             $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
             $stmt->bindParam(':id',       $id,   PDO::PARAM_INT);
-            return $stmt->execute();
+            $result = $stmt->execute();
+            if ($result) {
+                $this->clearRememberToken($id);
+            }
+            return $result;
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return false;
