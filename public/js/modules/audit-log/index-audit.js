@@ -11,7 +11,7 @@
  *
  * @package ProyectoBase
  * @subpackage JavaScript\Modules\AuditLog
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.2
  */
 

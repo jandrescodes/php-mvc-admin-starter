@@ -30,7 +30,7 @@ cd php-mvc-admin-starter
 composer install
 
 # Set up upstream remote
-git remote add upstream https://github.com/Jandres25/php-mvc-admin-starter.git
+git remote add upstream https://github.com/jandrescodes/php-mvc-admin-starter.git
 
 # Create and switch to a new branch
 git checkout -b feature/your-feature-name
@@ -82,7 +82,7 @@ All PHP classes, methods, and files must include PHPDoc documentation:
  *
  * @package PhpMvcAdminStarter
  * @subpackage [Module Name] (e.g., Controllers\Users, Models, Services)
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  *
  * @param type $parameter Description of parameter (for methods)
@@ -103,7 +103,7 @@ JavaScript functions and modules should include JSDoc documentation:
  *
  * @package PhpMvcAdminStarter
  * @subpackage JavaScript\[Module]
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  */
 
@@ -268,9 +268,9 @@ When adding new features, follow the existing project structure:
 
 If you have questions about contributing, please:
 
-1. Check existing [Issues](https://github.com/Jandres25/php-mvc-admin-starter/issues)
+1. Check existing [Issues](https://github.com/jandrescodes/php-mvc-admin-starter/issues)
 2. Create a new issue for bugs or feature requests
-3. Start a [Discussion](https://github.com/Jandres25/php-mvc-admin-starter/discussions) for questions
+3. Start a [Discussion](https://github.com/jandrescodes/php-mvc-admin-starter/discussions) for questions
 
 ## Code of Conduct
 

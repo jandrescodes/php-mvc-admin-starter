@@ -1,5 +1,5 @@
 {
-    "name": "jandres25/php-mvc-admin-starter",
+    "name": "jandrescodes/php-mvc-admin-starter",
     "description": "PHP MVC admin starter with authentication, user management and permission-based access control",
     "type": "project",
     "require": {

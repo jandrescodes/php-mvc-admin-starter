@@ -6,7 +6,7 @@
  *
  * @package ProyectoBase
  * @subpackage JavaScript\Modules\Roles
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  */
 

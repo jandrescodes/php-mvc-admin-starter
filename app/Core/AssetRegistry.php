@@ -8,7 +8,7 @@
  *
  * @package ProyectoBase
  * @subpackage App\Core
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  */
 

@@ -7,7 +7,7 @@
  *
  * @package ProyectoBase
  * @subpackage JavaScript\Modules\Dashboard
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.1
  */
 

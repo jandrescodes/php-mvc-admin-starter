@@ -5,7 +5,7 @@
  *
  * @package ProyectoBase
  * @subpackage JavaScript\Modules\Users
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  */
 

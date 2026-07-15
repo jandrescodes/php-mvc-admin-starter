@@ -11,7 +11,7 @@
  *
  * @package ProyectoBase
  * @subpackage App\Models
- * @author Jandres25
+ * @author jandrescodes
  * @version 1.0
  */
 

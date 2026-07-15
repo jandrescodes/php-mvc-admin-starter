@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.15.3-green)](CHANGELOG.md)
-[![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
+[![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -102,7 +102,7 @@ Role catalog with role↔permission assignment and system-role protection.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Jandres25/php-mvc-admin-starter.git
+git clone https://github.com/jandrescodes/php-mvc-admin-starter.git
 cd php-mvc-admin-starter
 
 # 2. Install dependencies
