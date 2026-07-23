@@ -1,11 +1,31 @@
 /* Estilos personalizados para la página de login */
 
+:root {
+    --login-gradient-start: #f5f7fa;
+    --login-gradient-end:   #c3cfe2;
+    --login-heading:        #2c3e50;
+    --login-muted:          #6c757d;
+    --login-border-light:   #ced4da;
+    --login-surface-alt:    #f8f9fa;
+    --login-primary:        #007bff;
+    --login-primary-hover:  #0069d9;
+    --login-primary-active: #0062cc;
+    --login-danger:         #dc3545;
+    --login-success:        #28a745;
+    --login-warning:        #ffc107;
+    --login-info:           #17a2b8;
+    --login-ink:            #495057;
+    --login-focus-border:   #80bdff;
+    --login-focus-shadow:        rgba(0, 123, 255, 0.25);
+    --login-focus-shadow-strong: rgba(0, 123, 255, 0.5);
+}
+
 /* Fondo con gradiente y textura para un tema de zapatillas y carteras */
 .login-page {
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, var(--login-gradient-start) 0%, var(--login-gradient-end) 100%);
     background-blend-mode: overlay;
 }
 
@@ -36,26 +56,28 @@
 }
 
 .card-outline.card-primary {
-    border-top: 3px solid #007bff;
-    border-radius: 10px;
+    border-top: 3px solid var(--login-primary);
+    border-radius: 0 0 10px 10px;
     overflow: hidden;
 }
 
 .card-header {
-    background-color: #f8f9fa;
+    background-color: var(--login-surface-alt);
     padding: 15px;
 }
 
 .card-header h1 {
     margin: 0;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--login-heading);
+    text-wrap: balance;
 }
 
 .login-box-msg {
-    color: #6c757d;
+    color: var(--login-muted);
     font-size: 0.95rem;
     margin-bottom: 20px;
+    text-wrap: pretty;
 }
 
 /* Efectos de los campos */
@@ -68,26 +90,20 @@
 }
 
 .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: var(--login-focus-border);
+    box-shadow: 0 0 0 0.2rem var(--login-focus-shadow);
 }
 
 .input-group-text {
-    background-color: #f8f9fa;
-    border-color: #ced4da;
+    background-color: var(--login-surface-alt);
+    border-color: var(--login-border-light);
     padding: 0 15px;
-}
-
-/* Efecto hover en el botón de mostrar/ocultar contraseña */
-.password-toggle:hover {
-    background-color: #e9ecef;
-    cursor: pointer;
 }
 
 /* Botones */
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--login-primary);
+    border-color: var(--login-primary);
     transition: all 0.3s ease;
     padding: 10px 20px;
     font-size: 1rem;
@@ -95,8 +111,8 @@
 }
 
 .btn-primary:hover {
-    background-color: #0069d9;
-    border-color: #0062cc;
+    background-color: var(--login-primary-hover);
+    border-color: var(--login-primary-active);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 105, 217, 0.4);
 }
@@ -110,7 +126,7 @@
 .login-footer {
     margin-top: 20px;
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--login-muted);
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
@@ -131,12 +147,23 @@
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .login-animation {
+        animation: none;
+    }
+
+    .swal2-toast.swal2-show,
+    .swal2-toast.swal2-hide {
+        animation: none;
+    }
+}
+
 .invalid-feedback {
     display: block;
     width: 100%;
     margin-top: .125rem;
     font-size: 80%;
-    color: #dc3545;
+    color: var(--login-danger);
 }
 
 /* Elementos decorativos para un tema de zapatillas y carteras */
@@ -172,6 +199,15 @@
     .card-header h1 {
         font-size: 1.5rem;
     }
+
+    [data-password-toggle],
+    .auth-theme-toggle {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 /* Estilos adicionales para SweetAlert2 Toast */
@@ -187,23 +223,23 @@
 
 /* Colores personalizados para los Toast */
 .swal2-icon.swal2-success {
-    color: #28a745;
-    border-color: #28a745;
+    color: var(--login-success);
+    border-color: var(--login-success);
 }
 
 .swal2-icon.swal2-error {
-    color: #dc3545;
-    border-color: #dc3545;
+    color: var(--login-danger);
+    border-color: var(--login-danger);
 }
 
 .swal2-icon.swal2-warning {
-    color: #ffc107;
-    border-color: #ffc107;
+    color: var(--login-warning);
+    border-color: var(--login-warning);
 }
 
 .swal2-icon.swal2-info {
-    color: #17a2b8;
-    border-color: #17a2b8;
+    color: var(--login-info);
+    border-color: var(--login-info);
 }
 
 /* Animación para el toast */
@@ -240,7 +276,7 @@
 /* Estilos para los botones */
 .btn-primary:focus,
 .btn-primary.focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 0 0.2rem var(--login-focus-shadow-strong);
 }
 
 /* Mejoras en los campos de formulario */

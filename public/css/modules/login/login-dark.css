@@ -5,60 +5,68 @@
  * elementos específicos del layout de auth: fondo, card, inputs y toggle.
  */
 
+/* ─── Tokens específicos de auth (complementan --dm-* de dark-mode.css) ──── */
+html.dark-mode {
+    --login-dark-gradient-start: #1a1d21;
+    --login-dark-gradient-end:   #2c3038;
+    --login-dark-card-border:    #4b545c;
+}
+
 /* ─── Fondo de la página ──────────────────────────────────────────────────── */
 html.dark-mode .login-page {
-    background: linear-gradient(135deg, #1a1d21 0%, #2c3038 100%);
+    background: linear-gradient(135deg, var(--login-dark-gradient-start) 0%, var(--login-dark-gradient-end) 100%);
 }
 
 /* ─── Card ────────────────────────────────────────────────────────────────── */
 html.dark-mode .login-page .card {
-    background-color: #343a40;
-    border-color: #4b545c;
+    background-color: var(--dm-bg);
+    border-color: var(--login-dark-card-border);
 }
 
 html.dark-mode .login-page .card-header {
-    background-color: #2c3038;
-    border-bottom-color: #4b545c;
+    background-color: var(--login-dark-gradient-end);
+    border-bottom-color: var(--login-dark-card-border);
 }
 
 html.dark-mode .login-page .card-header h1 {
-    color: #dee2e6;
+    color: var(--dm-text);
 }
 
 html.dark-mode .login-page .login-card-body {
-    background-color: #343a40;
+    background-color: var(--dm-bg);
 }
 
 html.dark-mode .login-page .login-box-msg {
-    color: #adb5bd;
+    color: var(--dm-text-muted);
 }
 
 /* ─── Inputs ──────────────────────────────────────────────────────────────── */
 html.dark-mode .login-page .form-control {
-    background-color: #3d4349;
-    border-color: #6c757d;
-    color: #dee2e6;
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
 }
 
 html.dark-mode .login-page .form-control::placeholder {
-    color: #868e96;
+    color: var(--dm-text-muted);
 }
 
 html.dark-mode .login-page .form-control:focus {
-    background-color: #454d55;
-    border-color: #3f6791;
-    color: #dee2e6;
+    background-color: var(--dm-bg-hover);
+    border-color: var(--dm-primary);
+    color: var(--dm-text);
     box-shadow: 0 0 0 0.2rem rgba(63, 103, 145, 0.35);
 }
 
-html.dark-mode .login-page .input-group-text {
-    background-color: #3d4349;
-    border-color: #6c757d;
-    color: #adb5bd;
+html.dark-mode .login-page .input-group-text,
+html.dark-mode .login-page [data-password-toggle] {
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+    color: var(--dm-text-muted);
 }
 
-html.dark-mode .login-page .password-toggle:hover {
-    background-color: #454d55;
+html.dark-mode .login-page [data-password-toggle]:hover {
+    background-color: var(--dm-bg-hover);
 }
 
 /* ─── Autofill del navegador (webkit) ─────────────────────────────────────── */
@@ -66,10 +74,10 @@ html.dark-mode .login-page .password-toggle:hover {
 html.dark-mode .login-page .form-control:-webkit-autofill,
 html.dark-mode .login-page .form-control:-webkit-autofill:hover,
 html.dark-mode .login-page .form-control:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #3d4349 inset;
-    -webkit-text-fill-color: #dee2e6;
-    caret-color: #dee2e6;
-    border-color: #6c757d;
+    -webkit-box-shadow: 0 0 0 1000px var(--dm-bg-alt) inset;
+    -webkit-text-fill-color: var(--dm-text);
+    caret-color: var(--dm-text);
+    border-color: var(--dm-border);
     transition: background-color 9999s ease-in-out 0s; /* evita el flash amarillo */
 }
 
@@ -78,24 +86,24 @@ html.dark-mode .login-page .form-control:-webkit-autofill:focus {
 .login-page .form-control:-webkit-autofill:hover,
 .login-page .form-control:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0 1000px #fff inset;
-    -webkit-text-fill-color: #495057;
-    caret-color: #495057;
+    -webkit-text-fill-color: var(--login-ink);
+    caret-color: var(--login-ink);
     transition: background-color 9999s ease-in-out 0s;
 }
 
 /* ─── iCheck (remember me) ────────────────────────────────────────────────── */
 html.dark-mode .login-page .icheck-primary label {
-    color: #dee2e6;
+    color: var(--dm-text);
 }
 
 /* ─── Links ───────────────────────────────────────────────────────────────── */
 html.dark-mode .login-page a:not(.btn) {
-    color: #3498db;
+    color: var(--dm-info);
 }
 
 /* ─── Footer copyright ────────────────────────────────────────────────────── */
 html.dark-mode .login-footer p {
-    color: #adb5bd;
+    color: var(--dm-text-muted);
     text-shadow: none;
 }
 
@@ -105,7 +113,7 @@ html.dark-mode .login-footer p {
     bottom: 1.25rem;
     right: 1.25rem;
     z-index: 1050;
-    color: #6c757d;
+    color: var(--login-muted);
     opacity: 0.8;
     font-size: 1.2rem;
     text-decoration: none;
@@ -114,14 +122,14 @@ html.dark-mode .login-footer p {
 
 .auth-theme-toggle:hover {
     opacity: 1;
-    color: #495057;
+    color: var(--login-ink);
     text-decoration: none;
 }
 
 html.dark-mode .auth-theme-toggle {
-    color: #adb5bd;
+    color: var(--dm-text-muted);
 }
 
 html.dark-mode .auth-theme-toggle:hover {
-    color: #dee2e6;
+    color: var(--dm-text);
 }
