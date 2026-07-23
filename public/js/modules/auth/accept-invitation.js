@@ -3,6 +3,8 @@
  */
 
 $(document).ready(function () {
+    $('.login-box').addClass('login-animation');
+
     $('#accept-invitation-form').validate({
         rules: {
             password: {
@@ -27,26 +29,12 @@ $(document).ready(function () {
             }
         },
         submitHandler: function (form) {
-            const $btn = $('#btn-accept');
-            $btn.prop('disabled', true)
-                .html('<i class="fas fa-spinner fa-spin mr-2"></i> Activating...');
-            form.submit();
+            $('#btn-accept').prop('disabled', true);
+            $('#btn-icon').removeClass('fa-check').addClass('fa-spinner fa-spin');
+
+            ToastUtils.loadingWithMinTime('Activating account...', () => {
+                form.submit();
+            }, 800);
         }
-    });
-
-    $('#togglePassword').on('click', function () {
-        const field    = $('#password');
-        const icon     = $(this).find('i');
-        const isHidden = field.attr('type') === 'password';
-        field.attr('type', isHidden ? 'text' : 'password');
-        icon.toggleClass('fa-eye', !isHidden).toggleClass('fa-eye-slash', isHidden);
-    });
-
-    $('#toggleConfirmPassword').on('click', function () {
-        const field    = $('#confirm_password');
-        const icon     = $(this).find('i');
-        const isHidden = field.attr('type') === 'password';
-        field.attr('type', isHidden ? 'text' : 'password');
-        icon.toggleClass('fa-eye', !isHidden).toggleClass('fa-eye-slash', isHidden);
     });
 });

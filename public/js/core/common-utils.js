@@ -39,6 +39,24 @@ function formatDate(date) {
 }
 
 /**
+ * Auto-initializes password visibility toggle buttons. Any button with
+ * [data-password-toggle="#fieldSelector"] shows/hides the target password
+ * field and keeps its icon and aria-pressed/aria-label state in sync —
+ * no per-module wiring needed.
+ */
+$(document).on('click', '[data-password-toggle]', function () {
+    const $btn = $(this);
+    const $field = $($btn.data('password-toggle'));
+    const icon = $btn.find('i');
+    const isHidden = $field.attr('type') === 'password';
+
+    $field.attr('type', isHidden ? 'text' : 'password');
+    icon.toggleClass('fa-eye', isHidden).toggleClass('fa-eye-slash', !isHidden);
+    $btn.attr('aria-pressed', isHidden ? 'true' : 'false');
+    $btn.attr('aria-label', isHidden ? 'Hide password' : 'Show password');
+});
+
+/**
  * Formats a time string into a readable string (HH:MM)
  *
  * @param {string} time - Time to format

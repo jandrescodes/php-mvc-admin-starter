@@ -1,18 +1,5 @@
-$(document).ready(function() {
+$(document).ready(function () {
     // ============= UI INTERACTION =============
-    
-    $('#toggle-password').click(function() {
-        const passwordField = $('#password-field');
-        const passwordFieldType = passwordField.attr('type');
-
-        if (passwordFieldType === 'password') {
-            passwordField.attr('type', 'text');
-            $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-        } else {
-            passwordField.attr('type', 'password');
-            $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-        }
-    });
 
     $('.login-box').addClass('login-animation');
 
@@ -39,14 +26,14 @@ $(document).ready(function() {
                 minlength: "Password must be at least 6 characters"
             }
         },
-        submitHandler: function(form) {
+        submitHandler: function (form) {
             // Disable button and show spinner
             $('#btn-login').prop('disabled', true);
             $('#btn-icon').removeClass('fa-sign-in-alt').addClass('fa-spinner fa-spin');
 
             ToastUtils.loadingWithMinTime('Signing in...', () => {
                 form.submit();
-            }, 800);
+            }, 1000);
         }
     });
 });

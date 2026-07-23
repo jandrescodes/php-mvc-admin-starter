@@ -81,7 +81,8 @@
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" id="theme-toggle" role="button" title="Toggle dark mode">
+                    <a class="nav-link" href="#" id="theme-toggle" role="button" title="Toggle dark mode"
+                        aria-label="Toggle dark mode" aria-pressed="false">
                         <i class="fas fa-moon" id="theme-icon"></i>
                     </a>
                 </li>

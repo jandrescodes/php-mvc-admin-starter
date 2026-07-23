@@ -13,15 +13,19 @@ document.addEventListener('DOMContentLoaded', function () {
     /** Aplica el tema visualmente sin tocar localStorage. */
     function applyTheme(isDark) {
         document.documentElement.classList.toggle('dark-mode', isDark);
+        toggle.setAttribute('aria-pressed', String(isDark));
         if (icon) {
             icon.classList.toggle('fa-moon', !isDark);
             icon.classList.toggle('fa-sun',  isDark);
         }
     }
 
-    /** Anima el icono con spin 360° al cambiar de tema. */
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /** Anima el icono con spin 360° al cambiar de tema (respeta prefers-reduced-motion). */
     function animateIcon(callback) {
-        if (!icon) { callback(); return; }
+        if (!icon || prefersReducedMotion.matches) { callback(); return; }
+
         icon.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease';
         icon.style.transform  = 'rotate(360deg) scale(0.5)';
         icon.style.opacity    = '0';
@@ -31,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
             callback();
             requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
-                    icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+                    icon.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease';
                     icon.style.opacity    = '1';
                 });
             });
