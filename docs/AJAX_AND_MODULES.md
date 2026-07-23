@@ -105,7 +105,7 @@ Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts
 
 Do not place page inline scripts that depend on Bootstrap plugins before `footer.php`.
 
-Auth views (`views/auth/*.php`) do not use `footer.php` — they must include `sweetalert-utils.js`, `dark-mode.css`, `login-dark.css`, and `theme-toggle.js` manually before their module script.
+Auth views (`views/auth/*.php`) do not use `footer.php`. They are pure card markup rendered via `Controller::renderStandalone($view, $data, $title, $module_scripts)`, which requires the shared `views/layouts/auth.php` — that layout owns `sweetalert-utils.js`, `dark-mode.css`, `login-dark.css`, `common-utils.js` (password toggle), and `theme-toggle.js`. Register a new auth page's module script via the `$module_scripts` argument, not by editing the layout.
 
 ## AJAX URL targets
 

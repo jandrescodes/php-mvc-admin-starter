@@ -36,7 +36,8 @@ vendor/bin/phpunit --testsuite=Integration  # requires .env.testing + test DB
 - **Select2 in modals:** Call `initializeSelect2('#id', { dropdownParent: $('#modalId') })` explicitly — without it, Bootstrap focus trap closes dropdown immediately.
 - **AdminLTE cards:** `card-outline card-{color}` goes on outer `div.card`, **never** on `div.card-header` (silently breaks border style).
 - **Remember-me:** `clearRememberToken()` must be called whenever a password changes (user or admin) — revokes all active sessions.
-- **Auth standalone pages** (`views/auth/*.php`) don't use `footer.php` — include SweetAlert2, validation, and dark-mode assets manually.
+- **Standalone pages** (`views/auth/*.php`, `views/errors/*.php`) don't use `footer.php`. Views hold only page-specific markup; controllers call `$this->renderStandalone($view, $data, $title, $module_scripts)` (auth) or `require layouts/error.php` after setting `$code`/`$tone`/`$heading`/`$message` (errors) — the shared layout owns SweetAlert2, validation, and dark-mode assets. Never inline a full `<html>` document in a view.
+- **Password toggle:** use `<button data-password-toggle="#fieldId" aria-pressed="false" aria-label="Show password">` — one delegated handler in `public/js/core/common-utils.js` handles all of them. Don't re-implement per page.
 
 ## Testing quirks
 

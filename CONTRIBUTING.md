@@ -179,7 +179,9 @@ When adding a new feature or fixing a bug:
 
 When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, role/permission model, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
-When adding a new standalone auth page (one that does not use `layouts/footer.php`), manually include: `dark-mode.css`, `login-dark.css`, the anti-FOUC inline IIFE in `<head>`, the `#theme-toggle` button with class `auth-theme-toggle`, and `theme-toggle.js` at the bottom of `<body>` — see `views/auth/login.php` as reference. Existing standalone auth pages: `login.php`, `forgot_password.php`, `reset_password.php`, `accept_invitation.php`.
+When adding a new standalone auth page (one that does not use `layouts/header.php`/`footer.php`), do **not** build a full `<html>` document in the view. Write only the page-specific card markup, then call `$this->renderStandalone('auth/your_view', $data, 'Page Title', ['module/script'])` from the controller — it requires the shared `views/layouts/auth.php`, which already owns the `<head>`, anti-FOUC dark-mode IIFE, `#theme-toggle`, and all script tags (`sweetalert-utils.js`, `common-validate.js`, `common-utils.js`, your module script, `theme-toggle.js`). See `views/auth/login.php` + `AuthController::showLoginForm()` as reference. Existing standalone auth pages: `login.php`, `forgot_password.php`, `reset_password.php`, `accept_invitation.php`. The same pattern applies to error pages via `views/layouts/error.php` (see `views/errors/404.php`).
+
+Every input in a standalone page needs a paired `<label class="sr-only">` — placeholder text alone is not an accessible label. Password show/hide fields use `<button type="button" data-password-toggle="#fieldId" aria-pressed="false" aria-label="Show password">`; the shared handler in `public/js/core/common-utils.js` takes care of the rest — never re-implement the toggle logic per page.
 
 When adding a controller action that mutates state, call `AuditLogger::log()` after the model write succeeds. Never log inside model methods — logging belongs in the controller layer.
 
@@ -251,13 +253,13 @@ When adding new features, follow the existing project structure:
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates
-│   ├── layouts/          # Layout components (header, sidebar, footer, messages)
+│   ├── layouts/          # header, sidebar, footer, messages (admin) + auth.php, error.php (standalone layouts)
 │   ├── users/            # User views
 │   ├── permissions/      # Permission views
-│   ├── auth/             # Login, forgot password, reset password (standalone — include dark mode assets manually)
+│   ├── auth/             # Login, forgot password, reset password, accept invitation — card markup only, rendered via Controller::renderStandalone() + layouts/auth.php
 │   ├── roles/            # Role views
 │   ├── audit-log/        # Audit log views (read-only)
-│   └── errors/           # 403, 404 error pages
+│   └── errors/           # 403, 404, 500 — data only, rendered via layouts/error.php
 ├── database/             # schema.sql and seeder.sql
 ├── vendor/               # Composer dependencies (not committed — run composer install)
 ├── docs/                 # Project documentation for developers and AI

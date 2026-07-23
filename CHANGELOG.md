@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.0] - 2026-07-23
+
+### Added
+
+- **Shared layout for standalone auth pages** — new `views/layouts/auth.php` consolidates the `<head>`, dark-mode toggle, and script loading previously duplicated across `login.php`, `forgot_password.php`, `reset_password.php`, and `accept_invitation.php`. `App\Core\Controller::renderStandalone($view, $data, $title, $module_scripts)` now mirrors `render()`'s `getView()` pattern and requires the shared layout, so each auth view file contains only its page-specific card markup — no `<html>`, no `ob_start()`/`require` boilerplate.
+- **Shared layout for error pages** — new `views/layouts/error.php` replaces three near-identical full-document error views. `403.php`, `404.php`, `500.php` now only set `$code`, `$tone`, `$heading`, `$message` and require the layout. New `public/css/modules/errors/errors.css` / `errors-dark.css` provide light/dark tokens (`--error-*`, reusing `--dm-*` where applicable) instead of hardcoded inline `<style>` colors.
+- **Shared password show/hide toggle** — a single delegated click handler in `public/js/core/common-utils.js` (`[data-password-toggle]`) replaces three duplicated implementations in `login.js`, `reset_password.js`, and `accept-invitation.js`. Works on both admin and auth pages without per-module wiring.
+- **`<noscript>` and JS-failure fallback for flash messages** — `views/layouts/messages.php` now renders a plain Bootstrap alert inside `<noscript>` for users without JavaScript, and the inline script itself falls back to a plain alert if `ToastUtils`/`AlertUtils` (SweetAlert2) fail to load.
+
+### Changed
+
+- **Auth pages — accessibility** — all form inputs now have a paired `<label class="sr-only">` (previously placeholder-only). The password show/hide affordance is unified as a `<button type="button" data-password-toggle="#field" aria-pressed aria-label>` across all four auth views (was an inaccessible `<span>` on `login.php`, inconsistent `<button>` markup elsewhere).
+- **Dark mode toggle — accessibility** — `#theme-toggle` (in both `layouts/header.php` and `layouts/auth.php`) now has `aria-label="Toggle dark mode"` and `aria-pressed` synced to the active theme; previously relied on an unreliable `title` attribute with no accessible name for icon-only content.
+- **Motion** — `theme-toggle.js`'s icon-spin animation no longer uses an overshoot/bounce easing curve and now skips entirely under `prefers-reduced-motion`. The login card's `fadeInUp` entrance and the SweetAlert2 toast slide animations also respect `prefers-reduced-motion`.
+- **Theming** — `login.css` / `login-dark.css` and the new `errors.css` / `errors-dark.css` replaced hardcoded hex colors with CSS custom properties (`--login-*`, `--error-*`), reusing the existing `--dm-*` dark-mode tokens instead of redeclaring equivalent values.
+- **Removed the Google Fonts CDN `<link>`** from the auth layout — the rest of the app already relies on the system-font fallback chain declared by AdminLTE; auth pages now do the same, avoiding an extra external, render-blocking request.
+- Touch targets for icon-only buttons (password toggle, theme toggle) are now ≥44×44px on mobile viewports.
+
+### Fixed
+
+- **404 page heading unreadable** — `text-warning` (`#ffc107`) on the error page's light background produced a contrast ratio of ~1.5:1 (WCAG AA requires 3:1 minimum for large text). Replaced with `--error-warning: #a16207`, a darker gold that reads clearly as "warning yellow" and passes at ~4.5:1.
+- **Placeholder text unreadable in dark mode on auth pages** — `login-dark.css`'s `::placeholder` color (`#868e96`) measured ~3.0:1 against the dark input background, below the 4.5:1 WCAG AA threshold for text. Now uses `var(--dm-text-muted)` (~5.4:1).
+- **Wrong initial icon state on password toggles** — `reset_password.php` and `accept_invitation.php` showed `fa-eye` (visible-state icon) while the field was still hidden; corrected to `fa-eye-slash`, matching `login.php` and the shared toggle handler's expectations.
+- **`accept-invitation.js` missing the shared submit-loading pattern** — unlike `login.js`, `forgot_password.js`, and `reset_password.js`, it neither played the card entrance animation nor used `ToastUtils.loadingWithMinTime` on submit. Aligned to the same pattern.
+- **`views/errors/500.html` was dead code** — a second, fully divergent implementation of the 500 page that `ErrorHandler` never referenced (only `500.php` is used). Removed.
+- **Error page button text unreadable in dark mode** — the "Back to Home" link inherited the global dark-mode anchor color (`--dm-info`, blue) instead of staying white against its own blue button background, due to the shared `html.dark-mode a:not(.btn)...` rule not excluding it. Fixed by adding the `.btn` class so the exclusion applies.
+- **Border-radius/border-top visual clash** on the auth card (`.card-outline.card-primary` combined a full 10px `border-radius` with a straight 3px `border-top` accent) — changed to `border-radius: 0 0 10px 10px` so the accent bar runs flush.
+- Heading hierarchy on error pages jumped from `<h1>` to `<h3>` with no `<h2>`; corrected, and content is now wrapped in a `<main>` landmark.
+
 ## [3.15.3] - 2026-07-13
 
 ### Fixed
@@ -825,6 +854,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.16.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.3...3.16.0
 [3.15.3]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.2...3.15.3
 [3.15.2]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.1...3.15.2
 [3.15.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.0...3.15.1

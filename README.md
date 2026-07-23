@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.15.3-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.16.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -53,11 +53,12 @@ A PHP starter template with authentication, user management, and role-based perm
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
 - **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; gated by `audit_log` permission
 - **Metrics dashboard** — Chart.js charts (donut active/inactive/pending, bar, line) + stat cards for users, permissions, roles, and today's audit events; toggleable access-metrics row (pending invitations, resets this week) with localStorage persistence and CSS slide+fade animation; staggered entrance animations for stat cards and chart cards; session-based cache with event-driven invalidation
-- **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
+- **Custom error pages** — Styled 403, 404, and 500 error pages sharing one layout (`views/layouts/error.php`), WCAG AA-compliant color tokens, and full dark mode support
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
 - **PDF generation** — Built-in report generation with TCPDF
-- **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules and auth standalone pages
+- **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules, auth standalone pages, and error pages
+- **Accessible by default** — labeled form inputs, `aria-pressed`/`aria-label` on icon-only toggles, `prefers-reduced-motion` respected, `<noscript>` fallback for flash messages
 - **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included
 
 ## Screenshots
@@ -139,7 +140,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.15.3
+APP_VERSION=3.16.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
