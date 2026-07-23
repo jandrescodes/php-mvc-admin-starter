@@ -18,6 +18,7 @@ opencode.json.example
 .claude/*
 !.claude/skills/
 !.claude/settings.example.json
+.playwright-mcp/
 
 # IDEs and editors
 .idea/
