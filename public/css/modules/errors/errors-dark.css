@@ -1,0 +1,30 @@
+/*
+ * errors-dark.css
+ * Dark mode overrides para las páginas standalone de error (403, 404, 500).
+ * Reutiliza los tokens --dm-* de dark-mode.css.
+ */
+html.dark-mode .error-page {
+    background-color: var(--dm-bg);
+    color: var(--dm-text);
+}
+
+html.dark-mode .error-page[data-tone="danger"] .error-code {
+    color: var(--dm-danger);
+}
+
+html.dark-mode .error-page[data-tone="warning"] .error-code {
+    color: var(--dm-warning);
+}
+
+html.dark-mode .error-message {
+    color: var(--dm-text-muted);
+}
+
+html.dark-mode .error-btn {
+    background-color: var(--dm-primary);
+}
+
+html.dark-mode .error-btn:hover,
+html.dark-mode .error-btn:focus {
+    background-color: var(--dm-bg-hover);
+}

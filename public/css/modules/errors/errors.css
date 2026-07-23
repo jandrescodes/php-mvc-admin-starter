@@ -1,0 +1,79 @@
+/* Estilos para las páginas de error standalone (403, 404, 500) */
+
+:root {
+    --error-bg:      #f4f6f9;
+    --error-ink:     #343a40;
+    --error-muted:   #6c757d;
+    --error-danger:  #dc3545;
+    --error-warning: #a16207;
+    --error-primary:       #007bff;
+    --error-primary-hover: #0069d9;
+}
+
+.error-page {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--error-bg);
+    color: var(--error-ink);
+}
+
+.error-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-code {
+    font-size: 6rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    text-wrap: balance;
+}
+
+.error-page[data-tone="danger"] .error-code {
+    color: var(--error-danger);
+}
+
+.error-page[data-tone="warning"] .error-code {
+    color: var(--error-warning);
+}
+
+.error-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.75rem 0;
+}
+
+.error-message {
+    color: var(--error-muted);
+    margin-bottom: 1.5rem;
+    text-wrap: pretty;
+}
+
+.error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.6rem 1.5rem;
+    background-color: var(--error-primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+}
+
+.error-btn:hover,
+.error-btn:focus {
+    background-color: var(--error-primary-hover);
+    color: #fff;
+    text-decoration: none;
+}
+
+.error-btn:focus-visible {
+    outline: 2px solid var(--error-primary);
+    outline-offset: 2px;
+}
