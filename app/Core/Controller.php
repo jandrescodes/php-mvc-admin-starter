@@ -24,16 +24,11 @@ abstract class Controller
         require dirname(__DIR__, 2) . '/views/layouts/footer.php';
     }
 
-    public function renderStandalone($view, $data = [])
+    public function renderStandalone($view, $data = [], $title = '', $module_scripts = [])
     {
-        $viewPath = dirname(__DIR__, 2) . '/views/' . $view . '.php';
+        $content = $this->getView($view, $data);
 
-        if (!file_exists($viewPath)) {
-            throw new \Exception("View not found: $viewPath");
-        }
-
-        extract($data);
-        require $viewPath;
+        require dirname(__DIR__, 2) . '/views/layouts/auth.php';
     }
 
     protected function getView($view, $data = [])

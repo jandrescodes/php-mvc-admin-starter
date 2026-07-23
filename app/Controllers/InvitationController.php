@@ -37,7 +37,7 @@ class InvitationController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $this->renderStandalone('auth/accept_invitation', compact('token'));
+        $this->renderStandalone('auth/accept_invitation', compact('token'), 'Accept Invitation', ['accept-invitation']);
     }
 
     public function acceptInvitation(): void

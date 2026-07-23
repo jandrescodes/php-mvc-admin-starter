@@ -21,7 +21,7 @@ class AuthController extends Controller
 
     public function showLoginForm(): void
     {
-        $this->renderStandalone('auth/login');
+        $this->renderStandalone('auth/login', [], 'Sign In', ['login']);
     }
 
     public function login(): void
@@ -119,7 +119,7 @@ class AuthController extends Controller
 
     public function showForgotPasswordForm(): void
     {
-        $this->renderStandalone('auth/forgot_password');
+        $this->renderStandalone('auth/forgot_password', [], 'Forgot Password', ['forgot_password']);
     }
 
     public function requestPasswordReset(): void

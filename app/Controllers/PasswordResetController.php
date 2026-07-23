@@ -40,7 +40,7 @@ class PasswordResetController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $this->renderStandalone('auth/reset_password', compact('token'));
+        $this->renderStandalone('auth/reset_password', compact('token'), 'Reset Password', ['reset_password']);
     }
 
     public function requestReset(): void
