@@ -62,9 +62,13 @@
                             </li>
                             <li class="list-group-item">
                                 <b><i class="fas fa-phone mr-1"></i> Phone</b>
-                                <a href="https://wa.me/<?= htmlspecialchars($user['phone'] ?? ''); ?>" class="float-right" target="_blank">
-                                    <?= !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'Not registered'; ?>
-                                </a>
+                                <?php if (!empty($user['phone'])): ?>
+                                    <a href="https://wa.me/<?= htmlspecialchars($user['phone']); ?>" class="float-right" target="_blank">
+                                        <?= htmlspecialchars($user['phone']); ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="float-right text-muted">Not registered</span>
+                                <?php endif; ?>
                             </li>
                             <li class="list-group-item">
                                 <b><i class="fas fa-toggle-on mr-1"></i> Status</b>
@@ -255,7 +259,7 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label><i class="fas fa-map-marker-alt mr-1"></i> Full Address:</label>
-                                                <p class="form-control" style="min-height: 100px;"><?= htmlspecialchars($user['address']); ?></p>
+                                                <p class="form-control user-address-display"><?= htmlspecialchars($user['address']); ?></p>
                                             </div>
                                         </div>
                                     </div>

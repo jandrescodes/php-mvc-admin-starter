@@ -237,8 +237,8 @@
                                                 <input type="password" class="form-control" id="password" name="password"
                                                     placeholder="Enter password" autocomplete="off" minlength="8" required>
                                                 <div class="input-group-append">
-                                                    <button class="btn btn-default" type="button" id="togglePassword">
-                                                        <i class="fas fa-eye"></i>
+                                                    <button class="btn btn-default" type="button" data-password-toggle="#password" aria-pressed="false" aria-label="Show password">
+                                                        <i class="fas fa-eye-slash" aria-hidden="true"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -254,8 +254,8 @@
                                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                                     placeholder="Confirm password" autocomplete="off" required>
                                                 <div class="input-group-append">
-                                                    <button class="btn btn-default" type="button" id="toggleConfirmPassword">
-                                                        <i class="fas fa-eye"></i>
+                                                    <button class="btn btn-default" type="button" data-password-toggle="#confirm_password" aria-pressed="false" aria-label="Show password">
+                                                        <i class="fas fa-eye-slash" aria-hidden="true"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -293,9 +293,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 text-center">
-                                    <div id="preview-container" style="display: none;">
+                                    <div id="preview-container" class="d-none">
                                         <label>Preview:</label><br>
-                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail user-avatar-preview">
                                     </div>
                                 </div>
                             </div>
@@ -438,7 +438,7 @@
                                     <div class="card-body">
                                         <div class="callout callout-warning">
                                             <ul class="mb-0">
-                                                <li>The <strong>password</strong> must have at least 6 characters</li>
+                                                <li>The <strong>password</strong> must have at least 8 characters</li>
                                                 <li>It is recommended to use letters, numbers and symbols for stronger security</li>
                                                 <li>The <strong>role</strong> defines the set of inherited permissions</li>
                                             </ul>
@@ -483,7 +483,7 @@
                     </div>
                     <div class="card-body text-center">
                         <div class="profile-preview">
-                            <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail user-avatar-circle-lg">
                             <h5 id="profile-preview-name" class="mt-3">New User</h5>
                             <p id="profile-preview-role" class="text-muted">User position</p>
                             <div id="profile-preview-badge" class="badge badge-success">Active</div>

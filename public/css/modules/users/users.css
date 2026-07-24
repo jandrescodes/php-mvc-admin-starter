@@ -1,0 +1,41 @@
+/* Avatar and image preview sizing for users module (list, create, edit, show, profile) */
+
+.user-avatar-preview {
+    max-width: 150px;
+    max-height: 150px;
+}
+
+.user-avatar-circle-lg {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.user-avatar-circle-md {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+}
+
+.user-avatar-circle-sm {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.user-address-display {
+    min-height: 100px;
+}
+
+/* Touch target: row-action buttons in the users table default to AdminLTE's
+   .btn-sm (~31px), below the 44px minimum. Same fix pattern used for
+   .small-box-footer in dashboard.css — scoped to mobile only. */
+@media (max-width: 576px) {
+    #tableUsers .btn-group .btn-sm {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

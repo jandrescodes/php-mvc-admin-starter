@@ -26,10 +26,9 @@
                     <div class="card-body box-profile">
                         <div class="text-center">
                             <img id="sidebar-avatar"
-                                class="profile-user-img img-fluid img-circle"
+                                class="profile-user-img img-fluid img-circle user-avatar-circle-sm"
                                 src="<?= $imageSrc; ?>"
-                                alt="Profile photo"
-                                style="width:100px;height:100px;object-fit:cover;">
+                                alt="Profile photo">
                         </div>
                         <h3 class="profile-username text-center mt-2">
                             <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
@@ -99,8 +98,7 @@
                                                 <div class="col-md-5 text-center">
                                                     <img id="preview-image"
                                                         src="<?= $imageSrc; ?>"
-                                                        class="img-circle img-thumbnail"
-                                                        style="width:120px;height:120px;object-fit:cover;"
+                                                        class="img-circle img-thumbnail user-avatar-circle-md"
                                                         alt="Preview">
                                                 </div>
                                                 <div class="col-md-7">
@@ -168,6 +166,11 @@
                                             </div>
                                             <input type="password" class="form-control" id="current_password" name="current_password"
                                                 placeholder="Current password" autocomplete="off" required>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-default" type="button" data-password-toggle="#current_password" aria-pressed="false" aria-label="Show password">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -178,6 +181,11 @@
                                             </div>
                                             <input type="password" class="form-control" id="new_password" name="new_password"
                                                 placeholder="Minimum 6 characters" autocomplete="off" required minlength="6">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-default" type="button" data-password-toggle="#new_password" aria-pressed="false" aria-label="Show password">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -188,6 +196,11 @@
                                             </div>
                                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                                 placeholder="Repeat the new password" autocomplete="off" required minlength="6">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-default" type="button" data-password-toggle="#confirm_password" aria-pressed="false" aria-label="Show password">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -207,4 +220,3 @@
         </div>
     </div>
 </section>
-

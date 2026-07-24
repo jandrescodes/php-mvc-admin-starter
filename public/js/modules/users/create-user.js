@@ -159,30 +159,6 @@ $(document).ready(function () {
 
     // ============= USABILITY IMPROVEMENTS =============
 
-    $('#togglePassword').click(function () {
-        const field = $('#password');
-        const icon = $(this).find('i');
-        if (field.attr('type') === 'password') {
-            field.attr('type', 'text');
-            icon.removeClass('fa-eye').addClass('fa-eye-slash');
-        } else {
-            field.attr('type', 'password');
-            icon.removeClass('fa-eye-slash').addClass('fa-eye');
-        }
-    });
-
-    $('#toggleConfirmPassword').click(function () {
-        const field = $('#confirm_password');
-        const icon = $(this).find('i');
-        if (field.attr('type') === 'password') {
-            field.attr('type', 'text');
-            icon.removeClass('fa-eye').addClass('fa-eye-slash');
-        } else {
-            field.attr('type', 'password');
-            icon.removeClass('fa-eye-slash').addClass('fa-eye');
-        }
-    });
-
     // Update profile preview when fields change
     $('#name, #first_surname, #second_surname').on('input', function () {
         const name = $('#name').val() || '';

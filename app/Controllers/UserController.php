@@ -40,7 +40,8 @@ class UserController extends Controller
             'users/index',
             compact('users', 'currentUserId'),
             ['datatables', 'datatables-export'],
-            ['users/index-users']
+            ['users/index-users'],
+            ['users/users']
         );
     }
 
@@ -53,7 +54,8 @@ class UserController extends Controller
             'users/create',
             compact('allPermissions', 'activeRoles'),
             ['select2', 'validate'],
-            ['users/create-user']
+            ['users/create-user'],
+            ['users/users']
         );
     }
 
@@ -67,7 +69,8 @@ class UserController extends Controller
             'users/show',
             compact('user', 'userPermissions', 'isAdminUser'),
             [],
-            ['users/show-user']
+            ['users/show-user'],
+            ['users/users']
         );
     }
 
@@ -83,7 +86,8 @@ class UserController extends Controller
             'users/update',
             compact('user', 'allPermissions', 'assignedPermissions', 'activeRoles', 'currentRoleId'),
             ['select2', 'validate'],
-            ['users/update-user']
+            ['users/update-user'],
+            ['users/users']
         );
     }
 
@@ -104,7 +108,8 @@ class UserController extends Controller
             'users/profile',
             compact('user', 'imageSrc'),
             [],
-            ['users/profile-user']
+            ['users/profile-user'],
+            ['users/users']
         );
     }
 

@@ -232,8 +232,8 @@
                                             <input type="password" class="form-control" id="password" name="password"
                                                 placeholder="Leave blank to keep current" autocomplete="new-password" minlength="8">
                                             <div class="input-group-append">
-                                                <button class="btn btn-default" type="button" id="togglePassword">
-                                                    <i class="fas fa-eye"></i>
+                                                <button class="btn btn-default" type="button" data-password-toggle="#password" aria-pressed="false" aria-label="Show password">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -249,8 +249,8 @@
                                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                                 placeholder="Confirm new password" autocomplete="new-password">
                                             <div class="input-group-append">
-                                                <button class="btn btn-default" type="button" id="toggleConfirmPassword">
-                                                    <i class="fas fa-eye"></i>
+                                                <button class="btn btn-default" type="button" data-password-toggle="#confirm_password" aria-pressed="false" aria-label="Show password">
+                                                    <i class="fas fa-eye-slash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -290,15 +290,15 @@
                                     <label>Current Image:</label><br>
                                     <?php if (isset($user['image']) && !empty($user['image'])): ?>
                                         <img src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>"
-                                            alt="Current image" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                            alt="Current image" class="img-thumbnail user-avatar-preview">
                                     <?php else: ?>
                                         <img src="<?= URL ?>uploads/users/user_default.jpg"
-                                            alt="Default image" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                            alt="Default image" class="img-thumbnail user-avatar-preview">
                                     <?php endif; ?>
 
-                                    <div id="preview-container" style="display: none; margin-top: 10px;">
+                                    <div id="preview-container" class="d-none mt-2">
                                         <label>New Image Preview:</label><br>
-                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail user-avatar-preview">
                                     </div>
                                 </div>
                             </div>
@@ -524,9 +524,9 @@
                     <div class="card-body text-center">
                         <div class="profile-preview">
                             <?php if (isset($user['image']) && !empty($user['image'])): ?>
-                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>" class="img-circle img-thumbnail user-avatar-circle-lg">
                             <?php else: ?>
-                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail user-avatar-circle-lg">
                             <?php endif; ?>
                             <h5 id="profile-preview-name" class="mt-3"><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname'] . ' ' . $user['second_surname']); ?></h5>
                             <p id="profile-preview-role" class="text-muted"><?= htmlspecialchars($user['role_name'] ?? ''); ?></p>
