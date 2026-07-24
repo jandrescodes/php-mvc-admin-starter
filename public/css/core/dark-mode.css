@@ -160,6 +160,18 @@ html.dark-mode .form-control:-webkit-autofill:focus {
     transition: background-color 9999s ease-in-out 0s;
 }
 
+/* ─── Bootstrap light-surface utilities ───────────────────────────────────
+   .bg-light / .thead-light default to a light-gray AdminLTE tone that never
+   inverts on its own — used for read-only fields, info boxes, plain table
+   headers, and modal callouts (dashboard, users, audit-log). */
+html.dark-mode .bg-light,
+html.dark-mode thead.thead-light,
+html.dark-mode thead.thead-light th {
+    background-color: var(--dm-bg-alt) !important;
+    color: var(--dm-text) !important;
+    border-color: var(--dm-border) !important;
+}
+
 /* ─── DataTables ───────────────────────────────────────────────────────── */
 html.dark-mode .dataTables_wrapper .dataTables_length label,
 html.dark-mode .dataTables_wrapper .dataTables_filter label,
