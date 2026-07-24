@@ -11,6 +11,8 @@
  */
 
 $(document).ready(function () {
+    const permissionId = $('#tablePermissionDetail').data('permission-id');
+
     const config = createTableConfig('Users', [0, 1, 2, 3], {
         "pageLength": 10,
         "language": {

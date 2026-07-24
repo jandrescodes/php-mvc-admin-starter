@@ -26,7 +26,8 @@ class PermissionController extends Controller
             'permissions/index',
             compact('permissions', 'statistics'),
             ['datatables', 'datatables-export', 'validate'],
-            ['permissions/modal-permission', 'permissions/index-permissions']
+            ['permissions/modal-permission', 'permissions/index-permissions'],
+            ['permissions/permissions']
         );
     }
 
@@ -43,7 +44,8 @@ class PermissionController extends Controller
             'permissions/detail',
             compact('permission', 'users', 'usersWithoutPerm', 'isInactive', 'permissionId'),
             ['datatables', 'select2', 'validate'],
-            ['permissions/modal-permission', 'permissions/detail-permission']
+            ['permissions/modal-permission', 'permissions/detail-permission'],
+            ['permissions/permissions']
         );
     }
 
