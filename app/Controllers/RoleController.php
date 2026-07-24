@@ -40,7 +40,8 @@ class RoleController extends Controller
             'roles/index',
             compact('roles', 'statistics'),
             ['datatables', 'datatables-export', 'validate'],
-            ['roles/modal-role', 'roles/index-roles']
+            ['roles/modal-role', 'roles/index-roles'],
+            ['roles/roles']
         );
     }
 

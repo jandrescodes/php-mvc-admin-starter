@@ -7,7 +7,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
                     <li class="breadcrumb-item active">Roles</li>
                 </ol>
             </div>
@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-user-tag"></i></span>
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-user-tag" aria-hidden="true"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Total Roles</span>
                         <span class="info-box-number"><?= $statistics['total']; ?></span>
@@ -31,7 +31,7 @@
             </div>
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-check-circle"></i></span>
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-check-circle" aria-hidden="true"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Active</span>
                         <span class="info-box-number"><?= $statistics['active']; ?></span>
@@ -40,7 +40,7 @@
             </div>
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-times-circle"></i></span>
+                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-times-circle" aria-hidden="true"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Inactive</span>
                         <span class="info-box-number"><?= $statistics['inactive']; ?></span>
@@ -57,10 +57,10 @@
                             <h3 class="card-title mb-2 mb-sm-0">System Roles</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-primary btn-sm me-2" id="btnNewRole">
-                                    <i class="fas fa-plus"></i> New Role
+                                    <i class="fas fa-plus" aria-hidden="true"></i> New Role
                                 </button>
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
+                                    <i class="fas fa-minus" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -100,21 +100,21 @@
                                             <div class="btn-group">
                                                 <a href="<?= URL ?>roles/<?= $role['id']; ?>" class="btn btn-info btn-sm"
                                                     data-toggle="tooltip" title="View permissions">
-                                                    <i class="fas fa-key"></i>
+                                                    <i class="fas fa-key" aria-hidden="true"></i>
                                                 </a>
                                                 <button type="button" class="btn btn-warning btn-sm btn-edit"
                                                     data-id="<?= $role['id']; ?>"
                                                     data-name="<?= htmlspecialchars($role['name']); ?>"
                                                     data-description="<?= htmlspecialchars($role['description'] ?? ''); ?>"
                                                     data-toggle="tooltip" title="Edit">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </button>
                                                 <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
                                                     data-id="<?= $role['id']; ?>"
                                                     data-current-status="<?= $role['status']; ?>"
                                                     data-users="<?= $totalUsers; ?>"
                                                     data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
-                                                    <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
+                                                    <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </td>

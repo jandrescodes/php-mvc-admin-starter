@@ -26,10 +26,10 @@
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancel
+                        <i class="fas fa-times" aria-hidden="true"></i> Cancel
                     </button>
                     <button type="submit" class="btn btn-primary" id="btnSaveRole">
-                        <i class="fas fa-save"></i> Save
+                        <i class="fas fa-save" aria-hidden="true"></i> Save
                     </button>
                 </div>
             </form>
