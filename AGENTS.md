@@ -38,6 +38,8 @@ vendor/bin/phpunit --testsuite=Integration  # requires .env.testing + test DB
 - **Remember-me:** `clearRememberToken()` must be called whenever a password changes (user or admin) — revokes all active sessions.
 - **Standalone pages** (`views/auth/*.php`, `views/errors/*.php`) don't use `footer.php`. Views hold only page-specific markup; controllers call `$this->renderStandalone($view, $data, $title, $module_scripts)` (auth) or `require layouts/error.php` after setting `$code`/`$tone`/`$heading`/`$message` (errors) — the shared layout owns SweetAlert2, validation, and dark-mode assets. Never inline a full `<html>` document in a view.
 - **Password toggle:** use `<button data-password-toggle="#fieldId" aria-pressed="false" aria-label="Show password">` — one delegated handler in `public/js/core/common-utils.js` handles all of them. Don't re-implement per page.
+- **No inline event-handler attributes:** no `onclick=`/`onchange=` in view markup, same rule as inline `<script>`. Use a `data-*` attribute + a delegated `$(document).on('click', '.your-class', ...)` handler in the module's JS file.
+- **`.bg-light`/`.thead-light` need the shared dark-mode override:** these Bootstrap classes don't invert under `html.dark-mode` on their own — already patched once in `public/css/core/dark-mode.css`. Extend that shared block for any other Bootstrap "light" utility (`.table-light`, etc.); don't patch per-module CSS.
 
 ## Testing quirks
 

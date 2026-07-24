@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.16.0`
+**Current release tag:** `3.16.1`
 
 ## No Build Process
 
@@ -230,7 +230,7 @@ AuditLogger::log([
 
 Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (DataTables setup, jQuery Validate config, SweetAlert2 wrappers) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
 
-**Loading order:** `footer.php` loads Bootstrap and AdminLTE, then conditional plugins (`$plugins`), then `public/js/core/ui-components.js` (auto-initializes Select2 and tooltips via `ComponentUtils.initAll()`), then `public/js/core/sweetalert-utils.js` (exposes `ToastUtils` and `AlertUtils` globally), then `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available.
+**Loading order:** `footer.php` loads Bootstrap and AdminLTE, then conditional plugins (`$plugins`), then `public/js/core/ui-components.js` (auto-initializes Select2 and tooltips via `ComponentUtils.initAll()`), then `public/js/core/sweetalert-utils.js` (exposes `ToastUtils` and `AlertUtils` globally), then `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available. The same ban applies to inline event-handler attributes (`onclick=`, `onchange=`, etc.) on markup — wire a delegated `$(document).on('click', '.your-class', ...)` handler in the module's JS file instead, the same way `.btn-detail`/`.btn-date-picker` are handled in `audit-log/index-audit.js`.
 
 `public/css/core/ui-components.css` is loaded globally in `header.php` and requires no per-page declaration.
 
@@ -249,6 +249,8 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 **Password show/hide toggle:** never re-implement this per page. Add a `<button type="button" data-password-toggle="#fieldId" aria-pressed="false" aria-label="Show password">` with an `<i class="fas fa-eye-slash">` icon (hidden-state icon; the shared handler swaps to `fa-eye` + `aria-pressed="true"` + `aria-label="Hide password"` on click). The single delegated handler lives in `public/js/core/common-utils.js` (`[data-password-toggle]` click listener) — loaded on both admin pages (via `footer.php`) and auth pages (via `layouts/auth.php`), so it works anywhere without extra wiring.
 
 **Dark mode:** Theme preference is stored in `localStorage` (key `'theme'`, values `'light'` | `'dark'`); falls back to `prefers-color-scheme` on first visit. The anti-FOUC IIFE lives once in `views/layouts/header.php` (admin), once in `views/layouts/auth.php` (auth standalone), and once in `views/layouts/error.php` (403/404/500) — each applies `html.dark-mode` before any CSS loads for that layout. Toggle JS lives in `public/js/modules/profile/theme-toggle.js` (loaded globally from `footer.php` and from `layouts/auth.php`); it syncs `aria-pressed`/`aria-label` on the toggle button and skips its spin animation under `prefers-reduced-motion`. CSS overrides are split into `public/css/core/dark-mode.css` (global admin panel — also the source of the shared `--dm-*` semantic tokens: `--dm-bg`, `--dm-text`, `--dm-primary`, `--dm-danger`, `--dm-warning`, etc.), `public/css/modules/login/login-dark.css` (auth pages), and `public/css/modules/errors/errors-dark.css` (error pages). Module-specific light-mode tokens (e.g. `--login-*`, `--error-*`) are declared in each module's own light CSS file (`login.css`, `errors.css`) and reused by the matching `-dark.css` file. No DB column, no AJAX endpoint, no `AuditLogger` call — theme changes are not auditable business actions.
+
+**Bootstrap light-surface utility classes don't invert on their own** — `.bg-light` and `.thead-light` render at their default light-gray value even under `html.dark-mode`, since they're plain Bootstrap classes with no `--dm-*` binding. `public/css/core/dark-mode.css` has a standing override (`html.dark-mode .bg-light, html.dark-mode thead.thead-light`) that maps both to `--dm-bg-alt`/`--dm-text`/`--dm-border`. If a new view reaches for `.bg-light`/`.thead-light`/similar Bootstrap "light" utility, it's already covered — don't add a per-module override. If a *different* Bootstrap light utility shows up (e.g. `.table-light`, `.list-group-item-light`), extend that same shared block rather than patching the module's own CSS file.
 
 **Flash messages without JS:** `views/layouts/messages.php` degrades gracefully if `ToastUtils`/`AlertUtils` (SweetAlert2) fail to load or JS is disabled — a `<noscript>` block renders the flash message as a plain Bootstrap `alert-*` div, and the inline script itself falls back to injecting the same plain alert if `typeof ToastUtils === 'undefined'` before calling it. Don't remove either fallback when touching this file.
 

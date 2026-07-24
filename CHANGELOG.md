@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.1] - 2026-07-24
+
+UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissions`, `roles`, and `audit-log`, plus an app-wide dark-mode verification in-browser.
+
+### Added
+
+- **`public/css/modules/{users,permissions,roles,audit-log}/*.css`** — each of these four modules previously had no dedicated CSS file. All four now define `≥44×44px` touch targets for their icon-only table-action buttons (`.btn-sm` inside `.btn-group`/`.btn-detail`) on mobile (`≤576px`), wired through the 5th `$module_styles` parameter of `Controller::render()`, which none of the four controllers were passing before.
+- **`public/css/modules/dashboard/dashboard.css`** — extracted the inline `style="height:260px; position:relative;"` used on the three Chart.js canvases into a `.chart-container` class.
+- **Dark-mode override for `.bg-light` / `thead.thead-light`** (`public/css/core/dark-mode.css`) — these Bootstrap utility classes previously stayed light-gray under `html.dark-mode`, producing a light rectangle inside an otherwise dark page. Now resolve to `--dm-bg-alt`/`--dm-text`/`--dm-border`. Covers all four existing usages: the dashboard's "Recently Registered Users" table header, the read-only fields in `users/update.php`, the info-box in `users/show.php`, and the Description block in `audit-log/_modal-detail.php`.
+
+### Changed
+
+- **Dashboard** — the "Show access metrics" toggle changed from an `<a href="#">` to a `<button>` with `aria-expanded`/`aria-controls`. Table row hover no longer uses a `border-left` accent (banned side-stripe pattern); replaced with a background tint. All chart/UI animations now respect `prefers-reduced-motion`. Chart.js colors (`index-dashboard.js`) are read from `--dm-success/-danger/-warning/-primary` in dark mode via a new `getChartColors()` helper instead of hardcoded hex, mirroring the existing `applyChartTheme()` pattern for axis/legend text.
+- **Users** — `create.php`, `update.php`, and `profile.php` now use the shared `[data-password-toggle]` handler (`common-utils.js`) for every password field instead of hand-rolled `#togglePassword`-style JS; `profile.php` previously had no show/hide toggle at all on its three password fields. Removed the now-redundant toggle JS from `create-user.js`/`update-user.js`.
+- **Permissions** — `detail.php`'s inline `<script>` (`const permissionId = <?= $permissionId; ?>;`) replaced with a `data-permission-id` attribute on `#tablePermissionDetail`, read by `detail-permission.js` — no view in the project should have inline `<script>` per existing convention. `modalAssignUser` now has `aria-labelledby`, matching `modalPermission`.
+- **Roles** — the `fa-stack` avatar icon in `detail.php` now carries `aria-hidden` at the wrapping `<span>` instead of needing it duplicated on both inner `<i>` icons.
+- **Audit Log** — the Description block in `_modal-detail.php` no longer uses a `border-left border-info` side-stripe (banned pattern); replaced with `bg-light rounded p-2`. The date-range filter's calendar icon changed from an inline `onclick="...showPicker()"` on a non-interactive `<div>` (the only inline-`onclick` in the entire `views/` tree) to a `<button data-picker-target aria-label>` with a delegated click handler in `index-audit.js`.
+- **Accessibility (all five modules)** — `aria-hidden="true"` added to every decorative `<i class="fas ...">` icon that was missing it, including icons generated dynamically in JS (`index-audit.js`'s `renderDetailsTable()`). Icon-only action buttons without an accessible name (e.g. the audit-log "View detail" button) got an `aria-label`.
+
+### Fixed
+
+- **Dashboard dark mode** — `text-secondary` on the "access metrics" toggle measured ~2.6:1 against `--dm-bg` in dark mode (WCAG AA needs ≥4.5:1 for body text); changed to `--dm-text-muted` (~5.5:1).
+- **Users** — the password-strength guide on `create.php` said "6 characters" while the actual `minlength` validation was 8; corrected. `show.php` rendered a broken `<a href="https://wa.me/">` when a user had no phone number; now shows "Not registered" as plain text.
+- **Permissions/Roles/Audit Log** — none of the three controllers passed a 5th `$module_styles` argument to `render()`, so none had a dedicated CSS file to fix mobile touch targets; all three now do (see Added).
+
 ## [3.16.0] - 2026-07-23
 
 ### Added
@@ -854,6 +879,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.16.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.0...3.16.1
 [3.16.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.3...3.16.0
 [3.15.3]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.2...3.15.3
 [3.15.2]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.1...3.15.2
