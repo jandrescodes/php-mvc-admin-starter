@@ -55,7 +55,8 @@ class AuditLogController extends Controller
             'audit-log/index',
             compact('logs', 'modules', 'actions', 'actors', 'filters'),
             ['datatables', 'datatables-export', 'select2'],
-            ['audit-log/index-audit']
+            ['audit-log/index-audit'],
+            ['audit-log/audit-log']
         );
     }
 }

@@ -7,7 +7,7 @@
             <div class="modal-header bg-info py-2">
                 <div>
                     <h5 class="modal-title text-white mb-0" id="modalLogDetailLabel">
-                        <i class="fas fa-history mr-1"></i> Event Detail
+                        <i class="fas fa-history mr-1" aria-hidden="true"></i> Event Detail
                     </h5>
                     <small class="text-white-50" id="detailSubtitle"></small>
                 </div>
@@ -54,7 +54,7 @@
                 <!-- Description — hidden by JS when empty -->
                 <div id="descriptionSection" class="mb-3 d-none">
                     <p class="text-muted small font-weight-bold text-uppercase mb-1">Description</p>
-                    <div class="border-left border-info pl-3 py-1">
+                    <div class="bg-light rounded p-2">
                         <p id="detailDescription" class="mb-0"></p>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
 
             <div class="modal-footer py-2">
                 <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Close
+                    <i class="fas fa-times mr-1" aria-hidden="true"></i> Close
                 </button>
             </div>
 

@@ -33,6 +33,18 @@ $(document).ready(function () {
     table.buttons().container().appendTo('#tableAuditLog_wrapper .col-md-6:eq(0)');
 
     // -------------------------------------------------------------------------
+    // Date filter — calendar trigger button opens the native picker
+    // -------------------------------------------------------------------------
+
+    $(document).on('click', '.btn-date-picker', function () {
+        const targetId = $(this).data('picker-target');
+        const input = document.getElementById(targetId);
+        if (input && typeof input.showPicker === 'function') {
+            input.showPicker();
+        }
+    });
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
@@ -89,8 +101,8 @@ $(document).ready(function () {
                     .join(', ');
             } else if (typeof value === 'boolean') {
                 display = value
-                    ? '<span class="text-success"><i class="fas fa-check mr-1"></i>Yes</span>'
-                    : '<span class="text-muted"><i class="fas fa-times mr-1"></i>No</span>';
+                    ? '<span class="text-success"><i class="fas fa-check mr-1" aria-hidden="true"></i>Yes</span>'
+                    : '<span class="text-muted"><i class="fas fa-times mr-1" aria-hidden="true"></i>No</span>';
             } else {
                 display = $('<span>').text(String(value)).html(); // XSS-safe
             }

@@ -1,0 +1,13 @@
+/* AdminLTE's default .btn-sm is ~31px tall, below the 44px touch-target
+   minimum (WCAG 2.5.5/2.5.8). Same fix pattern used for #tableUsers in
+   users.css, #tablePermissions in permissions.css, and #tableRoles in
+   roles.css — scoped to mobile only. */
+@media (max-width: 576px) {
+    #tableAuditLog .btn-detail {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

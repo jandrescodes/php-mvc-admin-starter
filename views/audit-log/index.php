@@ -7,7 +7,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
                     <li class="breadcrumb-item active">Audit Log</li>
                 </ol>
             </div>
@@ -24,10 +24,10 @@
             <div class="col-12">
                 <div class="card card-outline card-secondary collapsed-card">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filters</h3>
+                        <h3 class="card-title"><i class="fas fa-filter mr-1" aria-hidden="true"></i> Filters</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-plus" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -89,10 +89,12 @@
                                     <div class="form-group mb-2">
                                         <label for="filterDateFrom">From</label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend"
-                                                style="cursor:pointer"
-                                                onclick="document.getElementById('filterDateFrom').showPicker()">
-                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            <div class="input-group-prepend">
+                                                <button type="button" class="input-group-text btn-date-picker"
+                                                    data-picker-target="filterDateFrom"
+                                                    aria-label="Open calendar for From date">
+                                                    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                                </button>
                                             </div>
                                             <input type="date" id="filterDateFrom" name="date_from"
                                                 class="form-control"
@@ -107,10 +109,12 @@
                                     <div class="form-group mb-2">
                                         <label for="filterDateTo">To</label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend"
-                                                style="cursor:pointer"
-                                                onclick="document.getElementById('filterDateTo').showPicker()">
-                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            <div class="input-group-prepend">
+                                                <button type="button" class="input-group-text btn-date-picker"
+                                                    data-picker-target="filterDateTo"
+                                                    aria-label="Open calendar for To date">
+                                                    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                                </button>
                                             </div>
                                             <input type="date" id="filterDateTo" name="date_to"
                                                 class="form-control"
@@ -126,10 +130,10 @@
                                 <div class="col-12">
                                     <div class="btn-group">
                                         <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-search mr-1"></i>Filter
+                                            <i class="fas fa-search mr-1" aria-hidden="true"></i>Filter
                                         </button>
                                         <a href="<?= URL ?>audit-log" class="btn btn-default">
-                                            <i class="fas fa-times mr-1"></i>Clear
+                                            <i class="fas fa-times mr-1" aria-hidden="true"></i>Clear
                                         </a>
                                     </div>
                                 </div>
@@ -147,12 +151,12 @@
                 <div class="card card-outline card-primary">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-history mr-1"></i> Activity Log
+                            <i class="fas fa-history mr-1" aria-hidden="true"></i> Activity Log
                             <span class="badge badge-secondary ml-2"><?= count($logs) ?> records</span>
                         </h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
+                                <i class="fas fa-minus" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -222,8 +226,9 @@
                                             <button type="button"
                                                 class="btn btn-info btn-sm btn-detail"
                                                 data-toggle="tooltip"
-                                                title="View detail">
-                                                <i class="fas fa-eye"></i>
+                                                title="View detail"
+                                                aria-label="View detail">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </td>
                                     </tr>
