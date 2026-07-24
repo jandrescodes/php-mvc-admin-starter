@@ -1,3 +1,10 @@
+/* ─── Chart container ─────────────────────────────────────────────────────── */
+
+.chart-container {
+    position: relative;
+    height: 260px;
+}
+
 /* ─── Access metrics row ──────────────────────────────────────────────────── */
 
 #rowAccessMetrics {
@@ -25,14 +32,37 @@
     align-items: center;
     gap: 6px;
     text-decoration: none;
-    transition: color 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease;
     user-select: none;
 }
 
 #btnToggleAccessMetrics:hover {
-    color: #6c757d !important;
     text-decoration: none;
     opacity: 0.8;
+}
+
+/* text-secondary (#6c757d) drops to ~2.6:1 on the dark content background;
+   dm-text-muted is the token already used project-wide for this contrast case. */
+.dark-mode #btnToggleAccessMetrics {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Touch target: same 44px minimum applied to [data-password-toggle] in login.css.
+   .small-box-footer defaults to ~27px (AdminLTE's 3px 0 padding) — only used
+   on this dashboard, so the fix is scoped here rather than in the shared lib. */
+@media (max-width: 576px) {
+    #btnToggleAccessMetrics {
+        min-height: 44px;
+        padding: 8px 0 !important;
+    }
+
+    .small-box-footer {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 0;
+    }
 }
 
 #arrowToggleAccessMetrics {
@@ -122,19 +152,39 @@
 
 /* ─── Table row subtle highlight ─────────────────────────────────────────── */
 
-/*
- * Adds a left-border accent on hover without touching Bootstrap's .table-hover.
- * Only applies inside the recent-users card to avoid side effects elsewhere.
- */
 .dashboard-recent tbody tr {
-    transition: border-left-color 200ms ease;
-    border-left: 3px solid transparent;
+    transition: background-color 200ms ease;
 }
 
 .dashboard-recent tbody tr:hover {
-    border-left-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.06);
 }
 
 .dark-mode .dashboard-recent tbody tr:hover {
-    border-left-color: #4dabf7;
+    background-color: rgba(77, 171, 247, 0.10);
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    #rowAccessMetrics,
+    #rowAccessMetrics.metrics-visible,
+    #btnToggleAccessMetrics,
+    #arrowToggleAccessMetrics,
+    .section.content .row:first-of-type > [class*="col"],
+    .dashboard-charts > [class*="col"],
+    .dashboard-charts .card,
+    .dashboard-recent,
+    .dashboard-recent tbody tr {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    #rowAccessMetrics {
+        transform: none;
+    }
+
+    .dashboard-charts .card:hover {
+        transform: none;
+    }
 }

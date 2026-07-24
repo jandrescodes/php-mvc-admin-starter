@@ -7,7 +7,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
                     <li class="breadcrumb-item active">Dashboard</li>
                 </ol>
             </div>
@@ -27,10 +27,10 @@
                         <h3><?= $userStats['total'] ?></h3>
                         <p>Total Users</p>
                     </div>
-                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <div class="icon"><i class="fas fa-users" aria-hidden="true"></i></div>
                     <?php if ($canManageUsers): ?>
                         <a href="<?= URL ?>users" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right"></i>
+                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
                         <span class="small-box-footer">&nbsp;</span>
@@ -44,10 +44,10 @@
                         <h3><?= $permStats['total'] ?></h3>
                         <p>Total Permissions</p>
                     </div>
-                    <div class="icon"><i class="fas fa-key"></i></div>
+                    <div class="icon"><i class="fas fa-key" aria-hidden="true"></i></div>
                     <?php if ($canManagePermissions): ?>
                         <a href="<?= URL ?>permissions" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right"></i>
+                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
                         <span class="small-box-footer">&nbsp;</span>
@@ -61,10 +61,10 @@
                         <h3><?= $roleStats['total'] ?></h3>
                         <p>Total Roles</p>
                     </div>
-                    <div class="icon"><i class="fas fa-user-tag"></i></div>
+                    <div class="icon"><i class="fas fa-user-tag" aria-hidden="true"></i></div>
                     <?php if ($canManageRoles): ?>
                         <a href="<?= URL ?>roles" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right"></i>
+                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
                         <span class="small-box-footer"><?= $roleStats['active'] ?> active</span>
@@ -79,9 +79,9 @@
                             <h3><?= $auditToday ?></h3>
                             <p>Events Today</p>
                         </div>
-                        <div class="icon"><i class="fas fa-history"></i></div>
+                        <div class="icon"><i class="fas fa-history" aria-hidden="true"></i></div>
                         <a href="<?= URL ?>audit-log" class="small-box-footer">
-                            View Log <i class="fas fa-arrow-circle-right"></i>
+                            View Log <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -93,11 +93,12 @@
         <?php if ($canManageUsers): ?>
             <div class="row mb-3">
                 <div class="col-12">
-                    <a href="#" id="btnToggleAccessMetrics" class="text-secondary small">
-                        <i class="fas fa-sliders-h" id="iconToggleAccessMetrics"></i>
+                    <button type="button" id="btnToggleAccessMetrics" class="btn btn-link text-secondary small p-0"
+                        aria-expanded="false" aria-controls="rowAccessMetrics">
+                        <i class="fas fa-sliders-h" aria-hidden="true" id="iconToggleAccessMetrics"></i>
                         <span id="labelToggleAccessMetrics">Show access metrics</span>
-                        <i class="fas fa-chevron-down" id="arrowToggleAccessMetrics"></i>
-                    </a>
+                        <i class="fas fa-chevron-down" aria-hidden="true" id="arrowToggleAccessMetrics"></i>
+                    </button>
                 </div>
             </div>
 
@@ -110,9 +111,9 @@
                             <h3><?= (int) $pendingInvitations ?></h3>
                             <p>Pending Invitations</p>
                         </div>
-                        <div class="icon"><i class="fas fa-envelope-open-text"></i></div>
+                        <div class="icon"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></div>
                         <a href="<?= URL ?>users" class="small-box-footer">
-                            View Users <i class="fas fa-arrow-circle-right"></i>
+                            View Users <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -124,7 +125,7 @@
                             <h3><?= (int) $resetsThisWeek ?></h3>
                             <p>Password Resets This Week</p>
                         </div>
-                        <div class="icon"><i class="fas fa-lock-open"></i></div>
+                        <div class="icon"><i class="fas fa-lock-open" aria-hidden="true"></i></div>
                         <span class="small-box-footer">&nbsp;</span>
                     </div>
                 </div>
@@ -138,10 +139,10 @@
             <div class="col-xl-4 col-lg-6">
                 <div class="card card-outline card-primary">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-circle-notch mr-1"></i> Users by Status</h3>
+                        <h3 class="card-title"><i class="fas fa-circle-notch mr-1" aria-hidden="true"></i> Users by Status</h3>
                     </div>
                     <div class="card-body">
-                        <div style="height:260px; position:relative;">
+                        <div class="chart-container">
                             <canvas id="chartUserStatus"
                                 data-active="<?= (int) $chartData['usersByStatus']['active'] ?>"
                                 data-inactive="<?= (int) $chartData['usersByStatus']['inactive'] ?>"
@@ -159,10 +160,10 @@
             <div class="col-xl-4 col-lg-6">
                 <div class="card card-outline card-info">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-key mr-1"></i> Top Permissions</h3>
+                        <h3 class="card-title"><i class="fas fa-key mr-1" aria-hidden="true"></i> Top Permissions</h3>
                     </div>
                     <div class="card-body">
-                        <div style="height:260px; position:relative;">
+                        <div class="chart-container">
                             <canvas id="chartTopPermissions"
                                 data-chart="<?= htmlspecialchars(json_encode($chartData['topPerms'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
                             </canvas>
@@ -178,10 +179,10 @@
             <div class="col-xl-4 col-lg-12">
                 <div class="card card-outline card-success">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Registrations (6 months)</h3>
+                        <h3 class="card-title"><i class="fas fa-chart-line mr-1" aria-hidden="true"></i> Registrations (6 months)</h3>
                     </div>
                     <div class="card-body">
-                        <div style="height:260px; position:relative;">
+                        <div class="chart-container">
                             <canvas id="chartUsersByMonth"
                                 data-chart="<?= htmlspecialchars(json_encode($chartData['usersByMonth'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
                             </canvas>
@@ -201,12 +202,12 @@
                 <div class="card card-outline card-primary">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-clock mr-1"></i> Recently Registered Users
+                            <i class="fas fa-clock mr-1" aria-hidden="true"></i> Recently Registered Users
                         </h3>
                         <?php if ($canManageUsers): ?>
                             <div class="card-tools">
                                 <a href="<?= URL ?>users" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-users mr-1"></i> View All
+                                    <i class="fas fa-users mr-1" aria-hidden="true"></i> View All
                                 </a>
                             </div>
                         <?php endif; ?>

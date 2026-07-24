@@ -35,17 +35,50 @@ function isDarkMode() {
  * Must be called before rendering any chart.
  */
 function applyChartTheme() {
-    const dark      = isDarkMode();
+    const dark = isDarkMode();
     const textColor = dark ? '#e9ecef' : '#666';
     const gridColor = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
 
     // Chart.js v2 global defaults
-    Chart.defaults.global.defaultFontColor                          = textColor;
-    Chart.defaults.global.legend.labels.fontColor                   = textColor;
-    Chart.defaults.scale.gridLines                                  = Chart.defaults.scale.gridLines || {};
-    Chart.defaults.scale.gridLines.color                            = gridColor;
-    Chart.defaults.scale.ticks                                      = Chart.defaults.scale.ticks || {};
-    Chart.defaults.scale.ticks.fontColor                            = textColor;
+    Chart.defaults.global.defaultFontColor = textColor;
+    Chart.defaults.global.legend.labels.fontColor = textColor;
+    Chart.defaults.scale.gridLines = Chart.defaults.scale.gridLines || {};
+    Chart.defaults.scale.gridLines.color = gridColor;
+    Chart.defaults.scale.ticks = Chart.defaults.scale.ticks || {};
+    Chart.defaults.scale.ticks.fontColor = textColor;
+}
+
+/**
+ * Reads a --dm-* semantic token from html.dark-mode (public/css/core/dark-mode.css).
+ * @param {string} name  token name without the leading '--'
+ * @returns {string}      resolved color value
+ */
+function dmToken(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim();
+}
+
+/**
+ * Semantic chart colors sourced from the active theme.
+ * Dark mode reads the --dm-* tokens from dark-mode.css; light mode uses
+ * the equivalent Bootstrap 4 palette already relied on across the admin UI.
+ * @returns {{success:string, danger:string, warning:string, primary:string}}
+ */
+function getChartColors() {
+    if (isDarkMode()) {
+        return {
+            success: dmToken('dm-success'),
+            danger:  dmToken('dm-danger'),
+            warning: dmToken('dm-warning'),
+            primary: dmToken('dm-primary'),
+        };
+    }
+
+    return {
+        success: '#28a745',
+        danger:  '#dc3545',
+        warning: '#ffc107',
+        primary: '#007bff',
+    };
 }
 
 /**
@@ -87,20 +120,22 @@ function watchThemeChanges() {
  * Reads data-active, data-inactive and data-pending from the canvas element.
  */
 function initUserStatusChart() {
-    const canvas   = document.getElementById('chartUserStatus');
+    const canvas = document.getElementById('chartUserStatus');
     const fallback = document.getElementById('chartUserStatusFallback');
 
     if (!canvas || !fallback) return;
 
-    const active   = parseInt(canvas.dataset.active,   10) || 0;
+    const active = parseInt(canvas.dataset.active, 10) || 0;
     const inactive = parseInt(canvas.dataset.inactive, 10) || 0;
-    const pending  = parseInt(canvas.dataset.pending,  10) || 0;
+    const pending = parseInt(canvas.dataset.pending, 10) || 0;
 
     if (active === 0 && inactive === 0 && pending === 0) {
-        canvas.style.display   = 'none';
+        canvas.style.display = 'none';
         fallback.style.display = 'block';
         return;
     }
+
+    const colors = getChartColors();
 
     _charts.userStatus = new Chart(canvas, {
         type: 'doughnut',
@@ -108,7 +143,7 @@ function initUserStatusChart() {
             labels: ['Active', 'Inactive', 'Pending'],
             datasets: [{
                 data: [active, inactive, pending],
-                backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                backgroundColor: [colors.success, colors.danger, colors.warning],
                 borderWidth: 2,
             }],
         },
@@ -128,7 +163,7 @@ function initUserStatusChart() {
  * Reads data-chart (JSON array) from the canvas element.
  */
 function initTopPermissionsChart() {
-    const canvas   = document.getElementById('chartTopPermissions');
+    const canvas = document.getElementById('chartTopPermissions');
     const fallback = document.getElementById('chartTopPermissionsFallback');
 
     if (!canvas || !fallback) return;
@@ -136,10 +171,12 @@ function initTopPermissionsChart() {
     const dataset = JSON.parse(canvas.dataset.chart || '[]');
 
     if (!dataset.length) {
-        canvas.style.display   = 'none';
+        canvas.style.display = 'none';
         fallback.style.display = 'block';
         return;
     }
+
+    const primary = getChartColors().primary;
 
     _charts.topPermissions = new Chart(canvas, {
         type: 'bar',
@@ -148,8 +185,8 @@ function initTopPermissionsChart() {
             datasets: [{
                 label: 'Assigned users',
                 data: dataset.map(p => p.total_users),
-                backgroundColor: 'rgba(0, 123, 255, 0.7)',
-                borderColor:     'rgba(0, 123, 255, 1)',
+                backgroundColor: hexToRgba(primary, 0.7),
+                borderColor: hexToRgba(primary, 1),
                 borderWidth: 1,
             }],
         },
@@ -175,7 +212,7 @@ function initTopPermissionsChart() {
  * Reads data-chart (JSON array) from the canvas element.
  */
 function initUsersByMonthChart() {
-    const canvas   = document.getElementById('chartUsersByMonth');
+    const canvas = document.getElementById('chartUsersByMonth');
     const fallback = document.getElementById('chartUsersByMonthFallback');
 
     if (!canvas || !fallback) return;
@@ -184,10 +221,12 @@ function initUsersByMonthChart() {
     const hasData = dataset.some(e => e.total > 0);
 
     if (!hasData) {
-        canvas.style.display   = 'none';
+        canvas.style.display = 'none';
         fallback.style.display = 'block';
         return;
     }
+
+    const success = getChartColors().success;
 
     _charts.usersByMonth = new Chart(canvas, {
         type: 'line',
@@ -196,8 +235,8 @@ function initUsersByMonthChart() {
             datasets: [{
                 label: 'Registered users',
                 data: dataset.map(e => e.total),
-                borderColor:     'rgba(40, 167, 69, 1)',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                borderColor: hexToRgba(success, 1),
+                backgroundColor: hexToRgba(success, 0.1),
                 tension: 0.3,
                 fill: true,
                 pointRadius: 4,
@@ -225,8 +264,8 @@ function initUsersByMonthChart() {
  * Persists preference in localStorage under 'dashboard_access_metrics_visible'.
  */
 function initAccessMetricsToggle() {
-    const row   = document.getElementById('rowAccessMetrics');
-    const btn   = document.getElementById('btnToggleAccessMetrics');
+    const row = document.getElementById('rowAccessMetrics');
+    const btn = document.getElementById('btnToggleAccessMetrics');
     const label = document.getElementById('labelToggleAccessMetrics');
     const arrow = document.getElementById('arrowToggleAccessMetrics');
 
@@ -237,6 +276,7 @@ function initAccessMetricsToggle() {
     function applyState(visible, animate) {
         label.textContent = visible ? 'Hide access metrics' : 'Show access metrics';
         arrow.classList.toggle('rotated', visible);
+        btn.setAttribute('aria-expanded', visible ? 'true' : 'false');
 
         if (visible) {
             row.classList.add('metrics-visible');
@@ -257,12 +297,25 @@ function initAccessMetricsToggle() {
 
     applyState(localStorage.getItem(LS_KEY) === '1', false);
 
-    btn.addEventListener('click', function (e) {
-        e.preventDefault();
+    btn.addEventListener('click', function () {
         const nowVisible = !row.classList.contains('metrics-visible');
         localStorage.setItem(LS_KEY, nowVisible ? '1' : '0');
         applyState(nowVisible, true);
     });
+}
+
+/**
+ * Converts a '#rrggbb' color to an 'rgba(r, g, b, alpha)' string.
+ * @param {string} hex    e.g. '#28a745'
+ * @param {number} alpha  0-1
+ * @returns {string}
+ */
+function hexToRgba(hex, alpha) {
+    const value = hex.replace('#', '');
+    const r = parseInt(value.substring(0, 2), 16);
+    const g = parseInt(value.substring(2, 4), 16);
+    const b = parseInt(value.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 /**
