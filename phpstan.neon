@@ -1,0 +1,15 @@
+parameters:
+    level: 5
+    paths:
+        - app
+        - routes
+    excludePaths:
+        - app/Config/config.php
+    bootstrapFiles:
+        - app/Core/helpers.php
+    scanFiles:
+        - phpstan-constants.php
+    dynamicConstantNames:
+        - URL
+        - APP_VERSION
+        - APP_BASE_PATH

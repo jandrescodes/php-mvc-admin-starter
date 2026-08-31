@@ -38,3 +38,6 @@ opencode.json.example
 /.phpunit.result.cache
 /tests/coverage/
 /.env.testing
+
+# PHPStan
+/.phpstan.cache/
