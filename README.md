@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.16.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.17.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -24,26 +24,28 @@ A PHP starter template with authentication, user management, and role-based perm
 ## Table of Contents
 
 - [PHP MVC Admin Starter](#php-mvc-admin-starter)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Screenshots](#screenshots)
-    - [Login](#login)
-    - [Dashboard](#dashboard)
-    - [User Management](#user-management)
-    - [Role \& Permissions](#role--permissions)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-  - [Configuration `.env`](#configuration-env)
-  - [Adding a New Module](#adding-a-new-module)
-  - [Architecture](#architecture)
-  - [Testing](#testing)
-  - [Tech Stack](#tech-stack)
-  - [Security](#security)
-  - [Developer Docs](#developer-docs)
-  - [AI Integration](#ai-integration)
-  - [Contributing](#contributing)
-  - [Changelog](#changelog)
-  - [License](#license)
+    - [Table of Contents](#table-of-contents)
+    - [Features](#features)
+    - [Screenshots](#screenshots)
+        - [Login](#login)
+        - [Dashboard](#dashboard)
+        - [User Management](#user-management)
+        - [Role \& Permissions](#role--permissions)
+    - [Requirements](#requirements)
+    - [Installation](#installation)
+    - [Configuration `.env`](#configuration-env)
+    - [Adding a New Module](#adding-a-new-module)
+    - [Architecture](#architecture)
+    - [Testing](#testing)
+    - [Code Quality](#code-quality)
+    - [Continuous Integration](#continuous-integration)
+    - [Tech Stack](#tech-stack)
+    - [Security](#security)
+    - [Developer Docs](#developer-docs)
+    - [AI Integration](#ai-integration)
+    - [Contributing](#contributing)
+    - [Changelog](#changelog)
+    - [License](#license)
 
 ## Features
 
@@ -140,7 +142,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.16.1
+APP_VERSION=3.17.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -171,11 +173,11 @@ This project is designed to be extended. To add a module (e.g. `Products`):
 2. **Model** — Create `app/Models/Product.php` with namespace `App\Models`, extending `App\Core\Model`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Routes** — Add entries to `routes/web.php`:
-   ```php
-   ['method' => 'GET',  'path' => '/products',        'controller' => 'Product@index',  'middleware' => ['auth', 'perm:products']],
-   ['method' => 'POST', 'path' => '/products',        'controller' => 'Product@store',  'middleware' => ['auth', 'perm:products']],
-   ['method' => 'GET',  'path' => '/products/create', 'controller' => 'Product@create', 'middleware' => ['auth', 'perm:products']],
-   ```
+    ```php
+    ['method' => 'GET',  'path' => '/products',        'controller' => 'Product@index',  'middleware' => ['auth', 'perm:products']],
+    ['method' => 'POST', 'path' => '/products',        'controller' => 'Product@store',  'middleware' => ['auth', 'perm:products']],
+    ['method' => 'GET',  'path' => '/products/create', 'controller' => 'Product@create', 'middleware' => ['auth', 'perm:products']],
+    ```
 5. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
 6. **Permission** — Insert the permission into the `permissions` table in the database
 7. **Menu** — Add the link in `views/layouts/sidebar.php` with a permission check:
@@ -229,7 +231,23 @@ cp .env.testing.example .env.testing
 # Edit .env.testing with your local DB credentials
 ```
 
-Tests run automatically on every push and PR via GitHub Actions (see `.github/workflows/tests.yml`).
+## Code Quality
+
+```bash
+composer lint      # Pint — PSR-12 style check (no changes)
+composer lint:fix  # Pint — apply style fixes
+composer stan      # PHPStan — static analysis (level 5)
+composer check     # lint + stan + full test suite (run before every commit)
+```
+
+## Continuous Integration
+
+`.github/workflows/tests.yml` runs three jobs — `quality` (Pint + PHPStan), `unit`, and `integration`
+(MySQL 8.0 service container, `.env.testing` generated at runtime — no secrets committed).
+
+Triggered on `pull_request` (any branch) and on `push` to `main` or tags. Docs- and static-asset-only
+changes are skipped via `paths-ignore`; superseded runs on the same ref are cancelled.
+[Dependabot](.github/dependabot.yml) opens weekly update PRs for Composer and GitHub Actions.
 
 ## Tech Stack
 
@@ -241,6 +259,7 @@ Tests run automatically on every push and PR via GitHub Actions (see `.github/wo
 | JavaScript   | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
 | Database     | MySQL / MariaDB                                               |
 | Testing      | PHPUnit 11 (unit + integration suites, GitHub Actions CI)     |
+| Quality      | PHPStan (level 5), Laravel Pint (PSR-12), Dependabot          |
 
 ## Security
 

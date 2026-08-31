@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.17.0] - 2026-08-31
+
+Developer tooling and CI efficiency pass. No runtime behaviour changes for end users.
+
+### Added
+
+- **PHPStan** (`phpstan/phpstan` `^2.2`, `require-dev`) at **level 5** — config in `phpstan.neon`, analyses `app/` and `routes/`, excludes `app/Config/config.php`. Runtime constants defined at bootstrap (`URL`, `APP_VERSION`, `APP_BASE_PATH`) are declared in `phpstan-constants.php` (loaded via `scanFiles`) and listed under `dynamicConstantNames` so PHPStan does not narrow them to literal values.
+- **Laravel Pint** (`laravel/pint` `^1.30`, `require-dev`) — `pint.json` with the `psr12` preset, excludes `views/` (HTML-heavy templates).
+- **`.editorconfig`** — UTF-8, LF, final newline, 4-space indent (2 for `yml`/`yaml`/`json`/`neon`).
+- **`.github/dependabot.yml`** — weekly update PRs for `composer` and `github-actions` (limit 5 each).
+- **Composer scripts** — `lint` (`pint --test`), `lint:fix` (`pint`), `stan` (`phpstan analyse`), and `check` (runs `lint` + `stan` + `test`).
+- **CI `quality` job** in `.github/workflows/tests.yml` — runs Pint (`--test`) and PHPStan on every triggered run, no DB required.
+
+### Docs
+
+- **`AGENTS.md` is now the single source of truth** for setup, architecture, and every coding convention (previously split and partly duplicated between `AGENTS.md` and `CLAUDE.md`). `CLAUDE.md` is reduced to an `@AGENTS.md` import plus Claude Code–specific notes (memory, skills, MCP). Deep-dive material stays in `docs/`. References in `PROMPTS.md`, `CONTRIBUTING.md`, and `.claude/skills/code-review/SKILL.md` updated accordingly.
+
+### Changed
+
+- **CI triggers** (`.github/workflows/tests.yml`) — `push` now only runs on `main` and tags; feature branches are covered by the `pull_request` event instead, removing the duplicate push+PR run. Added `paths-ignore` (docs, `public/css`/`js`/`img`, `LICENSE`, `.gitignore`) and a `concurrency` group that cancels superseded runs on the same ref.
+- **GitHub Actions** — `actions/checkout` bumped `v4` → `v5` (drops the Node 20 deprecation warning).
+- **Code style** — 22 files under `app/`, `tests/`, `routes/` reformatted to PSR-12 via Pint (whitespace, brace position, argument spacing, unused-import removal). No logic changes.
+- **`composer.json`** — `require-dev` and `psr-4` blocks reformatted by Composer on dependency add.
+
+### Fixed
+
+- **`app/Config/Connection.php`** — `catch (PDOException)` was placed after `catch (Exception)`, making it unreachable (`PDOException extends Exception`). Database connection failures reported the generic "Configuration error" message instead of the DB-specific one. Catch order corrected. _(Found by PHPStan.)_
+- **`app/Core/helpers.php`** — removed a dead `$value === null` branch in `env()` (`$_ENV[...] ?? $_SERVER[...] ?? getenv()` can never yield `null`). _(Found by PHPStan.)_
+
 ## [3.16.1] - 2026-07-24
 
 UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissions`, `roles`, and `audit-log`, plus an app-wide dark-mode verification in-browser.
@@ -133,26 +162,26 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **User invitation by email** — admin creates a user with status=pending; the system sends a 48 h invitation link; the user sets their own password via a standalone accept-invitation page; the account activates automatically on acceptance:
-  - `users.status` now has three values: `0` inactive, `1` active, `2` pending (new). `User::STATUS_PENDING` constant added.
-  - **`InvitationController`** — two public (no-auth) actions: `showAcceptForm()` validates the token and renders `views/auth/accept_invitation.php`; `acceptInvitation()` sets the password, activates the user, marks the token used, and logs `invitation_accepted`.
-  - **`MailService::sendInvitationEmail(string $email, string $token, string $inviterName): bool`** — invitation email via PHPMailer with a 48 h expiry message and `/accept-invitation?token=` link.
-  - **`UserController::save()`** — invite branch (POST `invite=1`) stores an unusable pre-hashed placeholder password, sets `STATUS_PENDING`, creates a `PasswordReset` token of type `invitation`, sends the email, and logs `invite`.
-  - **`UserController::resendInvitationAjax(int $id)`** — AJAX endpoint; rejects non-pending users; invalidates the previous token, issues a new 48 h token, resends the email, logs `invite_resent`.
-  - **`views/auth/accept_invitation.php`** — standalone auth page (anti-FOUC IIFE, dark-mode.css, login-dark.css, theme-toggle.js); password + confirm-password fields with eye-toggle; `card-outline card-success`.
-  - **`public/js/modules/auth/accept-invitation.js`** — jQuery Validate rules for password (min 8) and confirm_password (`equalTo`); eye-toggle handlers; loading toast on submit.
-  - **Invitation toggle on create-user form** — `custom-switch` hides password fields and sets `invite=1`; jQuery Validate password rule becomes conditional on `$('#invite').val() !== '1'`; status badge updates in real time.
-  - **"Pending" badge** — 3-way status badge (Pending/warning, Active/success, Inactive/danger) in `views/users/index.php` and `views/users/show.php`.
-  - **"Resend Invitation" button** — in `views/users/index.php` (DataTables row, pending only) and `views/users/show.php` (pending only); AJAX handlers in `index-users.js` and `show-user.js` with `AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`.
-  - **3 new routes** in `routes/web.php`: `GET /accept-invitation` (guest middleware), `POST /accept-invitation` (no middleware), `POST /users/{id}/resend-invitation` (`auth + perm:users`).
-  - **20 integration tests** across 4 new test classes: `PendingUserBlockTest` (5), `InvitationCreateTest` (6), `AcceptInvitationTest` (6), `ResendInvitationTest` (3).
+    - `users.status` now has three values: `0` inactive, `1` active, `2` pending (new). `User::STATUS_PENDING` constant added.
+    - **`InvitationController`** — two public (no-auth) actions: `showAcceptForm()` validates the token and renders `views/auth/accept_invitation.php`; `acceptInvitation()` sets the password, activates the user, marks the token used, and logs `invitation_accepted`.
+    - **`MailService::sendInvitationEmail(string $email, string $token, string $inviterName): bool`** — invitation email via PHPMailer with a 48 h expiry message and `/accept-invitation?token=` link.
+    - **`UserController::save()`** — invite branch (POST `invite=1`) stores an unusable pre-hashed placeholder password, sets `STATUS_PENDING`, creates a `PasswordReset` token of type `invitation`, sends the email, and logs `invite`.
+    - **`UserController::resendInvitationAjax(int $id)`** — AJAX endpoint; rejects non-pending users; invalidates the previous token, issues a new 48 h token, resends the email, logs `invite_resent`.
+    - **`views/auth/accept_invitation.php`** — standalone auth page (anti-FOUC IIFE, dark-mode.css, login-dark.css, theme-toggle.js); password + confirm-password fields with eye-toggle; `card-outline card-success`.
+    - **`public/js/modules/auth/accept-invitation.js`** — jQuery Validate rules for password (min 8) and confirm_password (`equalTo`); eye-toggle handlers; loading toast on submit.
+    - **Invitation toggle on create-user form** — `custom-switch` hides password fields and sets `invite=1`; jQuery Validate password rule becomes conditional on `$('#invite').val() !== '1'`; status badge updates in real time.
+    - **"Pending" badge** — 3-way status badge (Pending/warning, Active/success, Inactive/danger) in `views/users/index.php` and `views/users/show.php`.
+    - **"Resend Invitation" button** — in `views/users/index.php` (DataTables row, pending only) and `views/users/show.php` (pending only); AJAX handlers in `index-users.js` and `show-user.js` with `AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`.
+    - **3 new routes** in `routes/web.php`: `GET /accept-invitation` (guest middleware), `POST /accept-invitation` (no middleware), `POST /users/{id}/resend-invitation` (`auth + perm:users`).
+    - **20 integration tests** across 4 new test classes: `PendingUserBlockTest` (5), `InvitationCreateTest` (6), `AcceptInvitationTest` (6), `ResendInvitationTest` (3).
 
 - **Password reset refactored to dedicated table** — tokens moved out of `users` into a dedicated `password_resets` table:
-  - **`password_resets` table** — `id`, `user_id FK`, `token CHAR(64)`, `type ENUM('reset','invitation')`, `expires_at DATETIME`, `used_at DATETIME NULL`, `created_at`. Supports multiple concurrent tokens per user.
-  - **`App\Models\PasswordReset`** — `create(int $userId, string $type, int $ttlSeconds): array` (generates raw token + SHA-256 hash, inserts row, returns `[token, record]`); `findValidByToken(string $rawToken, string $type): ?array` (SHA-256 hash lookup, expiry + used_at check); `markUsed(int $id): bool`; `invalidatePreviousByType(int $userId, string $type): void`; TTL constants `TTL_RESET = 3600`, `TTL_INVITATION = 172800`.
-  - **`PasswordResetController`** updated to use `PasswordReset::create()` and `PasswordReset::findValidByToken()` instead of `users.reset_token` columns.
-  - **Legacy `users` columns removed** — `reset_token`, `reset_token_expires`, `reset_token_used` dropped from `schema.sql` and from `User` model / `UserPasswordTrait`.
-  - **`minimal_seed.sql`** updated with `TRUNCATE TABLE password_resets`.
-  - **5 integration tests** in `PasswordResetTest` + updated `PasswordResetFlowTest` and `PendingUserBlockTest`.
+    - **`password_resets` table** — `id`, `user_id FK`, `token CHAR(64)`, `type ENUM('reset','invitation')`, `expires_at DATETIME`, `used_at DATETIME NULL`, `created_at`. Supports multiple concurrent tokens per user.
+    - **`App\Models\PasswordReset`** — `create(int $userId, string $type, int $ttlSeconds): array` (generates raw token + SHA-256 hash, inserts row, returns `[token, record]`); `findValidByToken(string $rawToken, string $type): ?array` (SHA-256 hash lookup, expiry + used_at check); `markUsed(int $id): bool`; `invalidatePreviousByType(int $userId, string $type): void`; TTL constants `TTL_RESET = 3600`, `TTL_INVITATION = 172800`.
+    - **`PasswordResetController`** updated to use `PasswordReset::create()` and `PasswordReset::findValidByToken()` instead of `users.reset_token` columns.
+    - **Legacy `users` columns removed** — `reset_token`, `reset_token_expires`, `reset_token_used` dropped from `schema.sql` and from `User` model / `UserPasswordTrait`.
+    - **`minimal_seed.sql`** updated with `TRUNCATE TABLE password_resets`.
+    - **5 integration tests** in `PasswordResetTest` + updated `PasswordResetFlowTest` and `PendingUserBlockTest`.
 
 ### Changed
 
@@ -171,9 +200,9 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 - **jQuery Validate added to permissions modal** — `modal-permission.js` rewritten with jQuery Validate rules (`required`, `maxlength: 60`, `remote` uniqueness check against `/permissions/check-name`), `isSubmitting` guard, and proper reset on modal close. Consistent with the existing validation in the roles modal.
 - **`/permissions/check-name` route** — new `POST` endpoint (`Permission@checkName`) added to `routes/web.php`; gated by `auth` middleware.
 - **Thin controllers** — extracted validation logic that lived inline in controllers into model methods:
-  - `User::validatePasswordChange()` and `User::validateNewPassword()` centralise password validation; called by `ProfileController`, `UserController`, and `PasswordResetController`.
-  - `Permission::getUsersWithoutFormatted()` centralises Select2 formatting; `PermissionController::getUsersWithout()` delegates to it.
-  - `Role::syncPermissions()` now internally invalidates permission timestamps for all role users after commit; `RoleController` no longer needs to do it manually.
+    - `User::validatePasswordChange()` and `User::validateNewPassword()` centralise password validation; called by `ProfileController`, `UserController`, and `PasswordResetController`.
+    - `Permission::getUsersWithoutFormatted()` centralises Select2 formatting; `PermissionController::getUsersWithout()` delegates to it.
+    - `Role::syncPermissions()` now internally invalidates permission timestamps for all role users after commit; `RoleController` no longer needs to do it manually.
 
 ### Refactored
 
@@ -181,9 +210,9 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 - **`$tabla` → `$table`** — renamed in `User`, `Role`, and `Permission` to match the protected `$table` property declared in the base `Model`. Visibility changed from `private` to `protected` so the base class can reference it.
 - **`getLastInsertId()` deduplicated** — removed from `User`, `Role`, and `Permission`; the method now lives only in the base `Model`.
 - **`User.php` split into traits** — the 1 270-line model reorganised into three focused traits under `app/Models/Traits/`:
-  - `UserAuthTrait` — login queries (`loginByEmail`, `loginByDocumentNumber`), lookup methods (`findByEmail`, `findByDocumentNumber`), uniqueness checks (`emailExists`, `documentTypeExists`, …), and login throttle (`recordFailure`, `clearAttempts`, `unlock`, `getLockStatus`).
-  - `UserPasswordTrait` — password reset token lifecycle (`createPasswordResetToken`, `setResetToken`, `getUserByResetToken`, `resetPassword`), remember-me token (`setRememberToken`, `findByRememberToken`, `clearRememberToken`), and `verifyCurrentPassword`.
-  - `UserStatsTrait` — dashboard aggregation queries (`getStatistics`, `getRecent`, `getUsersByStatus`, `getUsersByMonth`).
+    - `UserAuthTrait` — login queries (`loginByEmail`, `loginByDocumentNumber`), lookup methods (`findByEmail`, `findByDocumentNumber`), uniqueness checks (`emailExists`, `documentTypeExists`, …), and login throttle (`recordFailure`, `clearAttempts`, `unlock`, `getLockStatus`).
+    - `UserPasswordTrait` — password reset token lifecycle (`createPasswordResetToken`, `setResetToken`, `getUserByResetToken`, `resetPassword`), remember-me token (`setRememberToken`, `findByRememberToken`, `clearRememberToken`), and `verifyCurrentPassword`.
+    - `UserStatsTrait` — dashboard aggregation queries (`getStatistics`, `getRecent`, `getUsersByStatus`, `getUsersByMonth`).
 - **`User.php` `forgetUserCaches()`** — dashboard cache invalidation extracted to a private helper called by `create`, `update`, and `updateStatus`, eliminating four repeated `DashboardCache::forget()` calls.
 
 ---
@@ -193,13 +222,13 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **Dark mode** — system-aware theme toggle with `localStorage` persistence and zero-DB-query design:
-  - **Anti-FOUC inline script** in `views/layouts/header.php` (`<head>`, before all CSS) — synchronous IIFE reads `localStorage('theme')` and falls back to `prefers-color-scheme`; adds `dark-mode` to `<html>` before the browser paints any pixel.
-  - **`public/css/core/dark-mode.css`** — global dark-mode overrides loaded on every page. Covers: CSS custom-property palette (`--dm-bg`, `--dm-bg-alt`, `--dm-border`, `--dm-text`, `--dm-text-muted`, `--dm-primary/success/info/warning/danger`), sidebar light→dark (CSS-only, no HTML class change), navbar, small-box dashboard cards, Bootstrap semantic colors (btn, badge, links, pagination), DataTables (header, rows, hover, pagination), Select2 (dropdown, options, multi-choice tags), SweetAlert2 popup, and webkit autofill fix (`-webkit-box-shadow` inset trick to suppress the yellow background).
-  - **`public/js/modules/profile/theme-toggle.js`** — loaded globally from `footer.php`; handles click toggle (writes `localStorage`), syncs icon (moon ↔ sun), animates the icon with a 360° spin + bounce via `cubic-bezier(0.34, 1.56, 0.64, 1)`, and reacts to OS theme changes in real time (only when no manual preference is set). Loaded after `sweetalert-utils.js`, before `$module_scripts`.
-  - **Toggle button** in `views/layouts/header.php` navbar (`#theme-toggle`, `navbar-nav ml-auto`, before fullscreen widget).
-  - **Global CSS transition** on `*, *::before, *::after` for smooth `background-color`, `color`, `border-color`, and `box-shadow` interpolation when switching themes.
-  - **Auth standalone pages** (`views/auth/login.php`, `forgot_password.php`, `reset_password.php`) — each gets the anti-FOUC IIFE, `dark-mode.css`, `login-dark.css`, a fixed `#theme-toggle` button (`.auth-theme-toggle`, bottom-right to avoid SweetAlert2 toast overlap), and `theme-toggle.js`.
-  - **`public/css/modules/login/login-dark.css`** — auth-specific dark overrides: page background gradient, card + card-header, login-card-body, inputs + placeholder + focus ring, input-group icons, iCheck label, links, footer text, and the `.auth-theme-toggle` button (bottom-right, hover opacity).
+    - **Anti-FOUC inline script** in `views/layouts/header.php` (`<head>`, before all CSS) — synchronous IIFE reads `localStorage('theme')` and falls back to `prefers-color-scheme`; adds `dark-mode` to `<html>` before the browser paints any pixel.
+    - **`public/css/core/dark-mode.css`** — global dark-mode overrides loaded on every page. Covers: CSS custom-property palette (`--dm-bg`, `--dm-bg-alt`, `--dm-border`, `--dm-text`, `--dm-text-muted`, `--dm-primary/success/info/warning/danger`), sidebar light→dark (CSS-only, no HTML class change), navbar, small-box dashboard cards, Bootstrap semantic colors (btn, badge, links, pagination), DataTables (header, rows, hover, pagination), Select2 (dropdown, options, multi-choice tags), SweetAlert2 popup, and webkit autofill fix (`-webkit-box-shadow` inset trick to suppress the yellow background).
+    - **`public/js/modules/profile/theme-toggle.js`** — loaded globally from `footer.php`; handles click toggle (writes `localStorage`), syncs icon (moon ↔ sun), animates the icon with a 360° spin + bounce via `cubic-bezier(0.34, 1.56, 0.64, 1)`, and reacts to OS theme changes in real time (only when no manual preference is set). Loaded after `sweetalert-utils.js`, before `$module_scripts`.
+    - **Toggle button** in `views/layouts/header.php` navbar (`#theme-toggle`, `navbar-nav ml-auto`, before fullscreen widget).
+    - **Global CSS transition** on `*, *::before, *::after` for smooth `background-color`, `color`, `border-color`, and `box-shadow` interpolation when switching themes.
+    - **Auth standalone pages** (`views/auth/login.php`, `forgot_password.php`, `reset_password.php`) — each gets the anti-FOUC IIFE, `dark-mode.css`, `login-dark.css`, a fixed `#theme-toggle` button (`.auth-theme-toggle`, bottom-right to avoid SweetAlert2 toast overlap), and `theme-toggle.js`.
+    - **`public/css/modules/login/login-dark.css`** — auth-specific dark overrides: page background gradient, card + card-header, login-card-body, inputs + placeholder + focus ring, input-group icons, iCheck label, links, footer text, and the `.auth-theme-toggle` button (bottom-right, hover opacity).
 
 ### Changed
 
@@ -213,19 +242,19 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **Audit Log module** — read-only activity log for all admin actions:
-  - `activity_logs` table in `schema.sql`: `id`, `actor_id` (nullable FK → `users`), `actor_label` (snapshot of user display name at event time), `module`, `action`, `description`, `details` (JSON), `ip_address`, `user_agent`, `created_at`.
-  - **`App\Services\AuditLogger`** — static service with a single `log(array $data)` method. Reads `actor_id` and `actor_label` from session, resolves client IP from `$_SERVER`, and delegates to `ActivityLog::create()`. Silently ignores write failures. Also calls `DashboardCache::forget('audit_today')` after every successful insert to keep the dashboard count current.
-  - **`ActivityLog` model** — append-only: `create()`, `getAll(array $filters)`, `getDistinctModules()`, `getDistinctActions()`, `getActorsWithLogs()`, `countToday()`, `purgeOlderThan(int $days)`.
-  - **`AuditLogController`** — read-only index with server-side filter support (module, action, actor, date range).
-  - **View `views/audit-log/index.php`** — filter card (collapsed by default) + DataTables table with export buttons; date inputs with calendar icon trigger native picker on mobile.
-  - **Partial `views/audit-log/_modal-detail.php`** — event detail modal with dynamic header subtitle (module badge + action code), meta grid, description callout, and human-readable key/value details table (no raw JSON).
-  - **`public/js/modules/audit-log/index-audit.js`** — DataTables init, `humanizeKey()` / `renderDetailsTable()` helpers, responsive fix for DataTables child rows (mobile `TypeError` guard).
-  - **Route** `GET /audit-log` (middleware: `auth + perm:audit_log`).
-  - **Permission `audit_log`** — seeded in `database/seeder.sql`; granted to Administrator via `is_system = 1` (`*`).
-  - **Sidebar link** gated by `audit_log` under the Administration section.
-  - **Dashboard "Events Today" card** — `DashboardCache::remember('audit_today', ...)` in `DashboardController`; `small-box bg-secondary` visible only when `canViewAuditLog`.
-  - **Seeder audit entries** — 17 `activity_logs` rows in `database/seeder.sql` reflecting the full setup timeline (roles, permissions, users, sync, first login).
-  - **Instrumentation** — `AuditLogger::log()` called in `AuthController` (login/logout), `UserController` (create/update/delete/status/unlock), `PermissionController` (create/update/delete/assign/revoke), `RoleController` (create/update/delete/sync).
+    - `activity_logs` table in `schema.sql`: `id`, `actor_id` (nullable FK → `users`), `actor_label` (snapshot of user display name at event time), `module`, `action`, `description`, `details` (JSON), `ip_address`, `user_agent`, `created_at`.
+    - **`App\Services\AuditLogger`** — static service with a single `log(array $data)` method. Reads `actor_id` and `actor_label` from session, resolves client IP from `$_SERVER`, and delegates to `ActivityLog::create()`. Silently ignores write failures. Also calls `DashboardCache::forget('audit_today')` after every successful insert to keep the dashboard count current.
+    - **`ActivityLog` model** — append-only: `create()`, `getAll(array $filters)`, `getDistinctModules()`, `getDistinctActions()`, `getActorsWithLogs()`, `countToday()`, `purgeOlderThan(int $days)`.
+    - **`AuditLogController`** — read-only index with server-side filter support (module, action, actor, date range).
+    - **View `views/audit-log/index.php`** — filter card (collapsed by default) + DataTables table with export buttons; date inputs with calendar icon trigger native picker on mobile.
+    - **Partial `views/audit-log/_modal-detail.php`** — event detail modal with dynamic header subtitle (module badge + action code), meta grid, description callout, and human-readable key/value details table (no raw JSON).
+    - **`public/js/modules/audit-log/index-audit.js`** — DataTables init, `humanizeKey()` / `renderDetailsTable()` helpers, responsive fix for DataTables child rows (mobile `TypeError` guard).
+    - **Route** `GET /audit-log` (middleware: `auth + perm:audit_log`).
+    - **Permission `audit_log`** — seeded in `database/seeder.sql`; granted to Administrator via `is_system = 1` (`*`).
+    - **Sidebar link** gated by `audit_log` under the Administration section.
+    - **Dashboard "Events Today" card** — `DashboardCache::remember('audit_today', ...)` in `DashboardController`; `small-box bg-secondary` visible only when `canViewAuditLog`.
+    - **Seeder audit entries** — 17 `activity_logs` rows in `database/seeder.sql` reflecting the full setup timeline (roles, permissions, users, sync, first login).
+    - **Instrumentation** — `AuditLogger::log()` called in `AuthController` (login/logout), `UserController` (create/update/delete/status/unlock), `PermissionController` (create/update/delete/assign/revoke), `RoleController` (create/update/delete/sync).
 
 ### Changed
 
@@ -239,13 +268,13 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **Brute-force login throttling** — lockout after N consecutive failed login attempts with automatic lazy unlock by time and manual admin unlock:
-  - 3 new columns on `users` table: `login_attempts INT NOT NULL DEFAULT 0`, `locked_until DATETIME NULL`, `last_attempt_at DATETIME NULL`.
-  - 2 new `.env` variables: `LOGIN_MAX_ATTEMPTS` (default 5) and `LOGIN_LOCKOUT_MINUTES` (default 15).
-  - **`User` model** — 4 new throttle methods: `recordFailure(int $userId)` (single UPDATE that increments counter and sets `locked_until` on threshold), `clearAttempts(int $userId)` (reset after successful login), `unlock(int $userId)` (admin manual unlock, returns bool), `getLockStatus(int $userId)` (lazy evaluation of `locked_until` vs `NOW()`, no write).
-  - **`User` model** — 2 new lookup methods: `findByEmail(string $email)` and `findByDocumentNumber(string $documentNumber)` — resolve the user row without verifying the password, enabling the throttle check before `password_verify`.
-  - **`App\Services\LoginThrottleService`** — orchestration layer: `isLocked(array $user)` (returns `locked`, `remaining_seconds`, `message`), `registerFailure`, `clearOnSuccess`, `unlock`, `formatRemaining(int $seconds)` (human-readable string, singular/plural).
-  - **`AuthController::login()`** refactored into 5 explicit steps: resolve user → throttle check → `password_verify` → status check → session init + clear attempts. Locked requests never reach `password_verify` (no timing leak). Email/document lookup failures are silent (do not reveal user existence).
-  - **Admin manual unlock** — `POST /users/{id}/unlock-login` route (middleware `auth + perm:users`), `UserController::unlockLoginAjax()` endpoint (CSRF + `jsonResponse`), locked badge in `views/users/show.php` (conditionally shown when `locked_until > NOW()`), and AJAX handler in `show-user.js` (`AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`).
+    - 3 new columns on `users` table: `login_attempts INT NOT NULL DEFAULT 0`, `locked_until DATETIME NULL`, `last_attempt_at DATETIME NULL`.
+    - 2 new `.env` variables: `LOGIN_MAX_ATTEMPTS` (default 5) and `LOGIN_LOCKOUT_MINUTES` (default 15).
+    - **`User` model** — 4 new throttle methods: `recordFailure(int $userId)` (single UPDATE that increments counter and sets `locked_until` on threshold), `clearAttempts(int $userId)` (reset after successful login), `unlock(int $userId)` (admin manual unlock, returns bool), `getLockStatus(int $userId)` (lazy evaluation of `locked_until` vs `NOW()`, no write).
+    - **`User` model** — 2 new lookup methods: `findByEmail(string $email)` and `findByDocumentNumber(string $documentNumber)` — resolve the user row without verifying the password, enabling the throttle check before `password_verify`.
+    - **`App\Services\LoginThrottleService`** — orchestration layer: `isLocked(array $user)` (returns `locked`, `remaining_seconds`, `message`), `registerFailure`, `clearOnSuccess`, `unlock`, `formatRemaining(int $seconds)` (human-readable string, singular/plural).
+    - **`AuthController::login()`** refactored into 5 explicit steps: resolve user → throttle check → `password_verify` → status check → session init + clear attempts. Locked requests never reach `password_verify` (no timing leak). Email/document lookup failures are silent (do not reveal user existence).
+    - **Admin manual unlock** — `POST /users/{id}/unlock-login` route (middleware `auth + perm:users`), `UserController::unlockLoginAjax()` endpoint (CSRF + `jsonResponse`), locked badge in `views/users/show.php` (conditionally shown when `locked_until > NOW()`), and AJAX handler in `show-user.js` (`AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`).
 - **19 integration tests** in `tests/Integration/Auth/LoginThrottleTest.php` — covers `recordFailure` (counter, `last_attempt_at`, `locked_until` threshold), `getLockStatus` (active, expired, fresh), `clearAttempts`, `unlock`, `LoginThrottleService::isLocked` (locked/unlocked/expired), and `formatRemaining` (minutes+seconds, singular, zero).
 
 ### Changed
@@ -323,9 +352,9 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **Dashboard metrics** — three Chart.js visualizations on the dashboard:
-  - Donut chart: active vs inactive users
-  - Bar chart: top 5 permissions by assigned users
-  - Line chart: user registrations over the last 6 months
+    - Donut chart: active vs inactive users
+    - Bar chart: top 5 permissions by assigned users
+    - Line chart: user registrations over the last 6 months
 - **`App\Services\DashboardCache`** — session-based cache for dashboard metrics with configurable TTL (`DASHBOARD_CACHE_TTL` in `.env`, default 300 s) and event-driven invalidation. API: `get`, `put`, `remember`, `forget`, `flush`.
 - **`User::getUsersByStatus()`** — returns active/inactive counts for the donut chart.
 - **`User::getUsersByMonth(int $months)`** — returns registration counts per month, zero-filled for empty months.
@@ -354,8 +383,8 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **`public/js/core/sweetalert-utils.js`** — centralised SweetAlert2 utility layer:
-  - `ToastUtils`: `success`, `error`, `warning`, `info`, `loading`, `loadingWithMinTime(message, action, minMs)` — guarantees a minimum display time before running the async action, eliminating the flash-of-loading pattern
-  - `AlertUtils`: `confirm(title, text, onConfirm, options)` (supports `options.html` for rich body text), `confirmDelete`, `welcome(name)` (animated login popup), `image(src, alt, confirmButtonText)` (lightbox viewer)
+    - `ToastUtils`: `success`, `error`, `warning`, `info`, `loading`, `loadingWithMinTime(message, action, minMs)` — guarantees a minimum display time before running the async action, eliminating the flash-of-loading pattern
+    - `AlertUtils`: `confirm(title, text, onConfirm, options)` (supports `options.html` for rich body text), `confirmDelete`, `welcome(name)` (animated login popup), `image(src, alt, confirmButtonText)` (lightbox viewer)
 
 ### Changed
 
@@ -363,14 +392,14 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 - **`views/layouts/messages.php`** — rewritten to use `ToastUtils[icon](message)` for flash messages and `AlertUtils.welcome(name)` for `$_SESSION['welcome_user']`; removed nested `if` structure
 - **`app/Controllers/Auth/AuthController.php`** — login success now sets `$_SESSION['welcome_user']` instead of `$_SESSION['message']` + `$_SESSION['icon']`, triggering the dedicated welcome popup
 - **All JS modules** — removed every inline `Swal.fire()` call; `ToastUtils.loadingWithMinTime()` replaces bare `Swal.showLoading()` + `setTimeout` patterns; `AlertUtils.confirm()` replaces inline confirm dialogs:
-  - `public/js/modules/auth/login.js`, `forgot_password.js`, `reset_password.js` — submit handlers use `loadingWithMinTime` with descriptive messages
-  - `public/js/modules/users/create-user.js`, `update-user.js` — form submit uses `loadingWithMinTime`
-  - `public/js/modules/users/index-users.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
-  - `public/js/modules/users/profile-user.js` — password change and profile update use `loadingWithMinTime`; password change success shows `ToastUtils.success` before redirecting to logout
-  - `public/js/modules/users/show-user.js` — profile image lightbox uses `AlertUtils.image`
-  - `public/js/modules/permissions/index-permissions.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
-  - `public/js/modules/permissions/modal-permission.js` — modal closed before `loadingWithMinTime` (modal-first pattern to avoid z-index conflicts)
-  - `public/js/modules/permissions/detail-permission.js` — assign and revoke use modal-first pattern + `loadingWithMinTime`; revoke confirm uses `options.html` for rich body text
+    - `public/js/modules/auth/login.js`, `forgot_password.js`, `reset_password.js` — submit handlers use `loadingWithMinTime` with descriptive messages
+    - `public/js/modules/users/create-user.js`, `update-user.js` — form submit uses `loadingWithMinTime`
+    - `public/js/modules/users/index-users.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
+    - `public/js/modules/users/profile-user.js` — password change and profile update use `loadingWithMinTime`; password change success shows `ToastUtils.success` before redirecting to logout
+    - `public/js/modules/users/show-user.js` — profile image lightbox uses `AlertUtils.image`
+    - `public/js/modules/permissions/index-permissions.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
+    - `public/js/modules/permissions/modal-permission.js` — modal closed before `loadingWithMinTime` (modal-first pattern to avoid z-index conflicts)
+    - `public/js/modules/permissions/detail-permission.js` — assign and revoke use modal-first pattern + `loadingWithMinTime`; revoke confirm uses `options.html` for rich body text
 - **`views/auth/login.php`**, **`forgot_password.php`**, **`reset_password.php`** — include `sweetalert-utils.js` manually (auth views do not use `footer.php`)
 - **`views/users/index.php`** — corrected Spanish tooltips (`"Ver usuario"` → `"View user"`, `"Editar usuario"` → `"Edit user"`)
 - **`views/permissions/detail.php`** — reordered action buttons (Edit before Back)
@@ -390,8 +419,8 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **PHPUnit 11 test suite** — two independent suites with 115 tests and 158 assertions:
-  - `Unit` suite (`tests/Unit/`) — covers `App\Core\Auth`, `App\Core\Router`, `app/Core/helpers.php`, and `App\Services\ImageService`. No DB required; runs in < 2 s.
-  - `Integration` suite (`tests/Integration/`) — covers `App\Models\User`, `App\Models\Permission`, and cross-model `Auth` flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Uses a dedicated test DB with per-test transaction rollback for isolation.
+    - `Unit` suite (`tests/Unit/`) — covers `App\Core\Auth`, `App\Core\Router`, `app/Core/helpers.php`, and `App\Services\ImageService`. No DB required; runs in < 2 s.
+    - `Integration` suite (`tests/Integration/`) — covers `App\Models\User`, `App\Models\Permission`, and cross-model `Auth` flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Uses a dedicated test DB with per-test transaction rollback for isolation.
 - `tests/bootstrap.php` — loads Composer autoloader, defines `BASE_PATH`/`APP_PATH` constants, and buffers output to prevent "headers already sent" noise in CLI.
 - `tests/TestCase.php` — base class for all suites: resets `$_SESSION`, `$_POST`, `$_GET`, `$_COOKIE`, and snapshots/restores `$_SERVER` around each test.
 - `tests/IntegrationTestCase.php` — loads `.env.testing` via phpdotenv, resets the `Connection` singleton via reflection, runs schema + seed once per suite, and wraps each test in a `beginTransaction` / `rollBack` cycle.
@@ -399,8 +428,8 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 - `tests/fixtures/sql/minimal_seed.sql` — minimal dataset (1 admin, 1 editor, 2 permissions, 1 assignment) for fast integration test runs.
 - `.env.testing.example` — template for local test DB configuration.
 - **GitHub Actions workflow** (`.github/workflows/tests.yml`) — two jobs on every push/PR:
-  - `unit` — installs PHP 8.2 + extensions, runs `phpunit --testsuite=Unit` (no DB).
-  - `integration` — spins up a MySQL 8.0 service container, loads the schema, generates `.env.testing` at runtime, and runs `phpunit --testsuite=Integration`.
+    - `unit` — installs PHP 8.2 + extensions, runs `phpunit --testsuite=Unit` (no DB).
+    - `integration` — spins up a MySQL 8.0 service container, loads the schema, generates `.env.testing` at runtime, and runs `phpunit --testsuite=Integration`.
 
 ### Changed
 
@@ -456,11 +485,11 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **`App\Core\Auth`** — static hub that centralises all authentication, session, remember-me, and permission-cache concerns. Replaces `AuthorizationService` and `RememberMeService` as the single source of truth for auth state.
-  - Session state: `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission()`, `permissions()`
-  - Login / logout lifecycle: `login()`, `logout()`
-  - Session validation: `checkTimeout()`, `checkSecurity()`
-  - Permission cache: `refreshPermissionsIfStale()`
-  - Remember-me: `issueRememberCookie()`, `attemptRememberLogin()`, `clearRememberCookie()`
+    - Session state: `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission()`, `permissions()`
+    - Login / logout lifecycle: `login()`, `logout()`
+    - Session validation: `checkTimeout()`, `checkSecurity()`
+    - Permission cache: `refreshPermissionsIfStale()`
+    - Remember-me: `issueRememberCookie()`, `attemptRememberLogin()`, `clearRememberCookie()`
 
 - **`App\Core\ErrorHandler`** — handles 403, 404, and 500 responses; auto-detects AJAX via `X-Requested-With` and returns JSON or the HTML error view.
 
@@ -494,26 +523,26 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Added
 
 - **Remember Me** — persistent login via secure cookie (`RememberMeService`)
-  - Token: 64-char hex (`random_bytes(32)`), stored as SHA-256 hash in `users.remember_token`; plain token goes only in the cookie — never in the DB
-  - Cookie: `HttpOnly`, `SameSite=Lax`, `Secure` when HTTPS; 30-day lifetime by default
-  - Token rotated on every successful auto-login to mitigate cookie theft
-  - Deactivated users (`status = 0`) and expired tokens blocked at query level
-  - `app/services/RememberMeService.php` — `issue()`, `attemptLogin()`, `clear()`
-  - `views/auth/login.php` — "Remember me" checkbox using `icheck-primary`
+    - Token: 64-char hex (`random_bytes(32)`), stored as SHA-256 hash in `users.remember_token`; plain token goes only in the cookie — never in the DB
+    - Cookie: `HttpOnly`, `SameSite=Lax`, `Secure` when HTTPS; 30-day lifetime by default
+    - Token rotated on every successful auto-login to mitigate cookie theft
+    - Deactivated users (`status = 0`) and expired tokens blocked at query level
+    - `app/services/RememberMeService.php` — `issue()`, `attemptLogin()`, `clear()`
+    - `views/auth/login.php` — "Remember me" checkbox using `icheck-primary`
 
 - **Configurable session lifetime** — `SESSION_LIFETIME` in `.env` (default `1800` s); `checkSessionTimeout()` reads it per-request instead of a hardcoded value
 
 - **New `.env` variables**
 
-  | Variable                  | Default       | Description                                   |
-  | ------------------------- | ------------- | --------------------------------------------- |
-  | `SESSION_LIFETIME`        | `1800`        | Seconds of inactivity before session expires  |
-  | `REMEMBER_ME_LIFETIME`    | `2592000`     | Seconds the persistent cookie lasts (30 days) |
-  | `REMEMBER_ME_COOKIE_NAME` | `remember_me` | Cookie name                                   |
+    | Variable                  | Default       | Description                                   |
+    | ------------------------- | ------------- | --------------------------------------------- |
+    | `SESSION_LIFETIME`        | `1800`        | Seconds of inactivity before session expires  |
+    | `REMEMBER_ME_LIFETIME`    | `2592000`     | Seconds the persistent cookie lasts (30 days) |
+    | `REMEMBER_ME_COOKIE_NAME` | `remember_me` | Cookie name                                   |
 
 - **New DB columns** on `users`:
-  - `remember_token CHAR(64) NULL DEFAULT NULL`
-  - `remember_token_expires DATETIME NULL DEFAULT NULL`
+    - `remember_token CHAR(64) NULL DEFAULT NULL`
+    - `remember_token_expires DATETIME NULL DEFAULT NULL`
 
 - **`tryAutoLoginFromRememberCookie()`** global helper in `app/core/helpers.php`
 
@@ -538,43 +567,43 @@ This release introduces a major architectural refactoring from scattered endpoin
 If upgrading from v3.0.x, follow these steps:
 
 1. **Update Apache Configuration**
-   - Set DocumentRoot to `public/` directory
-   - OR add `.htaccess` rewriting rules (included)
-   - Restart Apache
+    - Set DocumentRoot to `public/` directory
+    - OR add `.htaccess` rewriting rules (included)
+    - Restart Apache
 
 2. **URL Structure Changes**
-   - Before: `/app/controllers/users/create_user.php`
-   - After: `/users/create` (routed through `public/index.php`)
-   - Update all frontend navigation and API calls
+    - Before: `/app/controllers/users/create_user.php`
+    - After: `/users/create` (routed through `public/index.php`)
+    - Update all frontend navigation and API calls
 
 3. **Remove Direct File Access**
-   - No longer access `/app/controllers/*` directly
-   - All requests must go through the router
+    - No longer access `/app/controllers/*` directly
+    - All requests must go through the router
 
 ### Added
 
 - **Front Controller Pattern** (`public/index.php`)
-  - Single entry point for all requests
-  - Centralized request dispatching via `App\Core\Router`
+    - Single entry point for all requests
+    - Centralized request dispatching via `App\Core\Router`
 
 - **Centralized Routing** (`routes/web.php`)
-  - All routes defined in single configuration file
-  - Clean URL syntax: `/users/edit/5`
-  - Supports HTTP method matching
+    - All routes defined in single configuration file
+    - Clean URL syntax: `/users/edit/5`
+    - Supports HTTP method matching
 
 - **Core Classes**
-  - `App\Core\Controller` - Base controller with `render()`, `redirect()`, `jsonResponse()`
-  - `App\Core\Model` - Base model with PDO database methods
-  - `App\Core\Router` - Dynamic route dispatcher
+    - `App\Core\Controller` - Base controller with `render()`, `redirect()`, `jsonResponse()`
+    - `App\Core\Model` - Base model with PDO database methods
+    - `App\Core\Router` - Dynamic route dispatcher
 
 - **Apache Configuration** (`.htaccess` in public/)
-  - URL rewriting for clean routes
-  - Automatic routing to `public/index.php`
+    - URL rewriting for clean routes
+    - Automatic routing to `public/index.php`
 
 - New developer docs:
-  - `docs/SEEDING.md` (seeded users, permission matrix, rerun behavior)
-  - `docs/ACCESS_CONTROL.md` (session guard + permission cache flow)
-  - `docs/AJAX_AND_MODULES.md` (AJAX endpoint and frontend module conventions)
+    - `docs/SEEDING.md` (seeded users, permission matrix, rerun behavior)
+    - `docs/ACCESS_CONTROL.md` (session guard + permission cache flow)
+    - `docs/AJAX_AND_MODULES.md` (AJAX endpoint and frontend module conventions)
 
 ### Changed
 
@@ -591,16 +620,16 @@ If upgrading from v3.0.x, follow these steps:
 ### Removed
 
 - Legacy endpoint files:
-  - `app/controllers/auth/{login.php, logout.php, forgot_password_process.php, reset_password_process.php}`
-  - `app/controllers/users/{create_user.php, update_user.php, ajax_change_password.php, check_email.php, check_document.php, toggle_user_status.php, process_update_profile.php}`
-  - `app/controllers/users/{UserPageController.php, ProfileController.php}`
-  - `app/controllers/permissions/{*_ajax.php, PermissionPageController.php}` (7 files)
-  - `app/controllers/dashboard/DashboardPageController.php`
+    - `app/controllers/auth/{login.php, logout.php, forgot_password_process.php, reset_password_process.php}`
+    - `app/controllers/users/{create_user.php, update_user.php, ajax_change_password.php, check_email.php, check_document.php, toggle_user_status.php, process_update_profile.php}`
+    - `app/controllers/users/{UserPageController.php, ProfileController.php}`
+    - `app/controllers/permissions/{*_ajax.php, PermissionPageController.php}` (7 files)
+    - `app/controllers/dashboard/DashboardPageController.php`
 
 - Legacy core classes:
-  - `app/core/BaseController.php`
-  - `app/core/BaseModel.php`
-  - `app/core/ViewRenderer.php`
+    - `app/core/BaseController.php`
+    - `app/core/BaseModel.php`
+    - `app/core/ViewRenderer.php`
 
 ### Fixed
 
@@ -879,6 +908,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.17.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.1...3.17.0
 [3.16.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.0...3.16.1
 [3.16.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.3...3.16.0
 [3.15.3]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.2...3.15.3

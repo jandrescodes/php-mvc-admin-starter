@@ -133,8 +133,35 @@ teardown, so the DB is always clean.
 
 ## CI
 
-Both suites run automatically on every push and pull request via
-`.github/workflows/tests.yml` (two independent jobs: `unit` and `integration`).
+`.github/workflows/tests.yml` runs three independent jobs:
+
+| Job           | What it runs                                  | DB  |
+| ------------- | --------------------------------------------- | --- |
+| `quality`     | `pint --test` + `phpstan analyse --no-progress` | no  |
+| `unit`        | `phpunit --testsuite=Unit`                    | no  |
+| `integration` | `phpunit --testsuite=Integration`             | yes |
 
 The `integration` job spins up a MySQL 8.0 service container and generates `.env.testing` at runtime
 — no secrets are committed.
+
+**Triggers:** `pull_request` against any branch, and `push` to `main` or tags only. Feature branches
+are validated through the PR event, not through their own pushes (avoids the duplicate push+PR run).
+`paths-ignore` skips runs when only docs or static assets (`public/css`/`js`/`img`, `*.md`, `LICENSE`,
+`.gitignore`) changed. A `concurrency` group cancels superseded runs on the same ref.
+
+## Static analysis & code style
+
+Both are `require-dev` dependencies and run in the `quality` CI job:
+
+```bash
+composer lint        # pint --test   — PSR-12 check, no changes
+composer lint:fix    # pint          — apply fixes
+composer stan        # phpstan analyse (level 5)
+composer check       # lint + stan + full phpunit
+```
+
+- **Pint** (`pint.json`) — `psr12` preset, excludes `views/` (HTML-heavy templates). Covers `app/`, `tests/`, `routes/`, `public/`.
+- **PHPStan** (`phpstan.neon`) — level 5, analyses `app/` + `routes/`, excludes `app/Config/config.php`.
+  Bootstrap `define()` constants (`URL`, `APP_VERSION`, `APP_BASE_PATH`) are declared in
+  `phpstan-constants.php` (`scanFiles`) and listed under `dynamicConstantNames`. Add any new bootstrap
+  constant there too. Do not suppress errors with `@phpstan-ignore` or a baseline — fix the cause.

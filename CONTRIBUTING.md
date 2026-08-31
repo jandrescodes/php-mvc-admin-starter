@@ -29,6 +29,9 @@ cd php-mvc-admin-starter
 # Install dependencies
 composer install
 
+# Verify your setup — style, static analysis, and the unit suite
+composer lint && composer stan && composer test:unit
+
 # Set up upstream remote
 git remote add upstream https://github.com/jandrescodes/php-mvc-admin-starter.git
 
@@ -43,7 +46,8 @@ git checkout -b feature/your-feature-name
 - Follow PSR-4 autoloading standards
 - Use meaningful class and method names
 - Include proper error handling
-- Maintain consistent indentation (4 spaces)
+- Maintain consistent indentation (4 spaces) — enforced by `.editorconfig` and Laravel Pint (`psr12` preset)
+- Code must pass `composer lint` (Pint) and `composer stan` (PHPStan level 5) — both run in CI. Run `composer lint:fix` to auto-format. Never suppress a PHPStan error with `@phpstan-ignore` or a baseline; fix the underlying cause.
 - Ensure all PHP files have proper PHPDoc documentation
 - **Fat model / thin controller** — validation logic, data formatting, and cache invalidation belong in the model. Controllers only read input, call model methods, set flash messages, and redirect or return JSON.
 - **Model base class** — all models extend `App\Core\Model` and set `protected $table = 'table_name'`. Never redeclare `getLastInsertId()` or `trimInput()` in a concrete model — inherit them from the base.
@@ -153,9 +157,12 @@ refactor: reorganize user controller methods
 
 ## Testing
 
-Run the test suite before submitting a PR:
+Run the full check before submitting a PR:
 
 ```bash
+composer check                              # lint + stan + all suites — the one-shot gate
+
+# or individually:
 vendor/bin/phpunit --testsuite=Unit         # always required
 vendor/bin/phpunit --testsuite=Integration  # required when touching models or Auth
 ```
@@ -173,11 +180,11 @@ When adding a new feature or fixing a bug:
 
 1. **Update Documentation**: Ensure all new code is properly documented
 2. **Update CHANGELOG**: Add your changes to the `[Unreleased]` section
-3. **Run tests**: `vendor/bin/phpunit` must pass locally before opening the PR
+3. **Run the check**: `composer check` (lint + static analysis + tests) must pass locally before opening the PR
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
-When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, role/permission model, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
+When your change introduces or alters a **convention, cache key, or invalidation rule**, update `AGENTS.md` (the single source of truth for conventions — `CLAUDE.md` only imports it). When it affects a deeper flow — session/permissions, AJAX endpoint patterns, local seed data, the role/permission model, CI/tooling config, or AI/MCP tooling — update the corresponding file under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
 When adding a new standalone auth page (one that does not use `layouts/header.php`/`footer.php`), do **not** build a full `<html>` document in the view. Write only the page-specific card markup, then call `$this->renderStandalone('auth/your_view', $data, 'Page Title', ['module/script'])` from the controller — it requires the shared `views/layouts/auth.php`, which already owns the `<head>`, anti-FOUC dark-mode IIFE, `#theme-toggle`, and all script tags (`sweetalert-utils.js`, `common-validate.js`, `common-utils.js`, your module script, `theme-toggle.js`). See `views/auth/login.php` + `AuthController::showLoginForm()` as reference. Existing standalone auth pages: `login.php`, `forgot_password.php`, `reset_password.php`, `accept_invitation.php`. The same pattern applies to error pages via `views/layouts/error.php` (see `views/errors/404.php`).
 
@@ -201,6 +208,8 @@ Brief description of what this PR does.
 
 ## Testing
 
+- [ ] `composer lint` passes (Pint / PSR-12)
+- [ ] `composer stan` passes (PHPStan level 5)
 - [ ] `vendor/bin/phpunit --testsuite=Unit` passes
 - [ ] `vendor/bin/phpunit --testsuite=Integration` passes (if models/Auth touched)
 - [ ] New tests added for the changed logic
@@ -262,7 +271,9 @@ When adding new features, follow the existing project structure:
 │   └── errors/           # 403, 404, 500 — data only, rendered via layouts/error.php
 ├── database/             # schema.sql and seeder.sql
 ├── vendor/               # Composer dependencies (not committed — run composer install)
-├── docs/                 # Project documentation for developers and AI
+├── docs/                 # Deep-dive documentation for developers and AI
+├── AGENTS.md             # Single source of truth — setup, architecture, all conventions
+├── CLAUDE.md             # Claude Code entry point — imports AGENTS.md + Claude-specific notes
 └── .claude/              # AI assistant configurations and custom skills
 ```
 
