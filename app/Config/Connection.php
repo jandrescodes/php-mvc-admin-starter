@@ -90,10 +90,10 @@ class Connection
             if ($set_tz !== $timezone_offset) {
                 error_log("Warning: Could not correctly set the MariaDB timezone. Requested: {$timezone_offset}, Current: {$set_tz}");
             }
-        } catch (Exception $e) {
-            die("Configuration error: " . $e->getMessage());
         } catch (PDOException $e) {
             die("Database connection error: " . $e->getMessage());
+        } catch (Exception $e) {
+            die("Configuration error: " . $e->getMessage());
         }
     }
 

@@ -16,7 +16,7 @@ if (!function_exists('env')) {
     function env(string $key, $default = null): mixed
     {
         $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
-        if ($value === false || $value === null) {
+        if ($value === false) {
             return $default;
         }
         return match (strtolower((string) $value)) {
