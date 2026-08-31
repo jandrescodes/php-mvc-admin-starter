@@ -24,11 +24,11 @@ class DashboardCacheInvalidationTest extends IntegrationTestCase
         $this->permModel = new Permission();
 
         // Pre-warm cache so we can verify it gets cleared
-        DashboardCache::put('user_stats',      ['total' => 99]);
+        DashboardCache::put('user_stats', ['total' => 99]);
         DashboardCache::put('users_by_status', ['active' => 99, 'inactive' => 0]);
-        DashboardCache::put('recent_users',    [['id' => 99]]);
-        DashboardCache::put('users_by_month',  [['ym' => '2025-01', 'total' => 99]]);
-        DashboardCache::put('perm_stats',      ['total' => 99]);
+        DashboardCache::put('recent_users', [['id' => 99]]);
+        DashboardCache::put('users_by_month', [['ym' => '2025-01', 'total' => 99]]);
+        DashboardCache::put('perm_stats', ['total' => 99]);
         DashboardCache::put('top_permissions', [['id' => 99, 'name' => 'x', 'total_users' => 99]]);
     }
 

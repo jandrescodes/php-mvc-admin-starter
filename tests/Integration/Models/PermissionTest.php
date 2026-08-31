@@ -99,7 +99,7 @@ class PermissionTest extends IntegrationTestCase
         $this->assertTrue($this->model->assign(2, 1));
         $this->assertTrue($this->model->assign(2, 1));
 
-        $count = count(array_filter($this->model->getAssignedIds(2), fn($id) => $id == 1));
+        $count = count(array_filter($this->model->getAssignedIds(2), fn ($id) => $id == 1));
         $this->assertSame(1, $count);
     }
 

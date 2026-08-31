@@ -22,10 +22,10 @@ class PasswordReset extends Model
     protected $table = 'password_resets';
 
     /** TTL for password-reset tokens (strtotime-compatible string) */
-    const TTL_RESET = '+1 hour';
+    public const TTL_RESET = '+1 hour';
 
     /** TTL for invitation tokens (strtotime-compatible string) */
-    const TTL_INVITATION = '+48 hours';
+    public const TTL_INVITATION = '+48 hours';
 
     // -------------------------------------------------------------------------
     // Public API
@@ -83,7 +83,7 @@ class PasswordReset extends Model
                  LIMIT 1"
             );
             $stmt->bindParam(':hash', $tokenHash, PDO::PARAM_STR);
-            $stmt->bindParam(':type', $type,      PDO::PARAM_STR);
+            $stmt->bindParam(':type', $type, PDO::PARAM_STR);
             $stmt->execute();
 
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: false;
@@ -192,7 +192,7 @@ class PasswordReset extends Model
                    AND used_at IS NULL"
             );
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->bindParam(':type',    $type,   PDO::PARAM_STR);
+            $stmt->bindParam(':type', $type, PDO::PARAM_STR);
             $stmt->execute();
         } catch (PDOException $e) {
             // Non-fatal: log and continue; the new token will still be created.

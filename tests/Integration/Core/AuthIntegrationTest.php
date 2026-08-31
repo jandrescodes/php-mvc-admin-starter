@@ -120,7 +120,7 @@ class AuthIntegrationTest extends IntegrationTestCase
         Auth::refreshPermissionsIfStale();
 
         $perms = $_SESSION['user_permissions'];
-        $this->assertContains('users',       $perms, 'direct permission must be present');
+        $this->assertContains('users', $perms, 'direct permission must be present');
         $this->assertContains('permissions', $perms, 'role permission must be present');
     }
 
@@ -196,7 +196,7 @@ class AuthIntegrationTest extends IntegrationTestCase
         $_COOKIE[$cookieName] = $rawToken;
 
         // Suppress setcookie() warning (no HTTP context in CLI)
-        set_error_handler(fn() => true);
+        set_error_handler(fn () => true);
         $result = Auth::attemptRememberLogin();
         restore_error_handler();
 
@@ -247,7 +247,7 @@ class AuthIntegrationTest extends IntegrationTestCase
         $cookieName          = getenv('REMEMBER_ME_COOKIE_NAME') ?: 'remember_me';
         $_COOKIE[$cookieName] = $rawToken;
 
-        set_error_handler(fn() => true);
+        set_error_handler(fn () => true);
         Auth::attemptRememberLogin();
         restore_error_handler();
 

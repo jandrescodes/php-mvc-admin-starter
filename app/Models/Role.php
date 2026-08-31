@@ -14,7 +14,6 @@
 namespace App\Models;
 
 use App\Core\Model;
-use App\Models\User;
 use App\Services\DashboardCache;
 use PDO;
 use PDOException;
@@ -160,7 +159,7 @@ class Role extends Model
                 "UPDATE {$this->table} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
-            $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 DashboardCache::forget('role_stats');
@@ -187,8 +186,8 @@ class Role extends Model
                 $stmt = $this->connection->prepare(
                     "SELECT COUNT(*) FROM {$this->table} WHERE name = :name AND id != :id"
                 );
-                $stmt->bindParam(':name', $name,      PDO::PARAM_STR);
-                $stmt->bindParam(':id',   $excludeId, PDO::PARAM_INT);
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $excludeId, PDO::PARAM_INT);
             } else {
                 $stmt = $this->connection->prepare(
                     "SELECT COUNT(*) FROM {$this->table} WHERE name = :name"
@@ -326,7 +325,7 @@ class Role extends Model
                 $stmt = $this->connection->prepare(
                     "INSERT INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
                 );
-                $stmt->bindParam(':role_id',       $roleId, PDO::PARAM_INT);
+                $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
                 $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);
                 $stmt->execute();
             }

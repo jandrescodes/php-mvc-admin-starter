@@ -44,7 +44,7 @@ class AuditLogController extends Controller
         ];
 
         // Remove empty values so the model only applies active filters
-        $activeFilters = array_filter($filters, fn($v) => $v !== '');
+        $activeFilters = array_filter($filters, fn ($v) => $v !== '');
 
         $logs    = $this->logModel->getAll($activeFilters);
         $modules = $this->logModel->getDistinctModules();

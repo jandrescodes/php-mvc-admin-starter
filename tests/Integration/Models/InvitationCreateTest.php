@@ -147,7 +147,7 @@ class InvitationCreateTest extends IntegrationTestCase
         // No error should mention "password"
         $passwordErrors = array_filter(
             $errors,
-            fn($e) => stripos($e, 'password') !== false
+            fn ($e) => stripos($e, 'password') !== false
         );
         $this->assertEmpty($passwordErrors, 'No password error expected for pending users. Got: ' . implode(', ', $errors));
     }

@@ -67,7 +67,7 @@ trait UserPasswordTrait
                  WHERE id = :id"
             );
             $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
-            $stmt->bindParam(':id',       $id,   PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $result = $stmt->execute();
             if ($result) {
                 $this->clearRememberToken($id);
@@ -99,9 +99,9 @@ trait UserPasswordTrait
                  SET remember_token = :token, remember_token_expires = :expires
                  WHERE id = :id"
             );
-            $stmt->bindParam(':token',   $tokenHash, PDO::PARAM_STR);
-            $stmt->bindParam(':expires', $expires,   PDO::PARAM_STR);
-            $stmt->bindParam(':id',      $userId,    PDO::PARAM_INT);
+            $stmt->bindParam(':token', $tokenHash, PDO::PARAM_STR);
+            $stmt->bindParam(':expires', $expires, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();

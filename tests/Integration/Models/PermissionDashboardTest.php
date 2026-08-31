@@ -38,8 +38,8 @@ class PermissionDashboardTest extends IntegrationTestCase
         $result = $this->model->getTopAssigned(5);
 
         foreach ($result as $entry) {
-            $this->assertArrayHasKey('id',          $entry);
-            $this->assertArrayHasKey('name',        $entry);
+            $this->assertArrayHasKey('id', $entry);
+            $this->assertArrayHasKey('name', $entry);
             $this->assertArrayHasKey('total_users', $entry);
             $this->assertIsInt($entry['id']);
             $this->assertIsString($entry['name']);

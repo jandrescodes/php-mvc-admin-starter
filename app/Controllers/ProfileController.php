@@ -55,7 +55,7 @@ class ProfileController extends Controller
         $oldImage = $currentUser['image'];
 
         $data = [
-            'phone'   => !empty($_POST['phone'])   ? trim($_POST['phone'])   : null,
+            'phone'   => !empty($_POST['phone']) ? trim($_POST['phone']) : null,
             'address' => !empty($_POST['address']) ? trim($_POST['address']) : null,
             'image'   => $oldImage,
         ];

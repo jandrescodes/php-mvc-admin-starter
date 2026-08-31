@@ -2,7 +2,7 @@
 
 /**
  * Front Controller - Entry point for all requests
- * 
+ *
  * All HTTP requests are routed through this file via Apache rewriting.
  * The router determines which controller method to execute.
  */

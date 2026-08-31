@@ -153,8 +153,8 @@ trait UserAuthTrait
                 $stmt = $this->connection->prepare(
                     "SELECT COUNT(*) FROM {$this->table} WHERE email = :email AND id != :id"
                 );
-                $stmt->bindParam(':email', $email,     PDO::PARAM_STR);
-                $stmt->bindParam(':id',    $excludeId, PDO::PARAM_INT);
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $excludeId, PDO::PARAM_INT);
             } else {
                 $stmt = $this->connection->prepare(
                     "SELECT COUNT(*) FROM {$this->table} WHERE email = :email"
@@ -292,15 +292,15 @@ trait UserAuthTrait
                        AND document_number = :document_number
                        AND id != :id"
                 );
-                $stmt->bindParam(':document_type',   $documentType,   PDO::PARAM_STR);
+                $stmt->bindParam(':document_type', $documentType, PDO::PARAM_STR);
                 $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
-                $stmt->bindParam(':id',              $excludeId,      PDO::PARAM_INT);
+                $stmt->bindParam(':id', $excludeId, PDO::PARAM_INT);
             } else {
                 $stmt = $this->connection->prepare(
                     "SELECT COUNT(*) FROM {$this->table}
                      WHERE document_type = :document_type AND document_number = :document_number"
                 );
-                $stmt->bindParam(':document_type',   $documentType,   PDO::PARAM_STR);
+                $stmt->bindParam(':document_type', $documentType, PDO::PARAM_STR);
                 $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
             }
             $stmt->execute();
@@ -340,9 +340,9 @@ trait UserAuthTrait
                     )
                 WHERE id = :id
             ");
-            $stmt->bindValue(':max',     $maxAttempts,    PDO::PARAM_INT);
+            $stmt->bindValue(':max', $maxAttempts, PDO::PARAM_INT);
             $stmt->bindValue(':minutes', $lockoutMinutes, PDO::PARAM_INT);
-            $stmt->bindParam(':id',      $userId,         PDO::PARAM_INT);
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
             $stmt->execute();
 
             $stmt2 = $this->connection->prepare("

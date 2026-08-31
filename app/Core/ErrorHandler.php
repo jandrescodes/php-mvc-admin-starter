@@ -4,7 +4,9 @@ namespace App\Core;
 
 final class ErrorHandler
 {
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function notFound(): void
     {

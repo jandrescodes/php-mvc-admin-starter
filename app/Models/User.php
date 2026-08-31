@@ -39,17 +39,17 @@ class User extends Model
     // -------------------------------------------------------------------------
 
     /** Account is deactivated by an administrator */
-    const STATUS_INACTIVE = 0;
+    public const STATUS_INACTIVE = 0;
 
     /** Account is active and can log in */
-    const STATUS_ACTIVE = 1;
+    public const STATUS_ACTIVE = 1;
 
     /**
      * Account is pending — invitation sent but password not yet set.
      * Pending users cannot log in, request a password reset, or be
      * auto-logged in via remember-me cookie.
      */
-    const STATUS_PENDING = 2;
+    public const STATUS_PENDING = 2;
 
     // -------------------------------------------------------------------------
     // Read
@@ -125,14 +125,14 @@ class User extends Model
                      :address, :phone, :email, :password, :image, :status, :role_id)
             ");
 
-            $stmt->bindParam(':name',          $data['name'],          PDO::PARAM_STR);
+            $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             $stmt->bindParam(':first_surname', $data['first_surname'], PDO::PARAM_STR);
 
             empty($data['second_surname'])
                 ? $stmt->bindValue(':second_surname', null, PDO::PARAM_NULL)
                 : $stmt->bindParam(':second_surname', $data['second_surname'], PDO::PARAM_STR);
 
-            $stmt->bindParam(':document_type',   $data['document_type'],   PDO::PARAM_STR);
+            $stmt->bindParam(':document_type', $data['document_type'], PDO::PARAM_STR);
             $stmt->bindParam(':document_number', $data['document_number'], PDO::PARAM_STR);
 
             empty($data['address'])
@@ -151,8 +151,8 @@ class User extends Model
                 ? $stmt->bindValue(':image', null, PDO::PARAM_NULL)
                 : $stmt->bindParam(':image', $data['image'], PDO::PARAM_STR);
 
-            $stmt->bindParam(':password', $passwordHash,   PDO::PARAM_STR);
-            $stmt->bindParam(':status',   $data['status'], PDO::PARAM_INT);
+            $stmt->bindParam(':password', $passwordHash, PDO::PARAM_STR);
+            $stmt->bindParam(':status', $data['status'], PDO::PARAM_INT);
 
             empty($data['role_id'])
                 ? $stmt->bindValue(':role_id', null, PDO::PARAM_NULL)
@@ -195,14 +195,14 @@ class User extends Model
                 WHERE id = :id
             ");
 
-            $stmt->bindParam(':name',          $data['name'],          PDO::PARAM_STR);
+            $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             $stmt->bindParam(':first_surname', $data['first_surname'], PDO::PARAM_STR);
 
             empty($data['second_surname'])
                 ? $stmt->bindValue(':second_surname', null, PDO::PARAM_NULL)
                 : $stmt->bindParam(':second_surname', $data['second_surname'], PDO::PARAM_STR);
 
-            $stmt->bindParam(':document_type',   $data['document_type'],   PDO::PARAM_STR);
+            $stmt->bindParam(':document_type', $data['document_type'], PDO::PARAM_STR);
             $stmt->bindParam(':document_number', $data['document_number'], PDO::PARAM_STR);
 
             empty($data['address'])
@@ -289,7 +289,7 @@ class User extends Model
                 "UPDATE {$this->table} SET password = :password WHERE id = :id"
             );
             $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
-            $stmt->bindParam(':id',       $id,   PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             if ($stmt->execute()) {
                 $this->clearRememberToken($id);
                 return true;
@@ -315,7 +315,7 @@ class User extends Model
                 "UPDATE {$this->table} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
-            $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 $this->forgetUserCaches();

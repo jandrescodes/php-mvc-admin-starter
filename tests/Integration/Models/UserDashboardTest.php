@@ -24,7 +24,7 @@ class UserDashboardTest extends IntegrationTestCase
         $result = $this->model->getUsersByStatus();
 
         // Seed: 2 active users, 0 inactive
-        $this->assertArrayHasKey('active',   $result);
+        $this->assertArrayHasKey('active', $result);
         $this->assertArrayHasKey('inactive', $result);
         $this->assertSame(2, $result['active']);
         $this->assertSame(0, $result['inactive']);
@@ -54,7 +54,7 @@ class UserDashboardTest extends IntegrationTestCase
         $result = $this->model->getUsersByMonth(3);
 
         foreach ($result as $entry) {
-            $this->assertArrayHasKey('ym',    $entry);
+            $this->assertArrayHasKey('ym', $entry);
             $this->assertArrayHasKey('total', $entry);
             $this->assertMatchesRegularExpression('/^\d{4}-\d{2}$/', $entry['ym']);
             $this->assertIsInt($entry['total']);

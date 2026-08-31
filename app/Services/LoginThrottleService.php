@@ -17,7 +17,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Services\AuditLogger;
 
 class LoginThrottleService
 {

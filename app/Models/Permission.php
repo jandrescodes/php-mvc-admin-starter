@@ -195,7 +195,7 @@ class Permission extends Model
                 "UPDATE {$this->table} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
-            $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 DashboardCache::forget('perm_stats');
@@ -222,8 +222,8 @@ class Permission extends Model
             if ($excludeId) {
                 $query = "SELECT COUNT(*) FROM {$this->table} WHERE name = :name AND id != :id";
                 $stmt  = $this->connection->prepare($query);
-                $stmt->bindParam(':name', $name,      PDO::PARAM_STR);
-                $stmt->bindParam(':id',   $excludeId, PDO::PARAM_INT);
+                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                $stmt->bindParam(':id', $excludeId, PDO::PARAM_INT);
             } else {
                 $query = "SELECT COUNT(*) FROM {$this->table} WHERE name = :name";
                 $stmt  = $this->connection->prepare($query);
@@ -499,7 +499,7 @@ class Permission extends Model
                 $stmt = $this->connection->prepare(
                     "INSERT INTO user_permissions (user_id, permission_id) VALUES (:user_id, :permission_id)"
                 );
-                $stmt->bindParam(':user_id',       $userId, PDO::PARAM_INT);
+                $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
                 $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);
                 $stmt->execute();
             }
@@ -522,7 +522,7 @@ class Permission extends Model
             $stmt = $this->connection->prepare(
                 "SELECT COUNT(*) FROM user_permissions WHERE user_id = :uid AND permission_id = :pid"
             );
-            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
             $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
 
@@ -533,7 +533,7 @@ class Permission extends Model
             $stmt = $this->connection->prepare(
                 "INSERT INTO user_permissions (user_id, permission_id) VALUES (:uid, :pid)"
             );
-            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
             $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -551,7 +551,7 @@ class Permission extends Model
             $stmt = $this->connection->prepare(
                 "DELETE FROM user_permissions WHERE user_id = :uid AND permission_id = :pid"
             );
-            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':uid', $userId, PDO::PARAM_INT);
             $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
             return true;

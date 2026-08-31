@@ -85,8 +85,8 @@ class LoginThrottleTest extends IntegrationTestCase
     {
         $result = $this->userModel->recordFailure(2);
 
-        $this->assertArrayHasKey('login_attempts',  $result);
-        $this->assertArrayHasKey('locked_until',    $result);
+        $this->assertArrayHasKey('login_attempts', $result);
+        $this->assertArrayHasKey('locked_until', $result);
         $this->assertArrayHasKey('last_attempt_at', $result);
         $this->assertSame(1, (int) $result['login_attempts']);
     }
@@ -142,7 +142,7 @@ class LoginThrottleTest extends IntegrationTestCase
         $this->userModel->clearAttempts(2);
 
         $row = self::$pdo->query('SELECT login_attempts, locked_until, last_attempt_at FROM users WHERE id = 2')->fetch();
-        $this->assertSame(0,    (int) $row['login_attempts']);
+        $this->assertSame(0, (int) $row['login_attempts']);
         $this->assertNull($row['locked_until']);
         $this->assertNull($row['last_attempt_at']);
     }
@@ -163,7 +163,7 @@ class LoginThrottleTest extends IntegrationTestCase
         $this->assertTrue($result);
 
         $row = self::$pdo->query('SELECT login_attempts, locked_until, last_attempt_at FROM users WHERE id = 2')->fetch();
-        $this->assertSame(0,    (int) $row['login_attempts']);
+        $this->assertSame(0, (int) $row['login_attempts']);
         $this->assertNull($row['locked_until']);
         $this->assertNull($row['last_attempt_at']);
     }
@@ -195,7 +195,7 @@ class LoginThrottleTest extends IntegrationTestCase
         $this->assertTrue($result['locked']);
         $this->assertGreaterThan(0, $result['remaining_seconds']);
         $this->assertStringContainsString('bloqueada', $result['message']);
-        $this->assertStringContainsString('minuto',    $result['message']);
+        $this->assertStringContainsString('minuto', $result['message']);
     }
 
     public function test_isLocked_returnsFalseWhenLockExpired(): void

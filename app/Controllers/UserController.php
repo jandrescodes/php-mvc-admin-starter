@@ -444,7 +444,7 @@ class UserController extends Controller
 
         if ($ok) {
             $action    = $activating ? 'activated' : 'deactivated';
-            $auditVerb = $activating ? 'activate'  : 'deactivate';
+            $auditVerb = $activating ? 'activate' : 'deactivate';
             $newStatus = $activating ? 1 : 0;
             AuditLogger::log(
                 'users',
@@ -483,11 +483,11 @@ class UserController extends Controller
         return [
             'name'            => trim($postData['name']            ?? ''),
             'first_surname'   => trim($postData['first_surname']   ?? ''),
-            'second_surname'  => !empty($postData['second_surname'])  ? trim($postData['second_surname'])  : null,
+            'second_surname'  => !empty($postData['second_surname']) ? trim($postData['second_surname']) : null,
             'document_type'   => trim($postData['document_type']   ?? ''),
             'document_number' => trim($postData['document_number'] ?? ''),
-            'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,
-            'phone'           => !empty($postData['phone'])    ? trim($postData['phone'])    : null,
+            'address'         => !empty($postData['address']) ? trim($postData['address']) : null,
+            'phone'           => !empty($postData['phone']) ? trim($postData['phone']) : null,
             'email'           => trim($postData['email']    ?? ''),
             'password'        => $isInvite
                 ? password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT)
