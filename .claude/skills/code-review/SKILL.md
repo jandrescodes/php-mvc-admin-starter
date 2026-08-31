@@ -10,7 +10,7 @@ allowed-tools: Bash, Read
 ## Overview
 
 Structured code review process for this PHP MVC admin starter before any branch merge to `main`. Covers security,
-architecture conventions, and the project's specific patterns documented in `CLAUDE.md` — read that file first if
+architecture conventions, and the project's specific patterns documented in `AGENTS.md` — read that file first if
 it isn't already in context; this checklist assumes it.
 
 ## How to Run the Review
@@ -66,7 +66,7 @@ Review each changed file against the checklist below. Group findings by severity
       `$_SESSION` directly for auth state outside `App\Core\Auth`
 - [ ] Namespaces consistent: `App\Controllers\*`, `App\Models\*`, `App\Services\*`, `App\Core\*`
 - [ ] `DashboardCache::forget()` called for affected keys after any mutation to user/permission/role/invitation
-      data, per the invalidation contract in `CLAUDE.md` (e.g. user mutations clear `user_stats`,
+      data, per the invalidation contract in `AGENTS.md` (e.g. user mutations clear `user_stats`,
       `users_by_status`, `recent_users`, `users_by_month`; permission mutations clear `perm_stats`,
       `top_permissions`; role mutations clear `role_stats`)
 - [ ] `AuditLogger::log()` called in the **controller** (never inside model methods) after every state-changing
@@ -102,7 +102,7 @@ Review each changed file against the checklist below. Group findings by severity
 - [ ] Commits follow Conventional Commits (`feat:`, `fix:`, `docs:`, etc.) with an accurate type
 - [ ] No commits directly to `main` for non-trivial work — via PR unless the user explicitly directs otherwise
 - [ ] No `.env`, `.env.testing`, or credentials in the diff
-- [ ] `CLAUDE.md` updated if the change introduces a new convention, cache key, or invalidation rule that isn't
+- [ ] `AGENTS.md` updated if the change introduces a new convention, cache key, or invalidation rule that isn't
       already documented
 
 ---

@@ -2,7 +2,8 @@
 
 > Plantillas de prompts para el equipo. Úsalas como base — adapta los bloques
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
-> El `CLAUDE.md` siempre debe estar disponible para el agente como contexto base.
+> El `AGENTS.md` (fuente única de convenciones; `CLAUDE.md` solo lo importa) siempre debe estar
+> disponible para el agente como contexto base.
 
 ---
 
@@ -23,7 +24,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 **Reglas de uso del equipo:**
 
-- **Siempre carga el CLAUDE.md** al inicio de la sesión si la herramienta no lo carga automáticamente.
+- **Siempre carga el AGENTS.md** al inicio de la sesión si la herramienta no lo carga automáticamente.
 - **Un prompt por subtarea.** Pedir "el módulo completo" en un solo prompt produce resultados genéricos.
 - **Si el output no encaja**, no corrijas manualmente primero — ajusta `[Restricciones]` y repite.
 - **El spec antes que el código.** Define qué debe hacer antes de pedir que lo implemente.
@@ -341,5 +342,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.16.1_
-_Mantener sincronizado con CLAUDE.md al iniciar cada sprint._
+_Última actualización: v3.17.0_
+_Mantener sincronizado con AGENTS.md al iniciar cada sprint._
