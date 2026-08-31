@@ -1,12 +1,61 @@
 name: tests
 
 on:
+  # Feature branches are validated via the pull_request event; running on every
+  # push too would double the CI spend for any branch with an open PR. Direct
+  # pushes still run on main and on release tags.
+  #
+  # Skip runs when a change cannot affect test outcomes (docs, static assets).
+  # Any change to PHP, composer.*, or the workflow itself still triggers.
   push:
-    branches: ["**"]
+    branches: [main]
+    tags: ["*"]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "public/css/**"
+      - "public/js/**"
+      - "public/img/**"
+      - "LICENSE"
+      - ".gitignore"
   pull_request:
-    branches: ["**"]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "public/css/**"
+      - "public/js/**"
+      - "public/img/**"
+      - "LICENSE"
+      - ".gitignore"
+
+# Cancel superseded runs on the same ref so rapid pushes don't pile up.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Static Analysis & Code Style
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Check code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Static analysis (PHPStan)
+        run: vendor/bin/phpstan analyse --no-progress
+
   unit:
     name: Unit Tests (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -15,7 +64,7 @@ jobs:
         php: ["8.2"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -55,7 +104,7 @@ jobs:
           --health-retries=5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
