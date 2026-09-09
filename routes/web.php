@@ -59,6 +59,7 @@ return [
     ['method' => 'GET',  'path' => '/roles/(\d+)',         'controller' => 'Role@detail',         'middleware' => ['auth', 'perm:roles']],
 
     // Audit Log (read-only)
+    ['method' => 'GET', 'path' => '/audit-log/export', 'controller' => 'AuditLog@export', 'middleware' => ['auth', 'perm:audit_log_export']],
     ['method' => 'GET', 'path' => '/audit-log', 'controller' => 'AuditLog@index', 'middleware' => ['auth', 'perm:audit_log']],
 
     // Roles AJAX
