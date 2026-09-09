@@ -42,6 +42,16 @@ composer stan                  # phpstan analyse  (level 5)
 composer check                 # lint + stan + all suites — the CI gate; run before every commit
 ```
 
+## Dependencies
+
+- **`tecnickcom/tcpdf` is pinned to `^6.11` on purpose — do not bump to 7.x.** The 7.x series is a
+  deprecated compatibility shim (its own `composer.json` says so) that delegates to
+  `tecnickcom/tc-lib-pdf ^8`, only really implements ~24 of 293 methods, and ships **no fonts** —
+  they are built by a `post-install-cmd` needing `fontforge`, which would have to run on every
+  `composer install` (dev, all 3 CI jobs, prod) since `vendor/` is not committed. A `new TCPDF()`
+  throws in the constructor under 7.x. 6.11.4 bundles 165 font files (full `dejavusans`) and works.
+  Close any Dependabot PR that raises this constraint.
+
 ## Architecture
 
 - **Entry point:** `public/index.php` starts the session and loads `app/Config/config.php`, which bootstraps `vendor/autoload.php` (PSR-4 + `files` for helpers) + phpdotenv, then instantiates `App\Core\Router`. Apache rewrites all requests to `index.php` via `public/.htaccess`.
