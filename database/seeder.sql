@@ -16,12 +16,13 @@ INSERT INTO roles (name, description, status, is_system) VALUES
 -- =========================================================================
 
 INSERT INTO permissions (name, description, status) VALUES
-('profile',     'Access to own profile and password changes', 1),
-('admin',       'General administration (superuser)',         1),
-('users',       'User management',                           1),
-('permissions', 'Permission management',                     1),
-('roles',       'Role management',                           1),
-('audit_log',   'View the system audit/activity log',        1);
+('profile',          'Access to own profile and password changes', 1),
+('admin',            'General administration (superuser)',         1),
+('users',            'User management',                           1),
+('permissions',      'Permission management',                     1),
+('roles',            'Role management',                           1),
+('audit_log',        'View the system audit/activity log',        1),
+('audit_log_export', 'Export the audit log to PDF',               1);
 
 -- =========================================================================
 -- USERS  (password for all: admin123)
@@ -156,9 +157,9 @@ SELECT p.id, @lucia_id FROM permissions p WHERE p.name IN ('profile');
 INSERT INTO user_permissions (permission_id, user_id)
 SELECT p.id, @diego_id FROM permissions p WHERE p.name IN ('profile');
 
--- Sofia (Auditor): also gets permissions management directly
+-- Sofia (Auditor): also gets permissions management + export directly
 INSERT INTO user_permissions (permission_id, user_id)
-SELECT p.id, @sofia_id FROM permissions p WHERE p.name IN ('profile', 'audit_log', 'permissions');
+SELECT p.id, @sofia_id FROM permissions p WHERE p.name IN ('profile', 'audit_log', 'permissions', 'audit_log_export');
 
 -- Miguel, Elena (Editor): profile + users via role
 INSERT INTO user_permissions (permission_id, user_id)
