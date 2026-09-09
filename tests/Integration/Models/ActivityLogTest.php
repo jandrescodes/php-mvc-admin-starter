@@ -127,6 +127,35 @@ class ActivityLogTest extends IntegrationTestCase
         $this->assertSame('1', (string) $rows[0]['actor_id']);
     }
 
+    public function test_getAll_with_limit_returns_at_most_limit_rows(): void
+    {
+        $this->model->create($this->baseData);
+        $this->model->create(array_merge($this->baseData, ['action' => 'update']));
+        $this->model->create(array_merge($this->baseData, ['action' => 'delete']));
+
+        $rows = $this->model->getAll([], 2);
+        $this->assertCount(2, $rows);
+    }
+
+    public function test_getAll_without_limit_returns_all_rows(): void
+    {
+        $this->model->create($this->baseData);
+        $this->model->create(array_merge($this->baseData, ['action' => 'update']));
+
+        $rows = $this->model->getAll([], null);
+        $this->assertCount(2, $rows);
+    }
+
+    public function test_getAll_with_limit_one_returns_most_recent(): void
+    {
+        $this->model->create(array_merge($this->baseData, ['action' => 'create']));
+        $this->model->create(array_merge($this->baseData, ['action' => 'update']));
+
+        $rows = $this->model->getAll([], 1);
+        $this->assertCount(1, $rows);
+        $this->assertSame('update', $rows[0]['action']);
+    }
+
     public function test_getAll_filter_by_date_range(): void
     {
         $this->model->create($this->baseData);

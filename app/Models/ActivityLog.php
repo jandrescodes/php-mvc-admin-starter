@@ -70,38 +70,45 @@ class ActivityLog extends Model
     /**
      * Returns all activity log entries with optional filters, ordered by most recent first.
      *
-     * @param array $filters  Optional keys: module, action, actor_id, date_from, date_to
+     * @param array   $filters  Optional keys: module, action, actor_id, date_from, date_to
+     * @param int|null $limit   Maximum rows to return; null = no limit
      * @return array
      */
-    public function getAll(array $filters = []): array
+    public function getAll(array $filters = [], ?int $limit = null): array
     {
         try {
             $where  = [];
             $params = [];
 
             if (!empty($filters['module'])) {
-                $where[]              = 'al.module = :module';
-                $params[':module']    = $filters['module'];
+                $where[]           = 'al.module = :module';
+                $params[':module'] = $filters['module'];
             }
 
             if (!empty($filters['action'])) {
-                $where[]              = 'al.action = :action';
-                $params[':action']    = $filters['action'];
+                $where[]           = 'al.action = :action';
+                $params[':action'] = $filters['action'];
             }
 
             if (!empty($filters['actor_id'])) {
-                $where[]              = 'al.actor_id = :actor_id';
-                $params[':actor_id']  = (int) $filters['actor_id'];
+                $where[]             = 'al.actor_id = :actor_id';
+                $params[':actor_id'] = (int) $filters['actor_id'];
             }
 
             if (!empty($filters['date_from'])) {
-                $where[]                = 'al.created_at >= :date_from';
-                $params[':date_from']   = $filters['date_from'] . ' 00:00:00';
+                $where[]              = 'al.created_at >= :date_from';
+                $params[':date_from'] = $filters['date_from'] . ' 00:00:00';
             }
 
             if (!empty($filters['date_to'])) {
-                $where[]              = 'al.created_at <= :date_to';
-                $params[':date_to']   = $filters['date_to'] . ' 23:59:59';
+                $where[]            = 'al.created_at <= :date_to';
+                $params[':date_to'] = $filters['date_to'] . ' 23:59:59';
+            }
+
+            $limitClause = '';
+            if ($limit !== null) {
+                $limitClause         = ' LIMIT :limit';
+                $params[':limit']    = $limit;
             }
 
             $whereClause = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
@@ -114,10 +121,18 @@ class ActivityLog extends Model
                  FROM {$this->tabla} al
                  LEFT JOIN users u ON u.id = al.actor_id
                  {$whereClause}
-                 ORDER BY al.created_at DESC, al.id DESC"
+                 ORDER BY al.created_at DESC, al.id DESC
+                 {$limitClause}"
             );
 
-            $stmt->execute($params);
+            foreach ($params as $key => $value) {
+                $type = $key === ':limit' || $key === ':actor_id'
+                    ? PDO::PARAM_INT
+                    : PDO::PARAM_STR;
+                $stmt->bindValue($key, $value, $type);
+            }
+
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
