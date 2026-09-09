@@ -102,7 +102,7 @@ Descripción: [criterios de aceptación]
 - DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
 - Select2 para dropdowns; con dropdownParent si está dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
-- Audit: llamar AuditLogger::log(['module'=>..., 'action'=>..., 'description'=>..., 'details'=>[...]]) en el controller tras cada acción exitosa que mute estado — nunca dentro del modelo
+- Audit: llamar AuditLogger::log(string $module, string $action, string $description = '', array $details = []) — firma posicional, nunca un array — en el controller tras cada acción exitosa que mute estado; nunca dentro del modelo
 - No inventar métodos de core que no existan en app/Core/
 
 [Formato de salida]

@@ -8,7 +8,7 @@ material lives in `docs/`.
 
 PHP MVC admin starter — authentication, user / role / permission management, permission-based access
 control. AdminLTE 3, PDO/MySQL, Composer native PSR-4 autoloading. Pure PHP, **no build process**
-(no npm, no Makefile — frontend assets are static files in `public/`). Current release tag: `3.17.0`.
+(no npm, no Makefile — frontend assets are static files in `public/`). Current release tag: `3.18.0`.
 
 ## Setup
 
@@ -63,7 +63,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
     app/Core/         Controller, Model, Router, Auth, AssetRegistry, ErrorHandler, helpers.php
     app/Middleware/   AuthMiddleware, GuestMiddleware, PermissionMiddleware
     app/Models/       App\Models; Traits/ = UserAuthTrait, UserPasswordTrait, UserStatsTrait
-    app/Services/     ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger
+    app/Services/     ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger, AuditLogPdfExporter; Pdf/ = ReportDocument (\TCPDF)
     routes/web.php · database/ (schema.sql, seeder.sql) · views/ · public/ · vendor/ (not committed)
     ```
 - **Autoloading:** Composer PSR-4 `"App\\": "app/"`, no custom autoloader. `app/Core/helpers.php` loads via `autoload.files` — it defines only `generateCSRFToken()`, `verifyCSRFToken()`, `regenerateCSRFToken()`, and the `env()` wrapper.
@@ -86,6 +86,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - **Input sanitization:** `trim()` at the model layer (`trimInput()`). `htmlspecialchars()` **only** at the view layer on output — never in the model or before storing in the DB.
 - **Passwords:** always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`. Minimum 8 characters.
 - **Images:** route every upload / resize / delete through `ImageService`. MIME type is validated server-side via `(new \finfo(FILEINFO_MIME_TYPE))->file($tmp_name)` — never `$_FILES['type']` (client-controlled). Extension whitelist: `jpg`, `jpeg`, `png`, `gif`, `webp`.
+- **PDF exports:** generate server-side through `AuditLogPdfExporter` (which owns the `\TCPDF` subclass `ReportDocument`) — **never instantiate TCPDF in a controller**. The exporter takes rows + metadata as plain parameters (zero DB/Auth coupling) and returns the PDF as a string; the controller sets the headers and echoes. UTF-8 requires the `dejavusans` font (bundled in TCPDF `^6`).
 - **Fat model / thin controller:** validation, data formatting, and cache invalidation live in the model. Controllers read POST/GET, call one or a few model methods, set session flash messages, and redirect or return JSON — nothing more.
 - **Model base class:** extend `App\Core\Model`, set `protected $table = '…'`. It provides `find`, `all`, `insert`, `update`, `delete`, `query`, `getLastInsertId`, `trimInput` — never redeclare those in a concrete model. Override only methods needing JOINs or custom field handling.
 - **Model traits:** past ~400 lines, split concerns into `app/Models/Traits/` by responsibility (auth queries, password/token lifecycle, statistics). Traits share `$this` — they use `$this->connection` / `$this->table` directly.
@@ -105,8 +106,8 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 
 ### Audit logging — `App\Services\AuditLogger` (static)
 
-- `AuditLogger::log(['module' => …, 'action' => …, 'description' => …?, 'details' => [...]?])` — auto-fills `actor_id` / `actor_label` from `Auth`, resolves client IP, delegates to `ActivityLog::create()`, then forgets `audit_today`. Failures are silently swallowed — logging must never break the primary action.
-- Call it **in the controller, after the model returns success** — never inside a model method (a failed write must not leave a spurious log entry). Sites: `AuthController` (login, logout); `UserController` (create, update, delete, status change, unlock-login, invite, invite_resent); `InvitationController` (invitation_accepted); `PermissionController` (create, update, delete, assign, revoke); `RoleController` (create, update, delete, sync_permissions).
+- `AuditLogger::log(string $module, string $action, string $description = '', array $details = [], ?int $actorId = null, ?string $actorLabel = null)` — **posicional** (never pass an array). Auto-fills `actor_id` / `actor_label` from `Auth`, resolves client IP, delegates to `ActivityLog::create()`, then forgets `audit_today`. Failures are silently swallowed — logging must never break the primary action.
+- Call it **in the controller, after the model returns success** — never inside a model method (a failed write must not leave a spurious log entry). Sites: `AuthController` (login, logout); `UserController` (create, update, delete, status change, unlock-login, invite, invite_resent); `InvitationController` (invitation_accepted); `PermissionController` (create, update, delete, assign, revoke); `RoleController` (create, update, delete, sync_permissions); `AuditLogController` (export).
 
 ### Password reset & invitation — `App\Models\PasswordReset`
 

@@ -258,7 +258,7 @@ When adding new features, follow the existing project structure:
 │   ├── Controllers/      # Feature controllers (flat — no subdirectories)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── Models/           # App\Models; Traits/ holds UserAuthTrait, UserPasswordTrait, UserStatsTrait
-│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)
+│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger, AuditLogPdfExporter)
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates

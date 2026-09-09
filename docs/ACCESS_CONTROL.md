@@ -198,6 +198,7 @@ Pending users are created via the invitation flow. `AuthController::login()` blo
 | `permissions`   | Permissions | Create, edit, and assign/revoke permissions                     |
 | `roles`         | Roles       | Create, edit, and manage role↔permission assignments            |
 | `audit_log`     | Audit Log   | Read-only access to the activity/audit log                      |
+| `audit_log_export` | Audit Log | Download the audit log as a server-generated PDF (`GET /audit-log/export`) |
 
 > Administrators (role with `is_system = 1`) receive `['*']` in session — `hasPermission()` returns `true` for **any** permission name without requiring explicit assignment.
 

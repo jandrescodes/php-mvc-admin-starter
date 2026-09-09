@@ -53,12 +53,12 @@ A PHP starter template with authentication, user management, and role-based perm
 - **User management** — Full CRUD, profile images, account activation/deactivation, invitation by email (admin creates pending user → 48 h token link → user sets password → account activated)
 - **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
-- **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; gated by `audit_log` permission
+- **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; server-side PDF export (TCPDF) gated by `audit_log_export`; log access gated by `audit_log` permission
 - **Metrics dashboard** — Chart.js charts (donut active/inactive/pending, bar, line) + stat cards for users, permissions, roles, and today's audit events; toggleable access-metrics row (pending invitations, resets this week) with localStorage persistence and CSS slide+fade animation; staggered entrance animations for stat cards and chart cards; session-based cache with event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages sharing one layout (`views/layouts/error.php`), WCAG AA-compliant color tokens, and full dark mode support
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
-- **PDF generation** — Built-in report generation with TCPDF
+- **PDF generation** — Built-in report generation with TCPDF: server-side PDF export of the audit log (respects the active filters, UTF-8, paginated header/footer)
 - **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules, auth standalone pages, and error pages
 - **Accessible by default** — labeled form inputs, `aria-pressed`/`aria-label` on icon-only toggles, `prefers-reduced-motion` respected, `<noscript>` fallback for flash messages
 - **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included

@@ -26,12 +26,12 @@ This keeps seed imports deterministic and avoids duplicate records in local envi
 
 ## Role permissions (inherited by users of each role)
 
-| Role          | profile | users | permissions | admin | roles | audit_log |
-| ------------- | ------- | ----- | ----------- | ----- | ----- | --------- |
-| Administrator | ✅ `*`  | ✅ `*`| ✅ `*`      | ✅ `*`| ✅ `*`| ✅ `*`    |
-| Editor        | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        |
-| Auditor       | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        |
-| Viewer        | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
+| Role          | profile | users | permissions | admin | roles | audit_log | audit_log_export |
+| ------------- | ------- | ----- | ----------- | ----- | ----- | --------- | ---------------- |
+| Administrator | ✅ `*`  | ✅ `*`| ✅ `*`      | ✅ `*`| ✅ `*`| ✅ `*`    | ✅ `*`           |
+| Editor        | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| Auditor       | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        | ❌               |
+| Viewer        | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
 
 ## Seeded test users
 
@@ -60,29 +60,31 @@ All users below are seeded with password: `admin123`
 
 Effective permissions are the **union** of direct `user_permissions` assignments and permissions inherited from the user's role via `role_permissions`.
 
-| User                         | profile | users | permissions | admin | roles | audit_log |
-| ---------------------------- | ------- | ----- | ----------- | ----- | ----- | --------- |
-| admin@sistema.com            | ✅ `*`  | ✅ `*`| ✅ `*`      | ✅ `*`| ✅ `*`| ✅ `*`    |
-| ana.paredes@sistema.com      | ✅      | ✅    | ❌          | ❌    | ✅    | ❌        |
-| carlos.rojas@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| lucia.quispe@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| diego.torres@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| sofia.mendoza@sistema.com    | ✅      | ❌    | ✅          | ❌    | ❌    | ✅        |
-| miguel.flores@sistema.com    | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        |
-| valeria.castro@sistema.com   | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        |
-| roberto.herrera@sistema.com  | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| elena.vargas@sistema.com     | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        |
-| jorge.aguirre@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| patricia.lara@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        |
-| fernando.rios@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
-| isabel.navarro@sistema.com   | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        |
+| User                         | profile | users | permissions | admin | roles | audit_log | audit_log_export |
+| ---------------------------- | ------- | ----- | ----------- | ----- | ----- | --------- | ---------------- |
+| admin@sistema.com            | ✅ `*`  | ✅ `*`| ✅ `*`      | ✅ `*`| ✅ `*`| ✅ `*`    | ✅ `*`           |
+| ana.paredes@sistema.com      | ✅      | ✅    | ❌          | ❌    | ✅    | ❌        | ❌               |
+| carlos.rojas@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| lucia.quispe@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| diego.torres@sistema.com     | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| sofia.mendoza@sistema.com    | ✅      | ❌    | ✅          | ❌    | ❌    | ✅        | ✅               |
+| miguel.flores@sistema.com    | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| valeria.castro@sistema.com   | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        | ❌               |
+| roberto.herrera@sistema.com  | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| elena.vargas@sistema.com     | ✅      | ✅    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| jorge.aguirre@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| patricia.lara@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ✅        | ❌               |
+| fernando.rios@sistema.com    | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+| isabel.navarro@sistema.com   | ✅      | ❌    | ❌          | ❌    | ❌    | ❌        | ❌               |
+
+> `audit_log_export` is assigned **directly** (`user_permissions`) to `sofia.mendoza` only — the Auditor role does **not** inherit it, so `valeria.castro` and `patricia.lara` keep read-only audit log access and their export test must expect `403`.
 
 > **Note:** `roberto.herrera`, `jorge.aguirre`, `fernando.rios`, and `isabel.navarro` have no direct `user_permissions` rows — their only effective permission comes from the Viewer role (`profile`).
 
 ## Notes
 
 - `admin@sistema.com` has `is_system = 1` on its role → `Auth::isAdmin()` returns `true` and the session cache is always `['*']`.
-- Permission names are intentionally aligned with the application checks (`profile`, `users`, `permissions`, `admin`, `roles`, `audit_log`).
+- Permission names are intentionally aligned with the application checks (`profile`, `users`, `permissions`, `admin`, `roles`, `audit_log`, `audit_log_export`).
 - `activity_logs` contains ~42 entries spread across the last 6 months for realistic dashboard "Events Today" and audit log QA.
 - `password_resets` is truncated on every seeder run. No pre-seeded tokens — use the invite flow or the forgot-password form to generate them.
 - If you modify permissions or role assignments manually, remember that the user permission cache depends on `permissions_updated_at`. Run `UPDATE users SET permissions_updated_at = NOW() WHERE id = X` to force a refresh on next page load.

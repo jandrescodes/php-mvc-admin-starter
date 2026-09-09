@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.18.0] - 2026-09-09
+
+### Added
+
+- **Server-side PDF export of the audit log** (`GET /audit-log/export`) — generated with TCPDF via the new `App\Services\AuditLogPdfExporter` (owns the `\TCPDF` subclass `App\Services\Pdf\ReportDocument`). Respects the active index filters, caps at 5000 rows (truncated report flags the cap), UTF-8 via `dejavusans`, paginated brand header + `Pagina N de M` footer. Gated by the new `audit_log_export` permission (Administrator `*`, plus a direct assignment to the `sofia.mendoza` seeded user — the Auditor role does **not** inherit it).
+- **`ActivityLog::getAll()` limit parameter** — `getAll(array $filters = [], ?int $limit = null)`, positional `LIMIT` bound as `PARAM_INT`.
+
+### Changed
+
+- **TCPDF pinned to `^6.11`** — replaces the `^7.0` constraint. The 7.x series is a deprecated compatibility shim delegating to `tecnickcom/tc-lib-pdf ^8` that implements only ~24 of 293 methods and ships no fonts (built by a `post-install-cmd` requiring `fontforge`, unbuildable in CI). `new TCPDF()` throws under 7.x; 6.11.4 bundles the full `dejavusans` font set and works.
+- **`ActivityLog::getAll()`** now supports a row cap (used by the PDF exporter).
+
 ## [3.17.0] - 2026-08-31
 
 Developer tooling and CI efficiency pass. No runtime behaviour changes for end users.
