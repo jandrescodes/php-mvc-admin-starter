@@ -44,7 +44,7 @@ class AuditLogController extends Controller
 
         $this->render(
             'audit-log/index',
-            compact('logs', 'modules', 'actions', 'actors', 'filters'),
+            compact('logs', 'modules', 'actions', 'actors', 'filters', 'activeFilters'),
             ['datatables', 'datatables-export', 'select2'],
             ['audit-log/index-audit'],
             ['audit-log/audit-log']

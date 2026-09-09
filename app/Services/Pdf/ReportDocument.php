@@ -3,8 +3,11 @@
 /**
  * ReportDocument — TCPDF subclass for branded report output.
  *
- * Provides a consistent header (logo + title + date range + timestamp)
+ * Provides a consistent header (title + date range + timestamp)
  * and footer (page numbers + generator name) across all server-side PDF exports.
+ *
+ * The header artwork is drawn inside the top-margin band and the cursor is
+ * always left at $tMargin, so body content starts at the same Y on every page.
  *
  * @package ProyectoBase
  * @subpackage App\Services\Pdf
@@ -29,30 +32,35 @@ class ReportDocument extends \TCPDF
     public string $generatedBy = '';
 
     /**
-     * Header: logo + title + date range + generation timestamp.
+     * Header drawn within the top margin band (top margin must be ~30mm).
+     * Runs on every page via AddPage().
      *
      * @return void
      */
     public function Header(): void
     {
-        $logoPath = dirname(dirname(dirname(__DIR__))) . '/public/img/AdminLTELogo.png';
+        $pageWidth = $this->getPageWidth();
 
-        if (file_exists($logoPath)) {
-            $this->Image($logoPath, 10, 10, 15, 15, '', '', '', false, 300);
-        }
-
-        $this->SetFont('dejavusans', 'B', 14);
-        $this->Cell(0, 8, $this->reportTitle, 1);
+        $this->SetFont('dejavusans', 'B', 13);
+        $this->SetXY(10, 8);
+        $this->Cell(0, 7, $this->reportTitle, 0, 1, 'C');
 
         $this->SetFont('dejavusans', '', 9);
+        $nextY = 17;
 
         if ($this->dateRange !== '') {
-            $this->Cell(0, 5, $this->dateRange, 1);
+            $this->SetXY(10, $nextY);
+            $this->Cell(0, 5, $this->dateRange, 0, 1, 'C');
+            $nextY += 5;
         }
 
-        $this->Cell(0, 5, $this->generatedAt, 1);
+        $this->SetXY(10, $nextY);
+        $this->Cell(0, 5, $this->generatedAt, 0, 1, 'C');
 
-        $this->Ln(5);
+        $this->setDrawColor(180, 180, 180);
+        $this->Line(10, 27.5, $pageWidth - 10, 27.5);
+
+        $this->setY($this->tMargin);
     }
 
     /**
@@ -67,7 +75,7 @@ class ReportDocument extends \TCPDF
 
         $this->Cell(0, 10, 'Pagina ' . $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages());
 
-        $this->setX(-60);
+        $this->setX(-70);
         $this->Cell(0, 10, $this->generatedBy);
     }
 }

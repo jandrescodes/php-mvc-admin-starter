@@ -155,6 +155,13 @@
                             <span class="badge badge-secondary ml-2"><?= count($logs) ?> records</span>
                         </h3>
                         <div class="card-tools">
+                            <?php if (\App\Core\Auth::hasPermission('audit_log_export')): ?>
+                                <a href="<?= URL ?>audit-log/export?<?= htmlspecialchars(http_build_query($activeFilters)) ?>"
+                                   class="btn btn-success btn-sm mr-2"
+                                   title="Export full report (PDF)">
+                                    <i class="fas fa-file-pdf mr-1" aria-hidden="true"></i>Export PDF
+                                </a>
+                            <?php endif ?>
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus" aria-hidden="true"></i>
                             </button>
@@ -209,6 +216,7 @@
                                                 'users'       => 'badge-primary',
                                                 'roles'       => 'badge-warning',
                                                 'permissions' => 'badge-secondary',
+                                                'audit_log'   => 'badge-success',
                                                 default       => 'badge-dark',
                                             };
                                             ?>

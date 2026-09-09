@@ -44,7 +44,7 @@ class AuditLogPdfExporter
         $pdf->SetTitle($pdf->reportTitle);
 
         $pdf->SetDefaultMonospacedFont('dejavusans');
-        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetMargins(10, 30, 10);
         $pdf->SetAutoPageBreak(true, 20);
         $pdf->SetFont('dejavusans', '', 7);
 
@@ -79,11 +79,11 @@ class AuditLogPdfExporter
         $pdf->SetFont('dejavusans', 'B', 7);
         $pdf->SetFillColor(230, 230, 230);
 
-        $pdf->Cell(30, 7, 'Date', 1, 0, 'C', true);
-        $pdf->Cell(40, 7, 'Actor', 1, 0, 'C', true);
-        $pdf->Cell(25, 7, 'Module', 1, 0, 'C', true);
-        $pdf->Cell(25, 7, 'Action', 1, 0, 'C', true);
-        $pdf->Cell(70, 7, 'Description', 1, 0, 'C', true);
+        $pdf->Cell(38, 7, 'Date', 1, 0, 'C', true);
+        $pdf->Cell(42, 7, 'Actor', 1, 0, 'C', true);
+        $pdf->Cell(22, 7, 'Module', 1, 0, 'C', true);
+        $pdf->Cell(22, 7, 'Action', 1, 0, 'C', true);
+        $pdf->Cell(88, 7, 'Description', 1, 0, 'C', true);
         $pdf->Cell(25, 7, 'IP', 1, 1, 'C', true);
 
         $pdf->SetFont('dejavusans', '', 7);
@@ -106,11 +106,11 @@ class AuditLogPdfExporter
             $desc    = $row['description'] ?? '';
             $ip      = $row['ip_address'] ?? '—';
 
-            $pdf->Cell(30, 6, $date, 1, 0, 'C');
-            $pdf->Cell(40, 6, $this->truncate($actor, 28), 1, 0, 'L');
-            $pdf->Cell(25, 6, $this->truncate($module, 16), 1, 0, 'C');
-            $pdf->Cell(25, 6, $this->truncate($action, 16), 1, 0, 'C');
-            $pdf->Cell(70, 6, $this->truncate($desc, 50), 1, 0, 'L');
+            $pdf->Cell(38, 6, $date, 1, 0, 'C');
+            $pdf->Cell(42, 6, $this->truncate($actor, 30), 1, 0, 'L');
+            $pdf->Cell(22, 6, $this->truncate($module, 14), 1, 0, 'C');
+            $pdf->Cell(22, 6, $this->truncate($action, 14), 1, 0, 'C');
+            $pdf->Cell(88, 6, $this->truncate($desc, 62), 1, 0, 'L');
             $pdf->Cell(25, 6, $this->truncate($ip, 16), 1, 1, 'C');
         }
     }
