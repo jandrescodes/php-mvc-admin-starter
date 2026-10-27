@@ -40,9 +40,9 @@ if (!function_exists('generateCSRFToken')) {
 }
 
 if (!function_exists('verifyCSRFToken')) {
-    function verifyCSRFToken(string $token): bool
+    function verifyCSRFToken(mixed $token): bool
     {
-        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+        return is_string($token) && isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
 }
 

@@ -143,6 +143,13 @@ class HelpersTest extends TestCase
         $this->assertFalse(verifyCSRFToken('wrong'));
     }
 
+    public function test_verify_csrf_token_returns_false_for_non_string_input(): void
+    {
+        $_SESSION['csrf_token'] = 'abc123';
+        $this->assertFalse(verifyCSRFToken(['abc123']));
+        $this->assertFalse(verifyCSRFToken(null));
+    }
+
     public function test_verify_csrf_token_returns_false_when_session_missing(): void
     {
         $this->assertFalse(verifyCSRFToken('anything'));

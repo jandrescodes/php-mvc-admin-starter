@@ -61,12 +61,6 @@ class PasswordResetController extends Controller
         $userId = $this->userModel->getIdByEmail($email);
 
         if (!$userId) {
-            if (env('DEBUG')) {
-                $_SESSION['message'] = 'The email address is not registered in our system (DEBUG mode).';
-                $_SESSION['icon']    = 'error';
-                $this->redirect(URL . 'forgot-password');
-            }
-
             $_SESSION['message'] = $genericMessage;
             $_SESSION['icon']    = 'info';
             $this->redirect(URL . 'login');

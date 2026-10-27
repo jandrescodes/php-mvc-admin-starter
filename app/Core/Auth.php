@@ -96,6 +96,7 @@ final class Auth
         $_SESSION['user_agent']       = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $_SESSION['user_permissions'] = $permNames;
         $_SESSION['permissions_ts']   = date('Y-m-d H:i:s');
+        $_SESSION['pw_fp']            = isset($user['password']) ? hash('sha256', (string) $user['password']) : null;
     }
 
     /**
@@ -177,6 +178,103 @@ final class Auth
         }
 
         return true;
+    }
+
+    /**
+     * Invalida la sesión si la cuenta fue desactivada o su contraseña cambió
+     * después del login (admin edit, reset, cambio propio desde otra sesión).
+     */
+    public static function checkAccountState(): bool
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $state  = $userId > 0 ? (new User())->getSessionState($userId) : null;
+
+        if (!$state || (int) $state['status'] !== User::STATUS_ACTIVE) {
+            session_unset();
+            session_destroy();
+            return false;
+        }
+
+        $fp = hash('sha256', (string) $state['password']);
+        if (!isset($_SESSION['pw_fp'])) {
+            $_SESSION['pw_fp'] = $fp;
+            return true;
+        }
+
+        if (!hash_equals((string) $_SESSION['pw_fp'], $fp)) {
+            session_unset();
+            session_destroy();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Re-sincroniza la huella tras un cambio de contraseña hecho desde esta misma sesión.
+     */
+    public static function syncPasswordFingerprint(): void
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $state  = $userId > 0 ? (new User())->getSessionState($userId) : null;
+        if ($state) {
+            $_SESSION['pw_fp'] = hash('sha256', (string) $state['password']);
+        }
+    }
+
+    /**
+     * True si el actor puede conceder todos los permisos indicados: un admin
+     * concede cualquiera; el resto solo los que ya posee.
+     *
+     * @param int[] $permissionIds
+     */
+    public static function canGrantPermissionIds(array $permissionIds): bool
+    {
+        if (self::isAdmin()) {
+            return true;
+        }
+
+        $permModel = new Permission();
+        foreach ($permissionIds as $id) {
+            $perm = $permModel->getById((int) $id);
+            if ($perm && !self::hasPermission($perm['name'])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * True si el actor puede administrar la cuenta: un admin cualquiera; el resto
+     * solo cuentas cuyos permisos efectivos (directos + rol) ya posee, para que
+     * editarla no sirva de atajo para obtener permisos ajenos.
+     */
+    public static function canManageUser(array $target): bool
+    {
+        if (self::isAdmin()) {
+            return true;
+        }
+
+        foreach (self::buildPermNames($target) as $name) {
+            if (!self::hasPermission($name)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Recarga la caché de permisos de la sesión desde la BD (rol + directos).
+     */
+    public static function reloadPermissions(): void
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $userModel = new User();
+        $user = $userId > 0 ? $userModel->getById($userId) : false;
+        if ($user) {
+            $_SESSION['user_permissions'] = self::buildPermNames($user);
+            $_SESSION['permissions_ts']   = $userModel->getPermissionsTimestamp($userId) ?: date('Y-m-d H:i:s');
+        }
     }
 
     // -------------------------------------------------------------------------

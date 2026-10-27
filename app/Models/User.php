@@ -540,8 +540,8 @@ class User extends Model
             $errors[] = 'New passwords do not match.';
         }
 
-        if (strlen($new) < 6) {
-            $errors[] = 'Password must be at least 6 characters.';
+        if (strlen($new) < 8) {
+            $errors[] = 'Password must be at least 8 characters.';
         }
 
         return $errors;
@@ -567,8 +567,8 @@ class User extends Model
             $errors[] = 'Passwords do not match.';
         }
 
-        if (strlen($password) < 6) {
-            $errors[] = 'Password must be at least 6 characters.';
+        if (strlen($password) < 8) {
+            $errors[] = 'Password must be at least 8 characters.';
         }
 
         return $errors;

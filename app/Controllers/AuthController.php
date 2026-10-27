@@ -4,12 +4,19 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\LoginThrottleService;
 
 class AuthController extends Controller
 {
+    private const GENERIC_FAILURE   = 'Incorrect credentials or account temporarily locked.';
+    private const IP_WINDOW_MINUTES = 15;
+    private const IP_MAX_FAILURES   = 30;
+    // Hash bcrypt de un valor aleatorio descartado; nunca coincide con una contraseña real.
+    private const DUMMY_HASH        = '$2y$10$hPChoe6qrdFzhl0cEpA8AuMSADJxPFcwyNQW4sHsPUnK81IgrYyOa';
+
     private User                 $userModel;
     private LoginThrottleService $throttle;
 
@@ -28,11 +35,21 @@ class AuthController extends Controller
     {
         $this->csrfCheck();
 
-        $identifier = trim($_POST['identifier'] ?? '');
-        $password   = trim($_POST['password']   ?? '');
+        $rawIdentifier = $_POST['identifier'] ?? '';
+        $rawPassword   = $_POST['password'] ?? '';
+        $identifier    = is_string($rawIdentifier) ? mb_substr(trim($rawIdentifier), 0, 100) : '';
+        $password      = is_string($rawPassword) ? $rawPassword : '';
 
         if (empty($identifier) || empty($password)) {
             $_SESSION['message'] = 'Please fill in all fields.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        // Límite por IP: cubre intentos contra cuentas inexistentes, que el contador por cuenta no ve.
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        if ($ip !== '' && (new ActivityLog())->countRecentFailedLogins($ip, self::IP_WINDOW_MINUTES) >= self::IP_MAX_FAILURES) {
+            $_SESSION['message'] = self::GENERIC_FAILURE;
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
         }
@@ -47,14 +64,16 @@ class AuthController extends Controller
         if ($user) {
             $lock = $this->throttle->isLocked($user);
             if ($lock['locked']) {
-                $_SESSION['message'] = $lock['message'];
+                // Mensaje genérico: distinguir "bloqueada" revelaría que la cuenta existe.
+                $_SESSION['message'] = self::GENERIC_FAILURE;
                 $_SESSION['icon']    = 'error';
                 $this->redirect(URL . 'login');
             }
         }
 
         // 3. Verify password
-        $validCredentials = $user && password_verify($password, $user['password']);
+        // Hash ficticio para que una cuenta inexistente tarde lo mismo que una real.
+        $validCredentials = password_verify($password, $user['password'] ?? self::DUMMY_HASH) && $user;
 
         if (!$validCredentials) {
             // Register failure only when the user exists (avoid phantom rows)
@@ -71,7 +90,7 @@ class AuthController extends Controller
                 $identifier
             );
 
-            $_SESSION['message'] = 'Incorrect credentials.';
+            $_SESSION['message'] = self::GENERIC_FAILURE;
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
         }

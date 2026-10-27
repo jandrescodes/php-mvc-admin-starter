@@ -43,6 +43,26 @@ trait UserPasswordTrait
         }
     }
 
+    /**
+     * Estado de la cuenta usado para invalidar sesiones abiertas.
+     *
+     * @return array{status: int|string, password: string}|null
+     */
+    public function getSessionState(int $id): ?array
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT status, password FROM {$this->table} WHERE id = :id"
+            );
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return null;
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Password reset
     // -------------------------------------------------------------------------

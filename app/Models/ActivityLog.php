@@ -141,6 +141,28 @@ class ActivityLog extends Model
     }
 
     /**
+     * Cuenta los login_failed de una IP en la ventana indicada (throttle por IP).
+     */
+    public function countRecentFailedLogins(string $ip, int $minutes): int
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT COUNT(*) FROM {$this->tabla}
+                 WHERE module = 'auth' AND action = 'login_failed'
+                   AND ip_address = :ip
+                   AND created_at >= DATE_SUB(NOW(), INTERVAL :minutes MINUTE)"
+            );
+            $stmt->bindValue(':ip', $ip, PDO::PARAM_STR);
+            $stmt->bindValue(':minutes', $minutes, PDO::PARAM_INT);
+            $stmt->execute();
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return 0;
+        }
+    }
+
+    /**
      * Returns distinct module values present in the log (for filter dropdowns).
      *
      * @return array  List of module strings

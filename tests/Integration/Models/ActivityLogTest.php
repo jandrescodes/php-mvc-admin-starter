@@ -294,4 +294,43 @@ class ActivityLogTest extends IntegrationTestCase
         $this->assertSame(1, $deleted);
         $this->assertCount(1, $this->model->getAll());
     }
+
+    // -------------------------------------------------------------------------
+    // countRecentFailedLogins()
+    // -------------------------------------------------------------------------
+
+    private function logFailedLogin(string $ip, string $action = 'login_failed', string $module = 'auth'): int
+    {
+        return (int) $this->model->create([
+            'module'     => $module,
+            'action'     => $action,
+            'ip_address' => $ip,
+        ]);
+    }
+
+    public function test_countRecentFailedLogins_counts_only_failed_logins_from_the_ip(): void
+    {
+        $this->logFailedLogin('203.0.113.7');
+        $this->logFailedLogin('203.0.113.7');
+        $this->logFailedLogin('203.0.113.8');
+        $this->logFailedLogin('203.0.113.7', 'login');
+        $this->logFailedLogin('203.0.113.7', 'login_failed', 'users');
+
+        $this->assertSame(2, $this->model->countRecentFailedLogins('203.0.113.7', 15));
+    }
+
+    public function test_countRecentFailedLogins_ignores_entries_outside_the_window(): void
+    {
+        $id = $this->logFailedLogin('203.0.113.9');
+        self::$pdo->exec("UPDATE activity_logs SET created_at = NOW() - INTERVAL 1 HOUR WHERE id = {$id}");
+        $this->logFailedLogin('203.0.113.9');
+
+        $this->assertSame(1, $this->model->countRecentFailedLogins('203.0.113.9', 15));
+        $this->assertSame(2, $this->model->countRecentFailedLogins('203.0.113.9', 120));
+    }
+
+    public function test_countRecentFailedLogins_returns_zero_for_unknown_ip(): void
+    {
+        $this->assertSame(0, $this->model->countRecentFailedLogins('198.51.100.1', 15));
+    }
 }
