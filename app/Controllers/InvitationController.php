@@ -29,7 +29,7 @@ class InvitationController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $row = $this->resets->findValidByToken($token, 'invitation');
+        $row = $this->findPendingInvitation($token);
 
         if (!$row) {
             $_SESSION['message'] = 'The invitation link has expired or is invalid.';
@@ -64,7 +64,7 @@ class InvitationController extends Controller
             $this->redirect(URL . 'accept-invitation?token=' . urlencode($token));
         }
 
-        $row = $this->resets->findValidByToken($token, 'invitation');
+        $row = $this->findPendingInvitation($token);
 
         if (!$row) {
             $_SESSION['message'] = 'The invitation link has expired or is invalid.';
@@ -95,5 +95,21 @@ class InvitationController extends Controller
         }
 
         $this->redirect(URL . 'login');
+    }
+
+    /** Un token solo vale mientras la cuenta siga pendiente: si un admin la desactivó, no la reactiva. */
+    private function findPendingInvitation(string $token): array|false
+    {
+        $row = $this->resets->findValidByToken($token, 'invitation');
+        if (!$row) {
+            return false;
+        }
+
+        $user = $this->userModel->getById((int) $row['user_id']);
+        if (!$user || (int) $user['status'] !== User::STATUS_PENDING) {
+            return false;
+        }
+
+        return $row;
     }
 }

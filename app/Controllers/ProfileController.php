@@ -27,7 +27,7 @@ class ProfileController extends Controller
     public function __construct()
     {
         $this->model        = new User();
-        $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
+        $this->imageService = new ImageService(dirname(__DIR__, 2) . '/public/uploads/users/');
     }
 
     /**
@@ -92,32 +92,5 @@ class ProfileController extends Controller
         }
 
         return ['success' => false, 'message' => 'Error updating profile: ' . ($this->model->getLastError() ?: 'Unknown error.'), 'icon' => 'error', 'redirect' => 'views/users/profile.php'];
-    }
-
-    public function updatePasswordAjax()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Access not allowed.'];
-        }
-
-        if (!Auth::check()) {
-            return ['success' => false, 'message' => 'Session not started.'];
-        }
-
-        $id      = Auth::id();
-        $current = trim($_POST['current_password'] ?? '');
-        $new     = trim($_POST['new_password']     ?? '');
-        $confirm = trim($_POST['confirm_password'] ?? '');
-
-        $errors = $this->model->validatePasswordChange($id, $current, $new, $confirm);
-        if (!empty($errors)) {
-            return ['success' => false, 'message' => $errors[0]];
-        }
-
-        if ($this->model->updatePassword($id, $new)) {
-            return ['success' => true, 'message' => 'Password updated successfully.'];
-        }
-
-        return ['success' => false, 'message' => 'Error updating password: ' . $this->model->getLastError()];
     }
 }

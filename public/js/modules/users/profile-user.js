@@ -63,7 +63,17 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
 
                 if (data.success) {
                     ToastUtils.success('Password updated', 'The session will be closed.').then(() => {
-                        window.location.href = `${baseUrl}logout`;
+                        // El logout es POST con CSRF; el token se regeneró al cambiar la contraseña.
+                        const logoutForm = document.createElement('form');
+                        logoutForm.method = 'POST';
+                        logoutForm.action = `${baseUrl}logout`;
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = 'csrf_token';
+                        tokenInput.value = data.csrf_token;
+                        logoutForm.appendChild(tokenInput);
+                        document.body.appendChild(logoutForm);
+                        logoutForm.submit();
                     });
                 } else {
                     ToastUtils.error('Error', data.message);

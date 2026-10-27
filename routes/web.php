@@ -34,8 +34,8 @@ return [
     ['method' => 'POST', 'path' => '/profile',           'controller' => 'User@processUpdateProfile', 'middleware' => ['auth']],
 
     // Users AJAX
-    ['method' => 'POST', 'path' => '/users/check-email',             'controller' => 'User@checkEmail',        'middleware' => ['auth']],
-    ['method' => 'POST', 'path' => '/users/check-document',          'controller' => 'User@checkDocument',     'middleware' => ['auth']],
+    ['method' => 'POST', 'path' => '/users/check-email',             'controller' => 'User@checkEmail',        'middleware' => ['auth', 'perm:users']],
+    ['method' => 'POST', 'path' => '/users/check-document',          'controller' => 'User@checkDocument',     'middleware' => ['auth', 'perm:users']],
     ['method' => 'POST', 'path' => '/users/toggle-status',           'controller' => 'User@toggleStatusAjax',  'middleware' => ['auth', 'perm:users']],
     ['method' => 'POST', 'path' => '/users/change-password',         'controller' => 'User@ajaxChangePassword', 'middleware' => ['auth']],
     ['method' => 'POST', 'path' => '/users/(\d+)/unlock-login',      'controller' => 'User@unlockLoginAjax',      'middleware' => ['auth', 'perm:users']],
@@ -52,7 +52,7 @@ return [
     ['method' => 'POST', 'path' => '/permissions/assign-user',      'controller' => 'Permission@assignUser',      'middleware' => ['auth', 'perm:permissions']],
     ['method' => 'POST', 'path' => '/permissions/revoke-user',      'controller' => 'Permission@revokeUser',      'middleware' => ['auth', 'perm:permissions']],
     ['method' => 'GET',  'path' => '/permissions/get-users-without', 'controller' => 'Permission@getUsersWithout', 'middleware' => ['auth', 'perm:permissions']],
-    ['method' => 'POST', 'path' => '/permissions/check-name',        'controller' => 'Permission@checkName',       'middleware' => ['auth']],
+    ['method' => 'POST', 'path' => '/permissions/check-name',        'controller' => 'Permission@checkName',       'middleware' => ['auth', 'perm:permissions']],
 
     // Roles
     ['method' => 'GET',  'path' => '/roles',               'controller' => 'Role@pageIndex',      'middleware' => ['auth', 'perm:roles']],
@@ -67,6 +67,6 @@ return [
     ['method' => 'POST', 'path' => '/roles/update',            'controller' => 'Role@update',         'middleware' => ['auth', 'perm:roles']],
     ['method' => 'POST', 'path' => '/roles/toggle-status',     'controller' => 'Role@toggleStatus',   'middleware' => ['auth', 'perm:roles']],
     ['method' => 'POST', 'path' => '/roles/sync-permissions',  'controller' => 'Role@syncPermissions', 'middleware' => ['auth', 'perm:roles']],
-    ['method' => 'POST', 'path' => '/roles/check-name',        'controller' => 'Role@checkName',      'middleware' => ['auth']],
+    ['method' => 'POST', 'path' => '/roles/check-name',        'controller' => 'Role@checkName',      'middleware' => ['auth', 'perm:roles']],
 
 ];

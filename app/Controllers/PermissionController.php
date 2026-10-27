@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\User;
@@ -116,6 +117,11 @@ class PermissionController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Permission name is required.']);
         }
 
+        // El nombre es la clave que consultan los middleware perm:NAME.
+        if ($data['name'] !== $current['name'] && !Auth::isAdmin()) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can rename a permission.']);
+        }
+
         if ($this->permissionModel->update($id, $data)) {
             AuditLogger::log(
                 'permissions',
@@ -190,6 +196,14 @@ class PermissionController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
         }
 
+        if (!$this->canChangeUserPermission($userId, null)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can change an administrator\'s permissions.']);
+        }
+
+        if (!$this->canChangeUserPermission($userId, $permissionId)) {
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot grant permissions you do not hold.']);
+        }
+
         $ok = $this->permissionModel->assign($userId, $permissionId);
         if ($ok) {
             (new User())->updatePermissionsTimestamp($userId);
@@ -218,6 +232,10 @@ class PermissionController extends Controller
 
         if (!$userId || !$permissionId) {
             $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
+        }
+
+        if (!$this->canChangeUserPermission($userId, null)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can change an administrator\'s permissions.']);
         }
 
         $ok = $this->permissionModel->revoke($userId, $permissionId);
@@ -252,6 +270,24 @@ class PermissionController extends Controller
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Un no-admin no toca permisos de cuentas de rol de sistema ni concede
+     * (cuando se indica $permissionId) permisos que no posee.
+     */
+    private function canChangeUserPermission(int $userId, ?int $permissionId): bool
+    {
+        if (Auth::isAdmin()) {
+            return true;
+        }
+
+        $target = (new User())->getById($userId);
+        if ($target && !empty($target['role_is_system'])) {
+            return false;
+        }
+
+        return $permissionId === null || Auth::canGrantPermissionIds([$permissionId]);
+    }
 
     private function getPermissionOrRedirect($id)
     {

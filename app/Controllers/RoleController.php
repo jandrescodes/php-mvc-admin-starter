@@ -14,6 +14,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Auth;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Services\AuditLogger;
@@ -114,6 +115,10 @@ class RoleController extends Controller
             $data['name'] = $current['name'];
         }
 
+        if (!empty($current['is_system']) && !Auth::isAdmin()) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
+        }
+
         if ($this->roleModel->update($id, $data)) {
             AuditLogger::log(
                 'roles',
@@ -152,6 +157,11 @@ class RoleController extends Controller
 
         if (!$id || $currentStatus === false) {
             $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
+        }
+
+        $role = $this->roleModel->getById($id);
+        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 
         if ($currentStatus == 1 && $this->roleModel->countUsers($id) > 0) {
@@ -218,6 +228,16 @@ class RoleController extends Controller
 
         if (!$roleId) {
             $this->jsonResponse(['success' => false, 'message' => 'Invalid role ID.']);
+        }
+
+        $role = $this->roleModel->getById($roleId);
+        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+            $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
+        }
+
+        $newPerms = array_diff($permissions, array_map('intval', $this->roleModel->getAssignedPermissionIds($roleId)));
+        if (!Auth::canGrantPermissionIds($newPerms)) {
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot grant permissions you do not hold.']);
         }
 
         if ($this->roleModel->syncPermissions($roleId, $permissions)) {

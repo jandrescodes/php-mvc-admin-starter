@@ -27,7 +27,7 @@ class UserController extends Controller
         $this->userModel       = new User();
         $this->permissionModel = new Permission();
         $this->roleModel       = new Role();
-        $this->imageService    = new ImageService(__DIR__ . '/../../../public/uploads/users/');
+        $this->imageService    = new ImageService(dirname(__DIR__, 2) . '/public/uploads/users/');
         $this->throttle        = new LoginThrottleService($this->userModel);
     }
 
@@ -77,6 +77,9 @@ class UserController extends Controller
     public function edit($id = null)
     {
         $user                = $this->getUserOrRedirect((int) $id);
+        if (!Auth::canManageUser($user)) {
+            \App\Core\ErrorHandler::forbidden();
+        }
         $allPermissions      = $this->permissionModel->getAllActive();
         $assignedPermissions = $this->permissionModel->getAssignedIds((int) $user['id']);
         $activeRoles         = $this->roleModel->getAllActive();
@@ -227,6 +230,11 @@ class UserController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'User is not pending.', 'icon' => 'error']);
         }
 
+        if (!Auth::canManageUser($user)) {
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot manage an account with permissions you do not hold.', 'icon' => 'error']);
+        }
+
         $token       = (new PasswordReset())->create($userId, 'invitation');
         DashboardCache::forget('pending_invitations');
         $inviterName = Auth::user()['name'] ?? 'Administrator';
@@ -256,6 +264,12 @@ class UserController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Invalid user ID.', 'icon' => 'error']);
         }
 
+        $target = $this->userModel->getById($userId);
+        if (!$target || !Auth::canManageUser($target)) {
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot manage an account with permissions you do not hold.', 'icon' => 'error']);
+        }
+
         if ($this->throttle->unlock($userId)) {
             $_SESSION['message'] = 'Login unlocked successfully.';
             $_SESSION['icon']    = 'success';
@@ -274,16 +288,28 @@ class UserController extends Controller
     private function save()
     {
         $isInvite = !empty($_POST['invite']) && $_POST['invite'] === '1';
-        $data     = $this->userModel->trimInput($this->prepareUserData($_POST));
+        $prepared = $this->prepareUserData($_POST);
+        $data     = $this->userModel->trimInput($prepared);
+        // La contraseña no se recorta: los espacios forman parte de ella.
+        $data['password'] = $prepared['password'];
         $errors   = $this->userModel->validateData($data);
 
         if (!empty($errors)) {
             return ['success' => false, 'message' => $errors[0], 'icon' => 'error', 'redirect' => 'create.php'];
         }
 
+        if ($this->isSystemRole($data['role_id'] ?? null) && !Auth::isAdmin()) {
+            return ['success' => false, 'message' => 'Only administrators can assign the administrator role.', 'icon' => 'error', 'redirect' => 'create.php'];
+        }
+
+        if (!Auth::canGrantPermissionIds(array_map('intval', (array) ($_POST['permissions'] ?? [])))
+            || !$this->canGrantRole($data['role_id'] ?? null)) {
+            return ['success' => false, 'message' => 'You cannot grant permissions you do not hold.', 'icon' => 'error', 'redirect' => 'create.php'];
+        }
+
         if (!$isInvite) {
-            $confirmPassword = trim($_POST['confirm_password'] ?? '');
-            $plainPassword   = trim($_POST['password'] ?? '');
+            $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
+            $plainPassword   = (string) ($_POST['password'] ?? '');
             if ($plainPassword !== $confirmPassword) {
                 return ['success' => false, 'message' => 'Passwords do not match.', 'icon' => 'error', 'redirect' => 'create.php'];
             }
@@ -343,8 +369,19 @@ class UserController extends Controller
             return ['success' => false, 'message' => 'User not found.', 'icon' => 'error', 'redirect' => 'index.php'];
         }
 
-        $oldImage    = $currentUser['image'];
-        $data        = $this->prepareUserData($_POST);
+        if (!Auth::canManageUser($currentUser)) {
+            return ['success' => false, 'message' => 'You cannot modify an account with permissions you do not hold.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
+        }
+
+        $oldImage = $currentUser['image'];
+        $data     = $this->prepareUserData($_POST);
+        // La contraseña se valida y guarda aparte (validateNewPassword + updatePassword).
+        unset($data['password']);
+
+        $roleChanged = (int) ($data['role_id'] ?? 0) !== (int) ($currentUser['role_id'] ?? 0);
+        if ($roleChanged && $this->isSystemRole($data['role_id'] ?? null) && !Auth::isAdmin()) {
+            return ['success' => false, 'message' => 'Only administrators can assign the administrator role.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
+        }
         $data['status'] = (int) $currentUser['status'];
 
         foreach (['name', 'first_surname', 'document_type', 'document_number', 'email'] as $field) {
@@ -361,34 +398,52 @@ class UserController extends Controller
             return ['success' => false, 'message' => $errors[0], 'icon' => 'error', 'redirect' => "update.php?id=$id"];
         }
 
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $newImagePath = $this->imageService->processImage($_FILES['image']);
-            if ($newImagePath) {
-                if ($oldImage && $oldImage !== 'user_default.jpg') {
-                    $this->imageService->deleteImage($oldImage);
-                }
-                $data['image'] = $newImagePath;
-            } else {
-                return ['success' => false, 'message' => 'Error processing the new image.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
-            }
+        $requestedPerms = array_map('intval', (array) ($_POST['permissions'] ?? []));
+        $newPerms       = array_diff($requestedPerms, array_map('intval', $this->permissionModel->getAssignedIds($id)));
+        if (!Auth::canGrantPermissionIds($newPerms) || ($roleChanged && !$this->canGrantRole($data['role_id'] ?? null))) {
+            return ['success' => false, 'message' => 'You cannot grant permissions you do not hold.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
         }
 
-        $updated         = $this->userModel->update($id, $data);
-        $passwordUpdated = true;
-
-        $password        = trim($_POST['password']         ?? '');
-        $confirmPassword = trim($_POST['confirm_password'] ?? '');
-
-        if (!empty($password) || !empty($confirmPassword)) {
+        $password        = (string) ($_POST['password'] ?? '');
+        $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
+        $changePassword  = $password !== '' || $confirmPassword !== '';
+        if ($changePassword) {
             $pwErrors = $this->userModel->validateNewPassword($password, $confirmPassword);
             if (!empty($pwErrors)) {
                 return ['success' => false, 'message' => $pwErrors[0], 'icon' => 'error', 'redirect' => "update.php?id=$id"];
             }
+        }
+
+        // Todas las validaciones pasaron: recién ahora se toca disco y BD.
+        $newImagePath = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+            $newImagePath = $this->imageService->processImage($_FILES['image']);
+            if (!$newImagePath) {
+                return ['success' => false, 'message' => 'Error processing the new image.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
+            }
+            $data['image'] = $newImagePath;
+        }
+
+        $updated = $this->userModel->update($id, $data);
+        if ($updated && $newImagePath && $oldImage && $oldImage !== 'user_default.jpg') {
+            $this->imageService->deleteImage($oldImage);
+        } elseif (!$updated && $newImagePath) {
+            $this->imageService->deleteImage($newImagePath);
+        }
+
+        $passwordUpdated = true;
+        if ($updated && $changePassword) {
             $passwordUpdated = $this->userModel->updatePassword($id, $password);
+            if ($passwordUpdated && $id === Auth::id()) {
+                Auth::syncPasswordFingerprint();
+            }
         }
 
         if ($updated && $passwordUpdated) {
-            $this->processPermissions($id, $_POST);
+            // Sin lista enviada (cliente que omite el campo) se conservan los permisos directos.
+            if (isset($_POST['permissions']) || !empty($_POST['permissions_submitted'])) {
+                $this->processPermissions($id, $_POST);
+            }
             AuditLogger::log(
                 'users',
                 'update',
@@ -412,9 +467,9 @@ class UserController extends Controller
     private function updateProfilePasswordAjax()
     {
         $id      = (int) ($_SESSION['user_id'] ?? 0);
-        $current = trim($_POST['current_password'] ?? '');
-        $new     = trim($_POST['new_password']     ?? '');
-        $confirm = trim($_POST['confirm_password'] ?? '');
+        $current = (string) ($_POST['current_password'] ?? '');
+        $new     = (string) ($_POST['new_password']     ?? '');
+        $confirm = (string) ($_POST['confirm_password'] ?? '');
 
         $errors = $this->userModel->validatePasswordChange($id, $current, $new, $confirm);
         if (!empty($errors)) {
@@ -424,8 +479,9 @@ class UserController extends Controller
         regenerateCSRFToken();
 
         if ($this->userModel->updatePassword($id, $new)) {
+            Auth::syncPasswordFingerprint();
             AuditLogger::log('users', 'password_changed', 'User changed their own password', ['user_id' => $id]);
-            return ['success' => true, 'message' => 'Password updated successfully.'];
+            return ['success' => true, 'message' => 'Password updated successfully.', 'csrf_token' => generateCSRFToken()];
         }
 
         return ['success' => false, 'message' => 'Error updating password: ' . $this->userModel->getLastError()];
@@ -437,7 +493,24 @@ class UserController extends Controller
             return ['success' => false, 'message' => 'Invalid user ID or status.', 'icon' => 'error'];
         }
 
-        $activating = $currentStatus == 1 ? false : true;
+        $target = $this->userModel->getById((int) $id);
+        if (!$target) {
+            return ['success' => false, 'message' => 'User not found.', 'icon' => 'error'];
+        }
+        if (!Auth::canManageUser($target)) {
+            return ['success' => false, 'message' => 'You cannot change the status of an account with permissions you do not hold.', 'icon' => 'error'];
+        }
+        if ((int) $id === Auth::id()) {
+            return ['success' => false, 'message' => 'You cannot change your own status.', 'icon' => 'error'];
+        }
+
+        // El estado actual se lee de la BD; el del cliente no es confiable.
+        $dbStatus = (int) $target['status'];
+        if ($dbStatus === User::STATUS_PENDING) {
+            return ['success' => false, 'message' => 'A pending user must accept the invitation first.', 'icon' => 'error'];
+        }
+
+        $activating = $dbStatus !== User::STATUS_ACTIVE;
         $ok         = $activating
             ? $this->userModel->activate($id)
             : $this->userModel->deactivate($id);
@@ -456,6 +529,24 @@ class UserController extends Controller
         }
 
         return ['success' => false, 'message' => 'Error changing user status: ' . $this->userModel->getLastError(), 'icon' => 'error'];
+    }
+
+    /** Asignar un rol concede sus permisos: el actor debe poseerlos todos. */
+    private function canGrantRole($roleId): bool
+    {
+        if (empty($roleId)) {
+            return true;
+        }
+        return Auth::canGrantPermissionIds($this->roleModel->getAssignedPermissionIds((int) $roleId));
+    }
+
+    private function isSystemRole($roleId): bool
+    {
+        if (empty($roleId)) {
+            return false;
+        }
+        $role = $this->roleModel->getById((int) $roleId);
+        return $role && !empty($role['is_system']);
     }
 
     private function getUserOrRedirect($id)
@@ -491,7 +582,7 @@ class UserController extends Controller
             'email'           => trim($postData['email']    ?? ''),
             'password'        => $isInvite
                 ? password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT)
-                : trim($postData['password'] ?? ''),
+                : (string) ($postData['password'] ?? ''),
             'status'          => $isInvite
                 ? User::STATUS_PENDING
                 : (isset($postData['status']) ? (int) $postData['status'] : User::STATUS_ACTIVE),
@@ -503,13 +594,12 @@ class UserController extends Controller
     private function processPermissions($userId, $postData)
     {
         $selectedIds  = $postData['permissions'] ?? [];
-        $permNames    = $this->permissionModel->syncForUser($userId, $selectedIds);
+        $this->permissionModel->syncForUser($userId, $selectedIds);
 
         $this->userModel->updatePermissionsTimestamp($userId);
 
-        if ($userId === ($_SESSION['user_id'] ?? null)) {
-            $_SESSION['user_permissions'] = $permNames;
-            $_SESSION['permissions_ts']   = date('Y-m-d H:i:s');
+        if ((int) $userId === Auth::id()) {
+            Auth::reloadPermissions();
         }
     }
 }

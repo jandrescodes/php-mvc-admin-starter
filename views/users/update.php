@@ -333,6 +333,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Available permissions:</label>
+                                        <input type="hidden" name="permissions_submitted" value="1">
                                         <div class="row">
                                             <?php
                                             foreach ($allPermissions as $permission) :
@@ -456,7 +457,7 @@
                                         <div class="callout callout-warning">
                                             <ul class="mb-0">
                                                 <li>Leave both fields blank if you <strong>do not want to change</strong> the password</li>
-                                                <li>If changing, the <strong>password</strong> must have at least 6 characters</li>
+                                                <li>If changing, the <strong>password</strong> must have at least 8 characters</li>
                                                 <li>It is recommended to use letters, numbers and symbols</li>
                                                 <li>Both passwords must match</li>
                                             </ul>

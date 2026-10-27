@@ -180,7 +180,7 @@
                                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
                                             </div>
                                             <input type="password" class="form-control" id="new_password" name="new_password"
-                                                placeholder="Minimum 6 characters" autocomplete="off" required minlength="6">
+                                                placeholder="Minimum 8 characters" autocomplete="off" required minlength="8">
                                             <div class="input-group-append">
                                                 <button class="btn btn-default" type="button" data-password-toggle="#new_password" aria-pressed="false" aria-label="Show password">
                                                     <i class="fas fa-eye-slash" aria-hidden="true"></i>
@@ -195,7 +195,7 @@
                                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
                                             </div>
                                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                                                placeholder="Repeat the new password" autocomplete="off" required minlength="6">
+                                                placeholder="Repeat the new password" autocomplete="off" required minlength="8">
                                             <div class="input-group-append">
                                                 <button class="btn btn-default" type="button" data-password-toggle="#confirm_password" aria-pressed="false" aria-label="Show password">
                                                     <i class="fas fa-eye-slash" aria-hidden="true"></i>
