@@ -98,9 +98,9 @@
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="<?= URL; ?>/uploads/users/<?= $currentUser['image']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
+                            <img src="<?= URL; ?>/uploads/users/<?= htmlspecialchars($currentUser['image'] ?? 'user_default.jpg'); ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
                             <p>
-                                <?= $currentUser['name']; ?>
+                                <?= htmlspecialchars($currentUser['name'] ?? ''); ?>
                                 <small><?= htmlspecialchars($currentUser['role'] ?? ''); ?></small>
                             </p>
                         </li>

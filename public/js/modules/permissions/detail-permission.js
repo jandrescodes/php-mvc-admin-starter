@@ -101,7 +101,7 @@ $(document).ready(function () {
                 }, 800);
             },
             {
-                html: `This permission will be removed from <b>${name}</b>.`,
+                html: `This permission will be removed from <b>${escapeHtml(name)}</b>.`,
                 confirmText: 'Yes, revoke',
                 cancelColor: '#6c757d',
                 cancelText: 'Cancel'

@@ -7,6 +7,13 @@
 // ToastUtils - Utilidades para Toast (notificaciones pequeñas)
 // ============================================
 
+// SweetAlert2 interpreta title/html como HTML: los textos con datos de usuario deben escaparse.
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
 const ToastUtils = {
     // Configuración base del toast
     baseConfig: {
@@ -32,7 +39,7 @@ const ToastUtils = {
         const Toast = Swal.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'success',
-            title: title,
+            title: escapeHtml(title),
             text: text,
             timer: timer
         });
@@ -49,7 +56,7 @@ const ToastUtils = {
         const Toast = Swal.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'error',
-            title: title,
+            title: escapeHtml(title),
             text: text,
             timer: timer
         });
@@ -66,7 +73,7 @@ const ToastUtils = {
         const Toast = Swal.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'warning',
-            title: title,
+            title: escapeHtml(title),
             text: text,
             timer: timer
         });
@@ -83,7 +90,7 @@ const ToastUtils = {
         const Toast = Swal.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'info',
-            title: title,
+            title: escapeHtml(title),
             text: text,
             timer: timer
         });
@@ -103,7 +110,7 @@ const ToastUtils = {
                 Swal.showLoading();
             }
         }).fire({
-            title: title
+            title: escapeHtml(title)
         });
     },
 
@@ -195,7 +202,7 @@ const AlertUtils = {
      */
     confirm: function (title, text, onConfirm, options = {}) {
         return Swal.fire({
-            title: title,
+            title: escapeHtml(title),
             ...(options.html ? { html: options.html } : { text: text }),
             icon: options.icon || 'warning',
             showCancelButton: true,
@@ -221,7 +228,7 @@ const AlertUtils = {
      */
     confirmDelete: function (url, title = '¿Está seguro de eliminar este registro?', text = 'Esta acción no se puede deshacer') {
         Swal.fire({
-            title: title,
+            title: escapeHtml(title),
             text: text,
             icon: 'warning',
             showCancelButton: true,
@@ -246,9 +253,10 @@ const AlertUtils = {
      */
     welcome: function (userName) {
         const greeting = this._getGreeting();
+        const safeName = escapeHtml(userName);
 
         Swal.fire({
-            title: `${greeting}, ${userName}!`,
+            title: `${greeting}, ${safeName}!`,
             html: `<p>Es un placer verte de nuevo</p>
                    <p class="text-muted mb-0"><small>${new Date().toLocaleDateString('es-ES', {
                 weekday: 'long',
@@ -311,7 +319,7 @@ const AlertUtils = {
  */
 function showToast(icon, title) {
     const Toast = Swal.mixin(ToastUtils.baseConfig);
-    Toast.fire({ icon: icon, title: title });
+    Toast.fire({ icon: icon, title: escapeHtml(title) });
 }
 
 /**

@@ -62,9 +62,14 @@ $(document).ready(function () {
      * @param {string} module
      * @returns {string}
      */
+    /** Los campos del log (actor, acción, valores) incluyen texto de usuarios sin sesión: nunca como HTML. */
+    function esc(value) {
+        return $('<div>').text(String(value)).html();
+    }
+
     function moduleBadge(module) {
         const cls = MODULE_BADGES[module] || 'badge-dark';
-        const label = module.charAt(0).toUpperCase() + module.slice(1);
+        const label = esc(module.charAt(0).toUpperCase() + module.slice(1));
         return `<span class="badge ${cls} badge-pill px-2">${label}</span>`;
     }
 
@@ -97,7 +102,7 @@ $(document).ready(function () {
                 display = '<span class="text-muted">—</span>';
             } else if (typeof value === 'object') {
                 display = Object.entries(value)
-                    .map(([k, v]) => `${humanizeKey(k)}: ${v}`)
+                    .map(([k, v]) => `${esc(humanizeKey(k))}: ${esc(v)}`)
                     .join(', ');
             } else if (typeof value === 'boolean') {
                 display = value
@@ -110,7 +115,7 @@ $(document).ready(function () {
             $tbody.append(
                 `<tr>
                     <td class="text-muted small text-uppercase text-nowrap pr-3" style="width:35%;vertical-align:middle">
-                        ${humanizeKey(key)}
+                        ${esc(humanizeKey(key))}
                     </td>
                     <td style="vertical-align:middle">${display}</td>
                 </tr>`
@@ -145,12 +150,12 @@ $(document).ready(function () {
         const log = (typeof raw === 'string') ? JSON.parse(raw) : raw;
 
         // Dynamic header subtitle: badge + action
-        $('#detailSubtitle').html(`${moduleBadge(log.module)}&nbsp;<code class="text-white-50 small">${log.action || ''}</code>`);
+        $('#detailSubtitle').html(`${moduleBadge(log.module)}&nbsp;<code class="text-white-50 small">${esc(log.action || '')}</code>`);
 
         // Meta fields
         const actorText = log.actor_id
-            ? `${log.actor_label || '—'} <span class="text-muted">(ID ${log.actor_id})</span>`
-            : (log.actor_label || '<span class="text-muted">Anonymous</span>');
+            ? `${esc(log.actor_label || '—')} <span class="text-muted">(ID ${esc(log.actor_id)})</span>`
+            : (log.actor_label ? esc(log.actor_label) : '<span class="text-muted">Anonymous</span>');
 
         $('#detailId').text(log.id || '—');
         $('#detailCreatedAt').text(log.created_at || '—');
