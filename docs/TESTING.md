@@ -51,7 +51,7 @@ No DB, no HTTP context. Each test class maps to a production class:
 
 | Test class                                   | Production class                  |
 | -------------------------------------------- | --------------------------------- |
-| `tests/Unit/Core/HelpersTest.php`            | `app/Core/helpers.php`            |
+| `tests/Unit/Core/HelpersTest.php`            | `app/Core/helpers.php` (CSRF helpers, incl. non-string token rejection) |
 | `tests/Unit/Core/AuthTest.php`               | `app/Core/Auth.php`               |
 | `tests/Unit/Core/RouterTest.php`             | `app/Core/Router.php`             |
 | `tests/Unit/Services/ImageServiceTest.php`   | `app/Services/ImageService.php`   |
@@ -69,6 +69,8 @@ teardown, so the DB is always clean.
 | `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics                                                     |
 | `tests/Integration/Models/RolePermissionTest.php`               | `syncPermissions`, `getAssignedPermissionIds`, `getPermissionNames`, `getUserIdsByRole`                |
 | `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale` (including UNION merge and dedup), `attemptRememberLogin`                  |
+| `tests/Integration/Core/AuthPrivilegeTest.php`                  | `canGrantPermissionIds`, `canManageUser` (system role, extra direct/role permission), `checkAccountState` (inactive, pending, password changed, unknown user, lazy fingerprint), `syncPasswordFingerprint`, `reloadPermissions` |
+| `tests/Integration/Models/ActivityLogTest.php`                  | `ActivityLog::create`, `getAll`, and `countRecentFailedLogins` (per-IP login throttle: IP, action and time-window filters) |
 | `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                                                                  |
 | `tests/Integration/Models/UserStatsTest.php`                    | `getStatistics` and `getUsersByStatus` include `pending` (status=2) count                             |
 | `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                                                       |

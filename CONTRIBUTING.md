@@ -56,6 +56,8 @@ git checkout -b feature/your-feature-name
 - **CSRF token rotation** — call `regenerateCSRFToken()` unconditionally (before the success/failure branch) on sensitive endpoints so the token rotates even when the model write fails.
 - **Remember-me invalidation** — call `$userModel->clearRememberToken($userId)` after any successful password change, regardless of who triggered it (self-service, admin edit, invitation acceptance, or forgot-password reset). `User::updatePassword()` and `UserPasswordTrait::resetPassword()` do this automatically — never bypass either with a raw SQL UPDATE on the `password` column.
 - **File uploads** — always route through `ImageService`. MIME type must be validated server-side via `finfo` on `tmp_name`; never trust `$_FILES['type']` (client-controlled). Extension must be whitelisted. `public/uploads/users/.htaccess` blocks PHP execution and must not be removed.
+- **Privilege boundaries** — nobody grants a role or permission they do not hold: use `Auth::canGrantPermissionIds()` when assigning and `Auth::canManageUser()` before editing, toggling, unlocking or re-inviting another account; `is_system` roles/accounts are admin-only. Validate everything before writing to the DB or disk, and read the account state from the DB, never from POST. Details: `docs/ACCESS_CONTROL.md`.
+- **Client-side escaping** — user data that reaches SweetAlert (`title`, `options.html`), `.html()` or the audit-log modal must go through `escapeHtml()` (or `.text()`); never `trim()` passwords.
 - **JS string interpolation** — use `json_encode()` when passing PHP values into `<script>` blocks. `addslashes()` does not escape `</script>` and is unsafe for JS context.
 
 ### JavaScript Code Standards

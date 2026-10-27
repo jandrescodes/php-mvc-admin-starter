@@ -8,7 +8,7 @@ material lives in `docs/`.
 
 PHP MVC admin starter — authentication, user / role / permission management, permission-based access
 control. AdminLTE 3, PDO/MySQL, Composer native PSR-4 autoloading. Pure PHP, **no build process**
-(no npm, no Makefile — frontend assets are static files in `public/`). Current release tag: `3.18.0`.
+(no npm, no Makefile — frontend assets are static files in `public/`). Current release tag: `3.18.1`.
 
 ## Setup
 
@@ -68,8 +68,8 @@ composer check                 # lint + stan + all suites — the CI gate; run b
     ```
 - **Autoloading:** Composer PSR-4 `"App\\": "app/"`, no custom autoloader. `app/Core/helpers.php` loads via `autoload.files` — it defines only `generateCSRFToken()`, `verifyCSRFToken()`, `regenerateCSRFToken()`, and the `env()` wrapper.
 - **DB:** `Connection::getInstance()` singleton → configured PDO. All queries use prepared statements.
-- **Auth hub:** `App\Core\Auth` — static, never instantiate. `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission($name)`, `login()`, `logout()`, `checkTimeout()`, `checkSecurity()`, `refreshPermissionsIfStale()`, `issueRememberCookie()`, `attemptRememberLogin()`. Full method reference + flows: `docs/ACCESS_CONTROL.md`.
-- **Middleware** (declared per route in `routes/web.php`): `auth` — remember-me auto-login → timeout + anti-hijacking → `refreshPermissionsIfStale()`; `guest` — remember-me auto-login, then redirects authenticated users away from login/forgot pages; `perm:NAME` — `hasPermission()` → 403 view on failure.
+- **Auth hub:** `App\Core\Auth` — static, never instantiate. `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission($name)`, `login()`, `logout()`, `checkTimeout()`, `checkSecurity()`, `checkAccountState()`, `syncPasswordFingerprint()`, `canGrantPermissionIds()`, `canManageUser()`, `reloadPermissions()`, `refreshPermissionsIfStale()`, `issueRememberCookie()`, `attemptRememberLogin()`. Full method reference + flows: `docs/ACCESS_CONTROL.md`.
+- **Middleware** (declared per route in `routes/web.php`): `auth` — remember-me auto-login → timeout + anti-hijacking → `checkAccountState()` (status + password fingerprint) → `refreshPermissionsIfStale()`; `guest` — remember-me auto-login, then redirects authenticated users away from login/forgot pages; `perm:NAME` — `hasPermission()` → 403 view on failure.
 - **Permissions:** `hasPermission()` reads `$_SESSION['user_permissions']` — zero DB per call. Admins (role `is_system = 1`) get `['*']`. Non-admins get an `array_unique` **union** of their direct `user_permissions` and the permissions inherited from their role via `role_permissions`. The cache is refreshed by `refreshPermissionsIfStale()` (called by `AuthMiddleware` on every authed request) comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`.
 - **Error handling:** `App\Core\ErrorHandler` handles 403/404/500, auto-detects AJAX (`X-Requested-With`) → JSON or `views/errors/*.php`. Each error view sets only `$code`, `$tone` (`'danger'`|`'warning'`), `$heading`, `$message`, then `require`s `views/layouts/error.php` (owns the full standalone document). Styling: `public/css/modules/errors/errors.css` + `errors-dark.css` (reuses `--dm-*`). `[data-tone]` on `<body>` drives the `.error-code` color — never hardcode it per view.
 - **Static analysis:** PHPStan `phpstan.neon`, **level 5** — analyses `app/` + `routes/`, excludes `app/Config/config.php`. Bootstrap `define()` constants (`URL`, `APP_VERSION`, `APP_BASE_PATH`) are declared in `phpstan-constants.php` (`scanFiles`) and listed under `dynamicConstantNames` so PHPStan does not narrow them to literal values — add any new bootstrap constant there too.
@@ -83,6 +83,12 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - **Auth state:** only through `Auth::check()` / `hasPermission()` / `id()` / `user()` — never read `$_SESSION` directly for auth state outside `App\Core\Auth`.
 - **CSRF:** generate with `generateCSRFToken()`, validate with `$this->csrfCheck()` (returns JSON 403 for AJAX, redirects otherwise). Call `regenerateCSRFToken()` after **every** successful POST **and** on the failure paths of sensitive endpoints (e.g. password change). Destructive non-AJAX actions, logout included, must be POST routes with CSRF — never GET.
 - **Remember-me invalidation:** call `$userModel->clearRememberToken($userId)` (via `Auth::clearRememberCookie()`) on every password change, no matter who triggered it (self-service, admin edit, invitation acceptance, forgot-password). `User::updatePassword()` and `UserPasswordTrait::resetPassword()` do this internally — never bypass either with a raw SQL `UPDATE` on the `password` column.
+- **Privilege boundaries — nobody grants what they do not hold.** A non-admin may only manage accounts whose effective permissions (role + direct) they already have (`Auth::canManageUser()`: edit, status toggle, unlock, resend invitation). Assigning a role or permissions requires holding all of them (`Auth::canGrantPermissionIds()`; for a role, pass `Role::getAssignedPermissionIds()`). Only an admin touches `is_system` roles/accounts, or renames a permission. Validate everything **before** writing to the DB or disk (images included) and read the current state (e.g. user status) from the DB, never from POST.
+- **Session invalidation:** `AuthMiddleware` calls `Auth::checkAccountState()` on every request — the session dies if the account is no longer active or its password hash changed (`pw_fp` fingerprint). After a self-service password change call `Auth::syncPasswordFingerprint()` so the current session survives. Passwords are never `trim()`med (spaces are part of the secret). `AuthMiddleware` opens a fresh session before storing the redirect flash, otherwise the message is lost.
+- **Client-side output:** any user-controlled value that reaches SweetAlert (`title`, `options.html`), `.html()` or the audit-log detail modal goes through `escapeHtml()` (global, `sweetalert-utils.js`) or `.text()`. Audit-log values (e.g. the identifier of a failed login) come from unauthenticated visitors.
+- **Edit forms with checkbox lists** (`users/update.php` permissions) include a hidden `<name>_submitted=1` marker: an unchecked list posts nothing, so the controller syncs only when the marker or the list is present — otherwise a client omitting the field would wipe the stored values.
+- **AJAX business rejections** (permission/rule denied) answer HTTP 200 with `success:false` — a 403 lands in jQuery's `.fail` and hides the reason. Use 403 only for CSRF/middleware.
+- **Login hardening:** one generic failure message for unknown user / wrong password / locked account (`AuthController::GENERIC_FAILURE`), a dummy `password_verify` for unknown users, and a per-IP failure cap (`IP_MAX_FAILURES` in `IP_WINDOW_MINUTES`, counted from `activity_logs`). The IP comes from `REMOTE_ADDR`: behind a reverse proxy it is the proxy's, so configure the web server to restore the client IP (e.g. `mod_remoteip`) before relying on it.
 - **Input sanitization:** `trim()` at the model layer (`trimInput()`). `htmlspecialchars()` **only** at the view layer on output — never in the model or before storing in the DB.
 - **Passwords:** always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`. Minimum 8 characters.
 - **Images:** route every upload / resize / delete through `ImageService`. MIME type is validated server-side via `(new \finfo(FILEINFO_MIME_TYPE))->file($tmp_name)` — never `$_FILES['type']` (client-controlled). Extension whitelist: `jpg`, `jpeg`, `png`, `gif`, `webp`.
@@ -90,7 +96,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - **Fat model / thin controller:** validation, data formatting, and cache invalidation live in the model. Controllers read POST/GET, call one or a few model methods, set session flash messages, and redirect or return JSON — nothing more.
 - **Model base class:** extend `App\Core\Model`, set `protected $table = '…'`. It provides `find`, `all`, `insert`, `update`, `delete`, `query`, `getLastInsertId`, `trimInput` — never redeclare those in a concrete model. Override only methods needing JOINs or custom field handling.
 - **Model traits:** past ~400 lines, split concerns into `app/Models/Traits/` by responsibility (auth queries, password/token lifecycle, statistics). Traits share `$this` — they use `$this->connection` / `$this->table` directly.
-- **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `style:`, `chore:`, …). Version tags carry **no `v` prefix** (`3.17.0`, not `v3.17.0`).
+- **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `style:`, `chore:`, …). Version tags carry **no `v` prefix** (`3.18.1`, not `v3.18.1`).
 - **Code style:** must pass `composer lint` (Pint, `psr12` preset — `pint.json`, excludes `views/`) and `composer stan` (PHPStan level 5). Run `composer lint:fix` to auto-format. Never suppress a PHPStan error with `@phpstan-ignore` or a baseline — fix the underlying cause.
 
 ### Cache invalidation contracts
@@ -149,3 +155,19 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - `docs/TESTING.md` — suites, DB setup, base classes, fixtures, conventions, CI, static analysis & code style
 - `docs/SEEDING.md` — seeded roles/users, permission matrix, import order, rerun behavior
 - `docs/AI_SETUP.md` — `.claude/skills/`, MCP servers (`.mcp.json`), Bash permission allowlist
+
+### Frontend lessons (Bootstrap / DataTables)
+
+- A `<button>` inside an `.input-group` (flex `align-items:stretch`) never shrinks like a sibling `<div>`. Wrap it in a `.input-group-text`-style `<div>` and reset the button (`all:unset; display:flex; align-items:center; justify-content:center; width:100%; height:100%`). For the 44px touch target, do not put `min-height`/`min-width` on the visible box: use an absolute `::before` with `width/height: max(100%, 44px)`.
+- Do not patch a shared base selector (`.form-control`, `.btn`) for a local symptom. Compare `getComputedStyle` against a sibling that looks right and scope the fix to the broken element's selector.
+- Bootstrap tooltips are lost when DataTables paginates/sorts/searches (rows are replaced). Initialize in a delegated `$(document).on('draw.dt', …)` handler **without** a prior `tooltip('dispose')`, guarding with `!$(this).data('bs.tooltip')`; bump the cache-busting version after core JS changes.
+- A hidden HTML template that shares a class with the cloned items breaks any global selector on that class (counts, guards): scope selectors to the real container (`'#container .item'`).
+- When assets are versioned with a query string (`?v=filemtime`), sweep every first-party `<script>`/`<link>`, including hand-written ones outside a loop; "the file exists but the browser can't see the helper" is a cached unversioned tag.
+- A contrast-tuned color override on a shared selector (especially with `!important`) must ship with its dark-mode counterpart in the same commit, using a _lightened_ value ≥4.5:1 on the real dark backgrounds. Verify both themes with axe-core.
+- An a11y audit of the initial state is not enough: open every modal, activate every tab/accordion and audit conditional branches (empty list vs. with data).
+
+### Test lessons
+
+- A fixture/trait that does `DROP`/`CREATE` on a fixed-name resource (DB, file) must suffix the name with a per-process id (`getmypid()`) when tests run in parallel (paratest).
+- A test that resets a shared singleton/global (DB connection, config) must restore the test double in `tearDown`, not leave it `null`: with random order, later tests would try to reach the real resource. "Passes locally" proves nothing when local has the real resource; to reproduce CI, run without `.env`/`.env.testing` and with `--order-by=default`.
+- Never compute a test's cutoff date with `date()`/`strtotime()` to compare against the DB's `NOW()`/`CURDATE()`: the process clock/timezone and the DB server's can differ. Use an SQL expression (`NOW() - INTERVAL 1 HOUR`).

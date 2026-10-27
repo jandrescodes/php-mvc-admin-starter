@@ -32,6 +32,11 @@ All authentication, session, and remember-me concerns are centralised in the sta
 | `Auth::logout()`                             | Reads user ID from session, clears remember-me cookie, destroys the session                                 |
 | `Auth::checkTimeout()`                       | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing |
 | `Auth::checkSecurity()`                      | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing               |
+| `Auth::checkAccountState()`                  | Destroys session and returns `false` if the account is no longer active or its password hash changed (`pw_fp`) |
+| `Auth::syncPasswordFingerprint()`            | Re-syncs `pw_fp` after a password change made from the current session (keeps it alive)                     |
+| `Auth::canGrantPermissionIds(array $ids)`    | `true` for admins; for everyone else only if they hold every permission in `$ids`                           |
+| `Auth::canManageUser(array $target)`         | `true` for admins; otherwise only if the target's effective permissions (role + direct) are a subset of the actor's |
+| `Auth::reloadPermissions()`                  | Rebuilds the session permission cache from the DB (role + direct) — used after a self-edit                   |
 | `Auth::refreshPermissionsIfStale()`          | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp                |
 | `Auth::issueRememberCookie(int $userId)`     | Generates token, stores SHA-256 hash in DB, sets cookie                                                     |
 | `Auth::attemptRememberLogin()`               | Validates cookie token, auto-logs in, rotates token                                                         |
@@ -49,6 +54,7 @@ All authentication, session, and remember-me concerns are centralised in the sta
 | `user_image`       | `string` — avatar path                                              |
 | `user_permissions` | `string[]` — union of direct + role permissions; `['*']` for admins |
 | `permissions_ts`   | `string` — `Y-m-d H:i:s` timestamp used for stale-check             |
+| `pw_fp`            | `string` — SHA-256 of the password hash at login; detects password changes made elsewhere |
 | `last_access`      | `int` — Unix timestamp for inactivity timeout                       |
 | `ip`               | `string` — client IP for anti-hijacking                             |
 | `user_agent`       | `string` — User-Agent for anti-hijacking                            |
@@ -57,11 +63,13 @@ All authentication, session, and remember-me concerns are centralised in the sta
 
 Implemented in `App\Core\Auth` (called by `AuthMiddleware`):
 
-- Session cookie hardening (`httponly`, `SameSite=Lax`, `use_strict_mode`) — set in `public/index.php` before `session_start()`
+- Session cookie hardening (`httponly`, `SameSite=Lax`, `use_strict_mode`, and `secure` when the request is HTTPS) — set in `public/index.php` before `session_start()`
 - Inactivity timeout via `Auth::checkTimeout()` — reads `SESSION_LIFETIME` from `.env` (default: 1800 s). Fail-closed: a session without `last_access` is destroyed immediately.
 - Anti-hijacking validation via `Auth::checkSecurity()` (IP + User-Agent). Fail-closed: a session without `ip` or `user_agent` is destroyed immediately.
 
-If validation fails and no valid remember-me cookie exists, the user is redirected to login and receives a session message.
+- Account-state validation via `Auth::checkAccountState()`: a deactivated account, or one whose password hash differs from the `pw_fp` captured at login (admin edit, reset, change from another session), loses its session on the next request. A session without `pw_fp` (created before this control) adopts the current fingerprint once.
+
+If validation fails and no valid remember-me cookie exists, the user is redirected to login and receives a session message. `AuthMiddleware` starts a fresh session before storing that message, because the checks above destroy the old one.
 
 ## Remember Me
 
@@ -111,7 +119,7 @@ Implemented in `App\Services\LoginThrottleService` + `App\Models\User`. Controll
 **How it works:**
 
 1. `AuthController::login()` resolves the user row via `User::findByEmail()` or `User::findByDocumentNumber()` **before** calling `password_verify`.
-2. If the user exists, `LoginThrottleService::isLocked()` evaluates `locked_until` vs `NOW()` (lazy — no write). If locked, the request is rejected with a human-readable message and `password_verify` is never called.
+2. If the user exists, `LoginThrottleService::isLocked()` evaluates `locked_until` vs `NOW()` (lazy — no write). If locked, the request is rejected with the same generic message used for a wrong password and `password_verify` is never called.
 3. On a credential failure (wrong password), `LoginThrottleService::registerFailure()` calls `User::recordFailure()` — a single UPDATE that increments `login_attempts` and sets `locked_until` when the threshold is reached. Non-existent emails do not generate any DB write.
 4. On a successful login, `LoginThrottleService::clearOnSuccess()` resets all three throttle columns to their defaults.
 5. **Lazy unlock** — `locked_until` is evaluated on the next attempt. No cron job required. Once `locked_until ≤ NOW()`, `getLockStatus()` returns `locked=false`.
@@ -133,8 +141,9 @@ last_attempt_at DATETIME NULL     DEFAULT NULL
 **Security properties:**
 
 - Locked accounts never reach `password_verify` — no timing information leaks.
-- Non-existent emails are silently ignored — user existence is not revealed.
-- IP-based blocking intentionally omitted: internal admin system where false positives (shared NAT) outweigh the benefit.
+- Non-existent emails do not touch the per-account counters, and the failure message is identical (`Incorrect credentials or account temporarily locked.`) for unknown user, wrong password and locked account. A dummy `password_verify` against a fixed hash equalises timing for unknown users.
+- **Per-IP cap:** `AuthController` rejects the attempt when `ActivityLog::countRecentFailedLogins()` finds ≥ 30 `login_failed` rows from the same `REMOTE_ADDR` in the last 15 minutes (`IP_MAX_FAILURES` / `IP_WINDOW_MINUTES`). It covers attempts against non-existent accounts, which the per-account counter cannot see. Behind a reverse proxy `REMOTE_ADDR` is the proxy's address, so restore the client IP at the web-server level or the cap would lock everyone out together.
+- The login identifier is truncated to 100 characters before it is logged, and the password is never trimmed.
 - Lockout by account is a known DoS vector; mitigated by admin manual unlock and configurable lockout duration.
 
 ---
@@ -162,7 +171,27 @@ users ──┼── user_permissions ──► permissions   ← "this USER sp
 ### System roles (`is_system = 1`)
 
 - `Auth::isAdmin()` reads `$_SESSION['user_is_admin']`, which is set from `roles.is_system` at login — not from the role name. The role can be freely renamed.
-- Roles with `is_system = 1` cannot be deactivated or deleted via the UI (`RoleController` enforces this server-side).
+- Roles with `is_system = 1` cannot be deactivated or deleted via the UI (`RoleController` enforces this server-side). Only an administrator may edit, toggle or change the permissions of a system role, and only an administrator may assign it or manage accounts that hold it.
+
+### Privilege boundaries (grant only what you hold)
+
+Holding `users`, `roles` or `permissions` does not make someone an administrator, so the controllers prevent those modules from becoming an escalation path:
+
+| Action                                                              | Rule                                                                                      | Where                                                          |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Edit / change status / unlock / resend invitation for a user        | Target's effective permissions must be a subset of the actor's (`Auth::canManageUser()`)   | `UserController`                                               |
+| Assign a role (create or change) or direct permissions to a user    | Actor must hold every permission granted (`Auth::canGrantPermissionIds()`)                | `UserController::save()/update()`                              |
+| Assign a system role                                                | Admin only                                                                                | `UserController`                                               |
+| Add permissions to a role                                           | Actor must hold the added permissions; system roles are admin-only                        | `RoleController::syncPermissions()`                            |
+| Assign / revoke a permission to a user                              | Target must not be an admin; actor must hold the permission when assigning                | `PermissionController::assignUser()/revokeUser()`              |
+| Rename a permission                                                 | Admin only (the name is the key checked by `perm:NAME`)                                    | `PermissionController::update()`                               |
+| Toggle a user's status                                              | Current status is read from the DB (never from POST); pending users and oneself are rejected | `UserController::toggleUserStatus()`                          |
+
+`POST /users/update` replaces the user's direct permissions only when the request carries `permissions[]` or the `permissions_submitted=1` marker the edit form adds (an all-unchecked form posts neither list nor values, so the marker is what distinguishes "clear all" from "field omitted").
+
+Validation always runs **before** any write (DB or image upload), so a rejected request changes nothing. An invitation token only works while the account is still `STATUS_PENDING`: a deactivated account is not reactivated by accepting it.
+
+`check-email`, `check-document` (`perm:users`), `Role@checkName` (`perm:roles`) and `Permission@checkName` (`perm:permissions`) require the module permission, so they cannot be used to enumerate accounts.
 
 ## Permission cache refresh contract
 

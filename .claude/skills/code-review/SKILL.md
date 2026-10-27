@@ -50,6 +50,14 @@ Review each changed file against the checklist below. Group findings by severity
       controller method, `regenerateCSRFToken()` called after every successful POST (including failure paths on
       sensitive endpoints like password change)
 - [ ] Destructive/non-AJAX actions are `POST` routes with CSRF, never `GET` (including logout)
+- [ ] Privilege boundaries — any action that assigns a role/permissions or edits another account uses
+      `Auth::canGrantPermissionIds()` / `Auth::canManageUser()`; `is_system` roles/accounts are admin-only;
+      account state (e.g. status) is read from the DB, not from POST
+- [ ] Validate-then-write — role, permission and password checks run **before** any DB write or image upload
+      (a rejected request must change nothing)
+- [ ] Client-side output escaped — user data in SweetAlert `title`/`html`, `.html()` or modals goes through
+      `escapeHtml()` / `.text()`; password inputs are never `trim()`med
+- [ ] AJAX business rejections return HTTP 200 + `success:false` (403 only for CSRF/middleware)
 - [ ] Image uploads route through `ImageService` — MIME validated via `finfo`, never `$_FILES['type']`; extension
       whitelist enforced (`jpg`, `jpeg`, `png`, `gif`, `webp`)
 - [ ] Remember-me token cleared — `$userModel->clearRememberToken($userId)` called whenever a password changes,
@@ -148,6 +156,8 @@ If there are blocking issues, end with:
 | 2   | Controller | Missing `$this->csrfCheck()` on a state-changing POST/AJAX method            | 🚨 Block   |
 | 3   | Model      | SQL built with string concatenation instead of prepared statements          | 🚨 Block   |
 | 4   | View       | User output not escaped with `htmlspecialchars()`                           | 🚨 Block   |
+| 4b  | JS         | User data in SweetAlert `html`/`.html()` without `escapeHtml()`             | 🚨 Block   |
+| 4c  | Controller | Grants a role/permission or edits an account without `canGrantPermissionIds`/`canManageUser` | 🚨 Block   |
 | 5   | Model      | Password changed without calling `clearRememberToken()`                     | 🚨 Block   |
 | 6   | Model      | Mutation missing matching `DashboardCache::forget()` call                   | ⚠️ Warning |
 | 7   | Controller | `AuditLogger::log()` missing after a state-changing action                  | ⚠️ Warning |

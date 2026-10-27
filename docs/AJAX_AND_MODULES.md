@@ -128,6 +128,10 @@ JS modules should call the clean routes registered in `routes/web.php`:
 
 All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Never call `Swal.fire()` directly in module scripts.
 
+> **Escaping:** SweetAlert2 renders `title` and `options.html` as HTML. `ToastUtils` / `AlertUtils` already pass every `title` through the global `escapeHtml()` (defined in `sweetalert-utils.js`); anything user-controlled that you put into `options.html` or into `.html()` must be wrapped in `escapeHtml(value)` yourself (or use `.text()`). Same for the audit-log detail modal, whose values can come from unauthenticated requests.
+
+> **Business rejections:** answer HTTP 200 with `{success:false, message}`; reserve 403 for CSRF/middleware. jQuery routes a 403 to `.fail`, which can only show a generic error.
+
 ### ToastUtils
 
 | Method                                                  | Purpose                                                           |
