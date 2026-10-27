@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.17.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.18.1-green)](CHANGELOG.md)
 [![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -51,7 +51,7 @@ A PHP starter template with authentication, user management, and role-based perm
 
 - **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie, brute-force lockout
 - **User management** — Full CRUD, profile images, account activation/deactivation, invitation by email (admin creates pending user → 48 h token link → user sets password → account activated)
-- **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
+- **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`, admin-only), logical delete only; nobody can grant a permission they do not hold
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
 - **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; server-side PDF export (TCPDF) gated by `audit_log_export`; log access gated by `audit_log` permission
 - **Metrics dashboard** — Chart.js charts (donut active/inactive/pending, bar, line) + stat cards for users, permissions, roles, and today's audit events; toggleable access-metrics row (pending invitations, resets this week) with localStorage persistence and CSS slide+fade animation; staggered entrance animations for stat cards and chart cards; session-based cache with event-driven invalidation
@@ -91,7 +91,7 @@ Full CRUD with profile images, activation/deactivation, and email invitations.
 
 ### Role & Permissions
 
-Role catalog with role↔permission assignment and system-role protection.
+Role catalog with role↔permission assignment and system-role protection. Granting is bounded by what the actor holds (see [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md)).
 
 ![Roles](docs/screenshots/roles.png)
 
@@ -141,8 +141,8 @@ DB_CHARSET=utf8mb4
 
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
-DEBUG=true
-APP_VERSION=3.17.0
+DEBUG=false
+APP_VERSION=3.18.1
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -276,6 +276,10 @@ changes are skipped via `paths-ignore`; superseded runs on the same ref are canc
 - Configurable session lifetime via `SESSION_LIFETIME` in `.env`
 - Permission cache in session — navigation checks require zero DB queries per page load
 - Users cannot deactivate or change the status of their own account
+- Privilege-escalation guards — nobody can grant a role or permission they do not hold, a non-admin only manages accounts whose permissions they already have, and system roles/accounts are admin-only
+- Sessions are invalidated when the account is deactivated or its password changes (password fingerprint checked on every request)
+- Login hardening — generic failure message, constant-ish timing for unknown users, per-IP failure cap; password policy minimum of 8 characters, never trimmed
+- Client output escaping — user data shown in SweetAlert dialogs and the audit-log modal is HTML-escaped; `secure` session cookie over HTTPS
 - Brute-force protection — account lockout after N failed login attempts (`LOGIN_MAX_ATTEMPTS`); lazy unlock by time or manual admin unlock; locked accounts bypass `password_verify` to prevent timing leaks
 
 ## Developer Docs

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.18.1] - 2026-10-27
+
+Security hardening patch (audit + browser verification). No schema changes.
+
+### Security
+
+- **Stored XSS** — the header, SweetAlert titles/dialogs (`escapeHtml()` in `sweetalert-utils.js`), the audit-log detail modal (reachable by unauthenticated visitors through the failed-login identifier), the revoke-permission dialog and the file-input label no longer interpret user data as HTML.
+- **Privilege escalation** — `Auth::canGrantPermissionIds()` and `Auth::canManageUser()`: nobody grants a role or permission they do not hold; a non-admin only edits, toggles, unlocks or re-invites accounts whose effective permissions they already have; system roles and accounts are admin-only (`UserController`, `RoleController`, `PermissionController`). Renaming a permission is admin-only.
+- **Session invalidation** — `Auth::checkAccountState()` (called by `AuthMiddleware`) ends a session when the account is deactivated or its password changed; `Auth::syncPasswordFingerprint()` keeps the session of the user who changed their own password.
+- **Login** — a single generic failure message (no user/lock enumeration), dummy `password_verify` for unknown users, per-IP failure cap (30 in 15 min), identifier truncated to 100 characters, passwords no longer trimmed, array inputs no longer cause a 500; `DEBUG` branch that revealed unregistered emails in the forgot-password flow removed.
+- `check-email`, `check-document`, `Role@checkName` and `Permission@checkName` now require their module permission.
+- `secure` flag on the session cookie over HTTPS; `.env.example` ships `DEBUG=false`.
+- Accepting an invitation no longer reactivates an account that an admin deactivated; user status is read from the DB instead of the POST.
+
+### Changed
+
+- Minimum password length is 8 everywhere (model validation, profile and update forms).
+- `UserController::update()` validates role, permissions and password **before** writing, so a rejected request no longer leaves partial changes or deletes the user's current image.
+- Business rejections in the role/permission AJAX endpoints return HTTP 200 with `success:false` so the UI shows the real reason.
+- Uploads are stored relative to the project (`public/uploads/users`) instead of the working directory.
+
+### Added
+
+- **Tests** — `AuthPrivilegeTest` (privilege boundaries, account-state invalidation, permission reload), `ActivityLog::countRecentFailedLogins` cases, and a non-string case for `verifyCSRFToken()`.
+
+### Fixed
+
+- Editing a user through `POST /users/update` without a permissions list wiped the user's direct permissions. The edit form now sends `permissions_submitted=1`; without that field or `permissions[]` the existing direct permissions are kept, and an explicitly empty form still clears them.
+- Changing the password from the profile ended in a 404 with the session still open (JS did `GET /logout`); it now POSTs with a fresh CSRF token.
+- Editing your own user wiped the role-inherited permissions from the session until the next login.
+- The "session no longer valid" notice was lost because the session was destroyed before storing it.
+- A password ending in a space was rejected in the admin edit form.
+- Removed the unrouted `ProfileController::updatePasswordAjax()`.
+
 ## [3.18.0] - 2026-09-09
 
 ### Added
@@ -920,6 +954,8 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.18.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.0...3.18.1
+[3.18.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.17.0...3.18.0
 [3.17.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.1...3.17.0
 [3.16.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.0...3.16.1
 [3.16.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.15.3...3.16.0

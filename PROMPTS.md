@@ -53,7 +53,9 @@ _______________
 - Las rutas se declaran en routes/web.php con middleware 'auth', 'guest' o 'perm:NAME'
 - CSRF obligatorio: generateCSRFToken() en vistas, $this->csrfCheck() en endpoints POST, regenerateCSRFToken() tras cada POST exitoso
 - Input sanitization con trim() solo en el modelo (trimInput()); htmlspecialchars() solo en vistas
-- Passwords: password_hash(PASSWORD_DEFAULT) al guardar, password_verify() al validar
+- Passwords: password_hash(PASSWORD_DEFAULT) al guardar, password_verify() al validar; mínimo 8 caracteres y nunca trim()
+- Privilegios: nadie concede un rol/permiso que no posee (Auth::canGrantPermissionIds) ni administra cuentas con permisos que no tiene (Auth::canManageUser); roles/cuentas is_system solo por admin; validar todo antes de escribir en BD/disco
+- Salida en JS: datos de usuario en SweetAlert (title/html) o .html() pasan por escapeHtml(); rechazos de negocio en AJAX = HTTP 200 + success:false
 - Uploads: siempre a través de ImageService
 - AJAX: devolver JSON con $this->jsonResponse(); sesión-feedback con $_SESSION['message'] + $_SESSION['icon'] antes del JSON si hay location.reload()
 - DataTables para listas; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
@@ -179,7 +181,7 @@ Revisa el siguiente código antes del merge.
 
 [Restricciones]
 Evalúa específicamente:
-- Seguridad: SQL injection (prepared statements), XSS (htmlspecialchars en vistas), CSRF (csrfCheck + regenerateCSRFToken), sesiones mal validadas
+- Seguridad: SQL injection (prepared statements), XSS (htmlspecialchars en vistas, escapeHtml() en JS), escalada de privilegios (canGrantPermissionIds / canManageUser), CSRF (csrfCheck + regenerateCSRFToken), sesiones mal validadas (checkAccountState)
 - Convenciones: namespaces App\*, naming, estructura MVC, rutas en routes/web.php
 - Lógica: sanitización en modelo, escape en vista, ImageService para uploads
 - AJAX: jsonResponse() usado correctamente, feedback de sesión si hay reload
@@ -342,5 +344,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.17.0_
+_Última actualización: v3.18.1_
 _Mantener sincronizado con AGENTS.md al iniciar cada sprint._
