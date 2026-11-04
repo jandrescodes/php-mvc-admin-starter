@@ -155,6 +155,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - `docs/legacy/TESTING.md` — suites, DB setup, base classes, fixtures, conventions, CI, static analysis & code style
 - `docs/legacy/SEEDING.md` — seeded roles/users, permission matrix, import order, rerun behavior
 - `docs/legacy/AI_SETUP.md` — `.claude/skills/`, MCP servers (`.mcp.json`), Bash permission allowlist
+- `docs/analisis-migracion-adminlte4.md` — **migración en curso** (`specs/001-adminlte-migration/`): auditoría SDD, línea base, decisiones y fuentes en `docs/research/`. Las secciones de este archivo sobre AdminLTE 3, jQuery, DataTables, Select2 y «no npm» describen el estado **actual** y se reescriben en T12/T56.
 
 ### Frontend lessons (Bootstrap / DataTables)
 
@@ -223,4 +224,3 @@ above, after you approve a proposal.
 - **`docs/`, `specs/`, and `deliverables/` are versioned but not deployed:**
   exclude them from the deploy artifact and the docroot.
 - **Don't modify `specs/` outside its phase** without an explicit request.
-

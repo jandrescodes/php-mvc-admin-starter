@@ -22,11 +22,9 @@ writing `spec/plan/tasks`; the detail lives in `CHANGELOG.md`._
 
 ## Next 🔜
 
-- **AdminLTE 3.2.0 → 4.x migration** — frontend re-presentation to AdminLTE 4 + Bootstrap 5 → `specs/001-adminlte-migration/`
+- **AdminLTE 3.2.0 → 4.x migration** — frontend re-presentation to AdminLTE 4 + Bootstrap 5 → `specs/001-adminlte-migration/` (análisis y decisiones: `docs/analisis-migracion-adminlte4.md`)
 
 ## Backlog · ideas 💡
 
 _Not committed or fully ordered. Every idea must respect
 `docs/constitution.md` (including product scope)._
-
-- **Replace jQuery for Select2/DataTables** — evaluate native alternatives when a stable jQuery-free version exists.

@@ -8,7 +8,7 @@
 - **Clases de AdminLTE 3:** extraídas del CSS local `public/css/lib/adminlte/adminlte.min.css` (2967 clases). Verificado **idéntico** (md5 tras aplanar espacios) al oficial `admin-lte@3.2.0` (npm) y a `ColorlibHQ/AdminLTE@v3.2.0` (GitHub).
 - **Ocurrencias:** atributos `class="..."` en `views/**/*.php` (incluidos los dinámicos dentro de `<?= ... ?>`) y selectores `.clase` en `public/css/core/` y `public/css/modules/`, con comentarios multilínea descartados.
 - **¿Sigue en AdminLTE 4?:** presencia en `ColorlibHQ/AdminLTE@v4.10.1/dist/css/adminlte.min.css` (2467 clases).
-- **¿Cubierta por Bootstrap 5?:** presencia en `public/css/lib/bootstrap/bootstrap.min.css` (v5.0.2, se conserva en la migración).
+- **¿Cubierta por Bootstrap 5?:** presencia en `public/css/lib/bootstrap/bootstrap.min.css` (v5.0.2). Esa hoja se retira en la migración (AdminLTE 4 incluye Bootstrap 5.3.8): el Grupo B debe releerse contra 5.3.8.
 - **Excluidos:** `public/css/lib/` y `public/css/plugins/` (CSS de terceros) y las clases que AdminLTE 3 no define (propias del proyecto o de plugins).
 
 ## Hallazgos de contexto
@@ -46,9 +46,9 @@ Total: **291** clases de AdminLTE 3 en uso, de 425 clases distintas halladas en 
 - **`content-header`** — 11 usos — `views/audit-log/index.php`: 2 · `views/dashboard/index.php`: 2 · `views/permissions/detail.php`: 2 · `views/permissions/index.php`: 2 · `views/roles/detail.php`: 2 · `views/roles/index.php`: 2 · `views/users/create.php`: 2 · `views/users/index.php`: 2 · `views/users/profile.php`: 2 · `views/users/show.php`: 2 · `views/users/update.php`: 2
     - _v4: `app-content-header`._
 - **`content-wrapper`** — 1 uso — `views/layouts/header.php`: 128
-    - _v4: `app-content` (+ `app-content-header`)._
+    - _v4: `app-main` (contiene `app-content-header` y `app-content`)._
 - **`dark-mode`** ★ — 142 usos — `public/css/core/dark-mode.css`: 22, 39, 43, 48, 49, 53, 57, 61, 62, 63, 68, 72, 73, 78, 83, 88, 93, 98, 99, 100, 101, 102, 105, 109, 110, 114, 118, 122, 126, 131, 132, 133, 134, 135, 137, 141, 145, 153, 154, 155, 167, 168, 169, 176, 177, 178, 179, 183, 184, 190, 191, 197, 202, 206, 210, 214, 220, 221, 226, 227, 233, 237, 241, 246, 252, 257, 262, 266, 273, 274, 280, 281, 282, 283, 284, 288, 294, 302, 309, 310, 319, 327, 328, 337, 342, 343, 344, 345, 346, 347, 348, 349, 350, 354, 355, 359, 363, 367, 371, 376, 380, 384, 389, 395, 401, 407, 415, 419, 424, 429, 430 · `public/css/modules/dashboard/dashboard.css`: 46, 143, 163 · `public/css/modules/errors/errors-dark.css`: 6, 11, 15, 19, 23, 27, 28 · `public/css/modules/login/login-dark.css`: 9, 16, 21, 26, 31, 35, 39, 44, 50, 54, 61, 62, 68, 74, 75, 76, 95, 100, 105, 129, 133
-    - _El CSS de AdminLTE 3.2 incluye un bloque masivo `.dark-mode` (desaparece en v4): tras la migración `public/css/core/dark-mode.css` debe cubrirlo solo (T17/T37)._
+    - _El CSS de AdminLTE 3.2 incluye un bloque masivo `.dark-mode` (desaparece en v4): tras la migración `public/css/core/dark-mode.css` debe cubrirlo solo (T18, T44)._
 - **`elevation-0`** — 1 uso — `views/layouts/sidebar.php`: 29
     - _Sombras AdminLTE 3; v4 no define `elevation-*`._
 - **`elevation-1`** — 6 usos — `views/permissions/index.php`: 25, 34, 43 · `views/roles/index.php`: 25, 34, 43
@@ -94,7 +94,7 @@ Total: **291** clases de AdminLTE 3 en uso, de 425 clases distintas halladas en 
 _Clase Bootstrap 4 eliminada en BS5 → reemplazar por su equivalente BS5._
 
 - **`arrow`** ★ — 18 usos — `public/css/core/dark-mode.css`: 342, 343, 344, 345, 346, 347, 348, 349, 350 · `public/css/core/ui-components.css`: 136, 137, 138, 139, 140, 141, 142, 143, 144
-    - _Flechas de tooltip BS4 (markup generado por el JS BS4 actual). **BS5 usa `.tooltip-arrow`/`.popover-arrow`** → los selectores `.arrow` de `ui-components.css` y `dark-mode.css` quedarán huérfanos (T19/T37)._
+    - _Flechas de tooltip BS4 (markup generado por el JS BS4 actual). **BS5 usa `.tooltip-arrow`/`.popover-arrow`** → los selectores `.arrow` de `ui-components.css` y `dark-mode.css` quedarán huérfanos (T25, T44)._
 - **`badge-danger`** ★ — 10 usos — `public/css/core/dark-mode.css`: 133 · `views/dashboard/index.php`: 240 · `views/permissions/detail.php`: 47 · `views/permissions/index.php`: 95 · `views/roles/detail.php`: 48 · `views/roles/index.php`: 95 · `views/users/index.php`: 77 · `views/users/profile.php`: 55 · `views/users/show.php`: 81 · `views/users/update.php`: 537
 - **`badge-info`** ★ — 3 usos — `public/css/core/dark-mode.css`: 135 · `views/permissions/detail.php`: 54 · `views/roles/detail.php`: 63
 - **`badge-pill`** — 24 usos — `views/audit-log/index.php`: 223 · `views/dashboard/index.php`: 236, 238, 240 · `views/permissions/detail.php`: 45, 47, 54 · `views/permissions/index.php`: 90, 95 · `views/roles/detail.php`: 46, 48, 56, 63 · `views/roles/index.php`: 90, 95 · `views/users/index.php`: 73, 75, 77 · `views/users/profile.php`: 53, 55 · `views/users/show.php`: 77, 79, 81, 89
@@ -134,9 +134,9 @@ _Clase Bootstrap 4 eliminada en BS5 → reemplazar por su equivalente BS5._
 
 ---
 
-## Grupo B — ausente en v4, cubierta por Bootstrap 5 (1)
+## Grupo B — ausente en v4, cubierta solo por Bootstrap 5.0.2 (1)
 
-_No requiere cambio de nombre; revisar que la cascada no la pise tras quitar el BS4 embebido._
+_`navbar-light` no existe en Bootstrap 5.3.8 ni en AdminLTE 4: requiere reescritura (tema de la barra por `data-bs-theme` y utilidades), no solo revisión (T14)._
 
 - **`navbar-light`** — 1 uso — `views/layouts/header.php`: 64
 
@@ -144,7 +144,7 @@ _No requiere cambio de nombre; revisar que la cascada no la pise tras quitar el 
 
 ## Grupo C — presentes en AdminLTE 4 (201) · solo refresco
 
-No necesitan cambio de nombre; verificar visualmente al actualizar el CSS (T18/T45).
+No necesitan cambio de nombre; verificar visualmente al actualizar el CSS (T44, T48).
 
 - **`accordion`** — 2 — `views/users/create.php`: 386 · `views/users/update.php`: 425
 - **`active`** ★ — 34 — `public/css/core/dark-mode.css`: 78, 141, 309, 310, 354, 355, 359, 363, 367, 371, 376, 380 · `public/css/core/ui-components.css`: 321, 322, 323, 324, 325, 326 · `views/audit-log/index.php`: 11 · `views/dashboard/index.php`: 11 · `views/layouts/sidebar.php`: 48 · `views/permissions/detail.php`: 12 · `views/permissions/index.php`: 11 · `views/roles/detail.php`: 12 · `views/roles/index.php`: 11 · `views/users/create.php`: 12 · `views/users/index.php`: 11 · `views/users/profile.php`: 11, 71, 87 · `views/users/show.php`: 12, 133, 152 · `views/users/update.php`: 12
@@ -356,7 +356,7 @@ No son clases de AdminLTE: sus estilos vienen incluidos en `adminlte.min.css` **
 
 ### Select2 (13)
 
-_También en `plugins/select2/select2.min.css` (vía AssetRegistry). El tema `select2-bootstrap4.min.css` debe migrarse a tema Bootstrap 5 (T19/T41)._
+_También en `plugins/select2/select2.min.css` (vía AssetRegistry). El tema `select2-bootstrap4.min.css` se elimina: Tom Select (T9, T25) sustituye a Select2 y `adminlte-select2.css` no se usa._
 
 - **`select2-container--bootstrap4`** ★ — 37 usos — `public/css/core/dark-mode.css`: 226, 227, 233, 237, 241, 246, 252, 257, 262, 266, 273, 274 · `public/css/core/ui-components.css`: 13, 19, 20, 25, 26, 36, 54, 61, 70, 74, 75, 81, 85, 86, 92, 96, 97, 103, 107, 108, 210, 214, 245, 246, 252
 - **`select2-container--focus`** ★ — 7 usos — `public/css/core/dark-mode.css`: 273 · `public/css/core/ui-components.css`: 26, 74, 85, 96, 107, 245
@@ -405,7 +405,7 @@ _Provisto por `lib/fontawesome/all.min.css` + `core/webfonts.css`; no depende de
 
 ### iCheck (1)
 
-_También en `lib/bootstrap/icheck-bootstrap.min.css` (`auth.php:25`, tema BS4) — revisar con BS5 en el login (T45)._
+_También en `lib/bootstrap/icheck-bootstrap.min.css` (`auth.php:25`, tema BS4) — se elimina al pasar «Recordarme» a `.form-check` (T42)._
 
 - **`icheck-primary`** ★ — 2 usos — `public/css/modules/login/login-dark.css`: 95 · `views/auth/login.php`: 38
 
@@ -419,4 +419,4 @@ Extraídas del CSS de `AdminLTE@v4.10.1` para orientar la Fase 2 (confirmar mark
 - **Sidebar:** `app-sidebar`, `app-sidebar-wrapper`, `sidebar-wrapper`, `sidebar-brand`, `sidebar-menu`, `sidebar-search`, `sidebar-overlay`, `sidebar-mini`, `sidebar-open`, `sidebar-collapse`, `sidebar-expand`, `sidebar-without-hover`
 - **Navbar:** `navbar-brand`, `navbar-nav`, `navbar-expand`, `navbar-toggler`, `navbar-dark`, `navbar-custom-menu`, `navbar-search`, `navbar-badge`
 
-Mapping orientativo (v3 → v4): `wrapper`→`app-wrapper` · `main-header`→`app-header` · `content`→`app-content` · `content-header`→`app-content-header` · `main-footer`→`app-footer` · `main-sidebar`→`app-sidebar` · `nav-sidebar`→`sidebar-menu`.
+Mapping orientativo (v3 → v4): `wrapper`→`app-wrapper` · `main-header`→`app-header` · `content`→`app-content` · `content-wrapper`→`app-main` · `content-header`→`app-content-header` · `main-footer`→`app-footer` · `main-sidebar`→`app-sidebar` · `nav-sidebar`→`sidebar-menu`.
