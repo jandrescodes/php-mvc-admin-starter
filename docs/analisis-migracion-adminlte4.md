@@ -1,0 +1,60 @@
+# Análisis de la migración a AdminLTE 4 (2026-11-04)
+
+Registro de lo que se auditó, se midió y se decidió antes de implementar la spec `specs/001-adminlte-migration/`. Los informes fuente están en `docs/research/`. Nada de esto es contrato: el contrato es la spec. Los inventarios y `docs/research/` son documentos de trabajo y se eliminan al cerrar la feature (ver «Cierre» en `tasks.md`).
+
+## 1. Auditoría de SDD (resultado: «parcial»)
+
+El trabajo SDD previo lo hizo opencode en una sola sesión (modelos gratuitos, sin ejecutar `composer`, `pint` ni `phpstan`). Pint, PHPStan y la suite unitaria (87 tests) pasaron al auditar; Integration no se corrió.
+
+| Gravedad | Hallazgo | Estado |
+| --- | --- | --- |
+| Crítico | Ninguna tarea reescribía el markup de las vistas de negocio | Corregido: tareas T29–T43 por pantalla |
+| Crítico | Sin tarea para traer las librerías decididas | Corregido: Fase B (T6–T13) |
+| Crítico | La spec afirmaba que AdminLTE 4 empaqueta Bootstrap JS, Popper, OverlayScrollbars e iconos (falso) | Corregido en spec y plan |
+| Alto | Composer solo para copiar `dist/` contradecía FR-33 y la regla de dependencias sin uso | Reformulado: Composer `require-dev` + npm (C1) |
+| Alto | Spec contradictoria (jQuery «nativo» y «se conserva»; backend «fuera de alcance» pero con cambios) y con HOW | Reescrita solo con qué/por qué |
+| Alto | Orden de fases roto (constitución y spec editadas tras plan/tasks, T49 sin `/sdd:change`) | Regenerados spec → plan → tasks |
+| Alto | Constitución con «soft deletes only» (falso) y con decisiones de la feature | Corregida |
+| Alto | `specs/` sin versionar pese a citarse en un commit | Pendiente: commit |
+| Medio | Modo oscuro con `.dark-mode`; `nav-sidebar` inexistente; ~85 atributos `data-toggle`/`data-dismiss` sin inventario; trazabilidad FR↔tarea; EARS pobre; FR-34 no verificable; T37 y T45 > 30 min; gate `composer check` sin frontend | Corregidos en el plan/tareas |
+| Bajo | `CLAUDE.md` citaba skills inexistentes en `.claude/skills/`; idioma mezclado; conteos en inventarios | Corregidos (`roadmap.md` sigue en inglés por la plantilla del plugin) |
+
+## 2. Línea base en navegador (AdminLTE 3, Firefox 158 vía Playwright)
+
+- Servidor `php -S` aparte con BD descartable `zz_secverify_<pid>` (ya borrada); `auth_base` quedó en 166 filas de auditoría.
+- Sin errores de consola ni 404 en dashboard, `/users`, `/users/create`, `/roles`, `/permissions`, `/audit-log`. Login falso → `login_failed`; login real entra. Interruptor de tema funciona (contraste y persistencia sin medir).
+- Corría jQuery 3.6.0, Bootstrap JS 4.6.1 y DataTables 1.11.4. Atributos heredados de Bootstrap 4: 20 en `/users`, 15 en `/users/create`, 28 en `/audit-log`; 14 `.form-group` en `/users/create`.
+- **Sin verificar:** `/profile`, detalle de rol y permiso, 404, modales y acciones que cambian datos.
+
+## 3. Hallazgos sobre AdminLTE 4.10.1
+
+- El paquete npm `admin-lte` se quedó en 4.10.0; Packagist y el tag de GitHub tienen 4.10.1. `dist/` solo trae `adminlte*.css/js` y demos; Bootstrap JS, Popper, OverlayScrollbars e iconos van aparte. `adminlte.css` ya incluye Bootstrap 5.3.8.
+- Layout: `app-wrapper`, `app-header`, `app-sidebar`, `sidebar-menu`, `app-main`, `app-content`, `app-footer`; `data-lte-toggle`. `content-wrapper` pasa a `app-main`; `navbar-light` no existe en BS 5.3.8.
+- Tema: `data-bs-theme` en `<html>`; `data-lte-color-mode="off"` conserva el interruptor propio. SweetAlert2 necesita `theme` explícito (`dark`|`light`, nunca `auto`).
+- `initAccessibility` crea ids y mensajes de error propios: los campos con validación propia llevan `disable-adminlte-validations`.
+- La documentación recomienda alternativas sin jQuery: Tabulator, Tom Select, Bootstrap Icons, validación nativa, Chart.js 4, Flatpickr.
+- Instalación documentada: CDN, npm, código fuente o Composer (`almasaeed2010/adminlte`).
+
+## 4. Decisiones y alternativas descartadas
+
+| Decisión | Motivo | Descartado |
+| --- | --- | --- |
+| Stack sin jQuery (Tabulator 6.7.1, Tom Select 2.6.2, Bootstrap Icons 1.13.2, validación nativa) | Práctica deliberada del preview; AdminLTE 3.2.0 sigue en otros proyectos como respaldo | Plan conservador con jQuery 3.7.1 + DataTables 3.1.5 + Select2 4.1 |
+| Composer `require-dev` (AdminLTE) + npm `devDependencies` (resto) + script de copia a `public/` | Sigue la documentación oficial, fija versiones con lockfile, sin Node en el servidor | `dist/` descargado a mano; Composer solo |
+| Datos de tablas como JSON en `data-*` | Tabulator pierde `data-*` de fila si se inicializa sobre `<table>`; sin endpoint nuevo | Endpoint JSON |
+| `<input type="date">` nativo | Flatpickr deja el campo `readonly`, desconecta el label y su tema oscuro es global | Flatpickr |
+| Conservar SweetAlert2 11.26.25 | AdminLTE no lo reemplaza; sustituirlo reescribe confirm/loading/welcome y 24 llamadas | Alternativas de AdminLTE |
+| Exportación con paridad (Excel SheetJS 0.20.3, PDF jsPDF 4.2.1 + autotable 5.0.9) con reducción documentada si falla | Sustituye DataTables Buttons, JSZip y pdfmake | pdfmake 0.3, JSZip |
+| SheetJS desde `cdn.sheetjs.com` | El paquete de npm (0.18.5) tiene dos CVE | `xlsx` de npm |
+| Font Awesome, moment, iCheck, jQuery, Select2, DataTables, Validate, Chart.js 2 eliminados | Sin uso o sustituidos | — |
+
+## 5. Riesgos y pendientes de verificar
+
+- Nada del stack nuevo se probó en navegador; la prueba de humo de SheetJS en Node no se pudo hacer.
+- Tabulator 6.7.1 y Chart.js 4.6.1 tienen menos de 14 días (respaldos 6.6.1 y 4.5.1). jsPDF publica avisos con frecuencia (fijada en 4.2.1).
+- SheetJS (tarball) no lo vigila Dependabot.
+- `AGENTS.md` describe aún AdminLTE 3; lo reescribe T12/T56 al implementar.
+
+## 6. Documentos relacionados
+
+`specs/001-adminlte-migration/{spec,plan,tasks}.md` · `docs/constitution.md` · inventarios `docs/adminlte3-class-inventory.md`, `docs/jquery-usage-inventory.md`, `docs/plugin-assets-inventory.md` · fuentes `docs/research/`.
