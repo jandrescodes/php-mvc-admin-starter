@@ -69,7 +69,7 @@ A PHP starter template with authentication, user management, and role-based perm
 
 Session-based login with brute-force lockout and remember-me support.
 
-![Login](docs/screenshots/login.png)
+![Login](docs/legacy/screenshots/login.png)
 
 ---
 
@@ -77,7 +77,7 @@ Session-based login with brute-force lockout and remember-me support.
 
 Metrics overview with Chart.js charts and event-driven cache invalidation.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/legacy/screenshots/dashboard.png)
 
 ---
 
@@ -85,15 +85,15 @@ Metrics overview with Chart.js charts and event-driven cache invalidation.
 
 Full CRUD with profile images, activation/deactivation, and email invitations.
 
-![Users](docs/screenshots/users.png)
+![Users](docs/legacy/screenshots/users.png)
 
 ---
 
 ### Role & Permissions
 
-Role catalog with role↔permission assignment and system-role protection. Granting is bounded by what the actor holds (see [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md)).
+Role catalog with role↔permission assignment and system-role protection. Granting is bounded by what the actor holds (see [docs/legacy/ACCESS_CONTROL.md](docs/legacy/ACCESS_CONTROL.md)).
 
-![Roles](docs/screenshots/roles.png)
+![Roles](docs/legacy/screenshots/roles.png)
 
 ## Requirements
 
@@ -128,7 +128,7 @@ Open `http://localhost/php-mvc-admin-starter/` in your browser.
 
 **Default credentials:** `admin@sistema.com` / `admin123`
 ⚠️ Change the default credentials immediately after installation.
-For all seeded test users and their permissions, see [docs/SEEDING.md](docs/SEEDING.md).
+For all seeded test users and their permissions, see [docs/legacy/SEEDING.md](docs/legacy/SEEDING.md).
 
 ## Configuration `.env`
 
@@ -284,15 +284,15 @@ changes are skipped via `paths-ignore`; superseded runs on the same ref are canc
 
 ## Developer Docs
 
-- [docs/SEEDING.md](docs/SEEDING.md) — seeded users, rerun behavior, and permission matrix
-- [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md) — session guards and permission cache flow
-- [docs/AJAX_AND_MODULES.md](docs/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
-- [docs/TESTING.md](docs/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
+- [docs/legacy/SEEDING.md](docs/legacy/SEEDING.md) — seeded users, rerun behavior, and permission matrix
+- [docs/legacy/ACCESS_CONTROL.md](docs/legacy/ACCESS_CONTROL.md) — session guards and permission cache flow
+- [docs/legacy/AJAX_AND_MODULES.md](docs/legacy/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
+- [docs/legacy/TESTING.md](docs/legacy/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
 
 ## AI Integration
 
 This project is configured for AI coding assistants like Claude Code. It includes custom skills, MCP server templates, and auto-approval settings.
-See [docs/AI_SETUP.md](docs/AI_SETUP.md) for full details on how to use and extend the AI configuration.
+See [docs/legacy/AI_SETUP.md](docs/legacy/AI_SETUP.md) for full details on how to use and extend the AI configuration.
 
 ## Contributing
 

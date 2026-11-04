@@ -27,7 +27,7 @@ chmod 777 public/uploads/users/
 - Apache runs as `daemon` on LAMPP; `public/uploads/users/` must be `777` (or web-server-owned) or `move_uploaded_file()` silently fails.
 - `public/uploads/users/.htaccess` blocks PHP execution — never remove it.
 - Default login: `admin@sistema.com` / `admin123`. Local URL: `http://localhost/php-mvc-admin-starter/`.
-- Seed dataset (users, permission matrix, rerun behavior): `docs/SEEDING.md`.
+- Seed dataset (users, permission matrix, rerun behavior): `docs/legacy/SEEDING.md`.
 
 ## Commands
 
@@ -68,7 +68,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
     ```
 - **Autoloading:** Composer PSR-4 `"App\\": "app/"`, no custom autoloader. `app/Core/helpers.php` loads via `autoload.files` — it defines only `generateCSRFToken()`, `verifyCSRFToken()`, `regenerateCSRFToken()`, and the `env()` wrapper.
 - **DB:** `Connection::getInstance()` singleton → configured PDO. All queries use prepared statements.
-- **Auth hub:** `App\Core\Auth` — static, never instantiate. `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission($name)`, `login()`, `logout()`, `checkTimeout()`, `checkSecurity()`, `checkAccountState()`, `syncPasswordFingerprint()`, `canGrantPermissionIds()`, `canManageUser()`, `reloadPermissions()`, `refreshPermissionsIfStale()`, `issueRememberCookie()`, `attemptRememberLogin()`. Full method reference + flows: `docs/ACCESS_CONTROL.md`.
+- **Auth hub:** `App\Core\Auth` — static, never instantiate. `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission($name)`, `login()`, `logout()`, `checkTimeout()`, `checkSecurity()`, `checkAccountState()`, `syncPasswordFingerprint()`, `canGrantPermissionIds()`, `canManageUser()`, `reloadPermissions()`, `refreshPermissionsIfStale()`, `issueRememberCookie()`, `attemptRememberLogin()`. Full method reference + flows: `docs/legacy/ACCESS_CONTROL.md`.
 - **Middleware** (declared per route in `routes/web.php`): `auth` — remember-me auto-login → timeout + anti-hijacking → `checkAccountState()` (status + password fingerprint) → `refreshPermissionsIfStale()`; `guest` — remember-me auto-login, then redirects authenticated users away from login/forgot pages; `perm:NAME` — `hasPermission()` → 403 view on failure.
 - **Permissions:** `hasPermission()` reads `$_SESSION['user_permissions']` — zero DB per call. Admins (role `is_system = 1`) get `['*']`. Non-admins get an `array_unique` **union** of their direct `user_permissions` and the permissions inherited from their role via `role_permissions`. The cache is refreshed by `refreshPermissionsIfStale()` (called by `AuthMiddleware` on every authed request) comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`.
 - **Error handling:** `App\Core\ErrorHandler` handles 403/404/500, auto-detects AJAX (`X-Requested-With`) → JSON or `views/errors/*.php`. Each error view sets only `$code`, `$tone` (`'danger'`|`'warning'`), `$heading`, `$message`, then `require`s `views/layouts/error.php` (owns the full standalone document). Styling: `public/css/modules/errors/errors.css` + `errors-dark.css` (reuses `--dm-*`). `[data-tone]` on `<body>` drives the `.error-code` color — never hardcode it per view.
@@ -127,7 +127,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 
 - **No inline `<script>` before `footer.php`** (Bootstrap plugins like `.tab()` are not loaded yet) and **no inline event-handler attributes** (`onclick=`, `onchange=`, …). Wire a delegated `$(document).on('click', '.your-class', …)` handler in the module's JS file (see `.btn-detail` / `.btn-date-picker` in `audit-log/index-audit.js`).
 - Register page assets at the top of the view: `$module_scripts = ['feature/file']`, `$module_styles = ['feature/file']`. `public/css/core/ui-components.css` is global (in `header.php`) — no per-page declaration.
-- **Conditional plugins** via the `$plugins` arg to `Controller::render($view, $data, $plugins, $module_scripts, $module_styles)` — asset maps in `App\Core\AssetRegistry`. Available: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Full load order: `docs/AJAX_AND_MODULES.md`.
+- **Conditional plugins** via the `$plugins` arg to `Controller::render($view, $data, $plugins, $module_scripts, $module_styles)` — asset maps in `App\Core\AssetRegistry`. Available: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Full load order: `docs/legacy/AJAX_AND_MODULES.md`.
 - **Pass PHP data to JS** via `data-*` attributes (`htmlspecialchars(json_encode(...))`), read with `element.dataset.*` — never a `<script>` block inside a view. Flash/session values interpolated into an inline `<script>` use `json_encode()`, never `addslashes()` (does not escape `</script>`).
 - **AJAX:** controller returns `$this->jsonResponse($data)`. When the JS then calls `location.reload()`, set `$_SESSION['message']` + `$_SESSION['icon']` first (`messages.php` fires `ToastUtils[icon](message)` on reload). First-login welcome popup: set `$_SESSION['welcome_user']` → `AlertUtils.welcome()`.
 - **SweetAlert2:** only via `ToastUtils` / `AlertUtils` (`public/js/core/sweetalert-utils.js`) — never call `Swal.fire()` directly in a module script.
@@ -146,15 +146,15 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - **Integration** (`tests/Integration/`) — needs a test DB. Base `tests/IntegrationTestCase.php` loads `.env.testing`, resets the `Connection` singleton, loads `database/schema.sql` + `tests/fixtures/sql/minimal_seed.sql` once (`setUpBeforeClass`), and wraps each test in a transaction rolled back on teardown. Opt out with `protected bool $useTransactions = false` + `self::reloadSeed()` when the SUT manages its own transaction (`Role::syncPermissions`, `Permission::syncForUser`) or for the `Auth::refreshPermissionsIfStale` / `attemptRememberLogin` tests.
 - **Test DB (one time):** `mysql -u root -p -e "CREATE DATABASE php_mvc_admin_starter_test CHARACTER SET utf8;"` then `cp .env.testing.example .env.testing` and set `DB_*`.
 - Image fixtures in `tests/fixtures/images/`. Method names: `test_[method]_[condition]_[expected result]`. No PDO / `move_uploaded_file()` mocking — real DB, real `/tmp` files. `set_error_handler()` must always be paired with `restore_error_handler()`. **Don't test controllers** — they're covered by manual browser testing.
-- Full reference: `docs/TESTING.md`.
+- Full reference: `docs/legacy/TESTING.md`.
 
 ## Deep-dive docs
 
-- `docs/ACCESS_CONTROL.md` — request guard flow, session keys, security controls, remember-me, login throttling, permission model, cache refresh contract, status values, application permissions reference
-- `docs/AJAX_AND_MODULES.md` — AJAX endpoint pattern, frontend module structure, plugin load order, `ToastUtils`/`AlertUtils`, `loadingWithMinTime`, modal-first pattern
-- `docs/TESTING.md` — suites, DB setup, base classes, fixtures, conventions, CI, static analysis & code style
-- `docs/SEEDING.md` — seeded roles/users, permission matrix, import order, rerun behavior
-- `docs/AI_SETUP.md` — `.claude/skills/`, MCP servers (`.mcp.json`), Bash permission allowlist
+- `docs/legacy/ACCESS_CONTROL.md` — request guard flow, session keys, security controls, remember-me, login throttling, permission model, cache refresh contract, status values, application permissions reference
+- `docs/legacy/AJAX_AND_MODULES.md` — AJAX endpoint pattern, frontend module structure, plugin load order, `ToastUtils`/`AlertUtils`, `loadingWithMinTime`, modal-first pattern
+- `docs/legacy/TESTING.md` — suites, DB setup, base classes, fixtures, conventions, CI, static analysis & code style
+- `docs/legacy/SEEDING.md` — seeded roles/users, permission matrix, import order, rerun behavior
+- `docs/legacy/AI_SETUP.md` — `.claude/skills/`, MCP servers (`.mcp.json`), Bash permission allowlist
 
 ### Frontend lessons (Bootstrap / DataTables)
 
@@ -171,3 +171,56 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - A fixture/trait that does `DROP`/`CREATE` on a fixed-name resource (DB, file) must suffix the name with a per-process id (`getmypid()`) when tests run in parallel (paratest).
 - A test that resets a shared singleton/global (DB connection, config) must restore the test double in `tearDown`, not leave it `null`: with random order, later tests would try to reach the real resource. "Passes locally" proves nothing when local has the real resource; to reproduce CI, run without `.env`/`.env.testing` and with `--order-by=default`.
 - Never compute a test's cutoff date with `date()`/`strtotime()` to compare against the DB's `NOW()`/`CURDATE()`: the process clock/timezone and the DB server's can differ. Use an SQL expression (`NOW() - INTERVAL 1 HOUR`).
+
+## Spec-Driven Development (SDD)
+
+This project runs on SDD: spec first, then plan, then tasks, and only then
+code. **The spec is the contract: if it isn't there, it isn't implemented.**
+
+### Artifacts
+
+```
+docs/constitution.md          ← project principles (project level)
+docs/roadmap.md               ← what's done / in progress / backlog (project level)
+specs/NNN-<slug>/
+├── spec.md                   ← WHAT and WHY (FRs in EARS) + § Clarifications
+├── plan.md                   ← HOW (modules, data, decisions, risks)
+├── tasks.md                  ← <30 min tasks + closeout block
+└── validation.md             ← FR-by-FR walkthrough + verdict (left by phase 7)
+```
+
+A feature isn't closed until all four files exist.
+
+### Phases
+
+| #   | Phase          | Command (plugin / script)                   |
+| --- | -------------- | ------------------------------------------- |
+| 1   | Constitution   | `/sdd:constitution` · `/sdd-constitution`   |
+| 2   | Specification  | `/sdd:spec` · `/sdd-spec`                   |
+| 3   | Clarification  | `/sdd:clarify` · `/sdd-clarify`             |
+| 4   | Planning       | `/sdd:plan` · `/sdd-plan`                   |
+| 5   | Tasks          | `/sdd:tasks` · `/sdd-tasks`                 |
+| 6   | Implementation | `/sdd:implement <n>` · `/sdd-implement <n>` |
+| 7   | Validation     | `/sdd:validate` · `/sdd-validate`           |
+| 8   | Change         | `/sdd:change <req>` · `/sdd-change <req>`   |
+
+Cross-cutting, not a ninth phase: `/sdd:docs
+<prd|trd|acceptance|changes|delivery|schema|flow|ux> [feature]` · `/sdd-docs <…>` builds a project document from the artifacts
+above, after you approve a proposal.
+
+### Rules
+
+- **`specs/NNN` numbering:** `specs/`'s own counter, three digits, monotonic,
+  never reusing deleted numbers. Starts at `001`. It is not the roadmap's
+  ordinal nor a historical FR.
+- **Verification as a gate:** no task is marked `[x]` without
+  `composer check` green or a documented manual checklist with evidence.
+- **Precedence:** `docs/constitution.md` rules over specs and plans. On
+  conflict between `docs/`/`specs/` and this file, this file is the
+  operational source for **code** and `docs/`/`specs/` is the **planning**
+  layer.
+- **Docs profile:** lite
+- **`docs/`, `specs/`, and `deliverables/` are versioned but not deployed:**
+  exclude them from the deploy artifact and the docroot.
+- **Don't modify `specs/` outside its phase** without an explicit request.
+

@@ -14,7 +14,7 @@ only adds Claude Code–specific notes.
 - **Skills** (`.claude/skills/`): `code-review` (PHP MVC review before merging a feature branch),
   `design-review`, and the SDD workflow set (`sdd-constitution`, `sdd-spec`, `sdd-clarify`,
   `sdd-plan`, `sdd-tasks`, `sdd-implement`, `sdd-validate`, `sdd-change`). Invoke with `/<name>`.
-- **MCP servers** (`.mcp.json` — details in `docs/AI_SETUP.md`): `mysql`, `phpstorm`, `playwright`,
+- **MCP servers** (`.mcp.json` — details in `docs/legacy/AI_SETUP.md`): `mysql`, `phpstorm`, `playwright`,
   `github`. Bash permission allowlist in `.claude/settings.example.json`.
 - **After fixing a mistake**, document the convention in `AGENTS.md` (project-specific) or
   `~/.claude/CLAUDE.md` (universal habit) — never here.
