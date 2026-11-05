@@ -16,12 +16,18 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - CI: the `quality` job installs Node 22, runs `npm ci && npm run assets`, fails if `public/` differs from the lockfile (`git diff --exit-code -- public/`) and runs `scripts/check-asset-paths.php`; css/js changes no longer skip CI.
 - Dependabot now covers npm, with the AdminLTE-aligned libraries grouped and held until AdminLTE itself is bumped.
 
+- Layouts rewritten for AdminLTE 4 (T14–T20): `header.php` (`app-header`, user menu, `data-lte-color-mode="off"`), `sidebar.php` (`app-sidebar`, treeview, Bootstrap Icons), `footer.php` (`app-footer`, script order Bootstrap → AdminLTE → OverlayScrollbars → SweetAlert2), `auth.php` and `error.php` as standalone pages. Bootstrap 4 and Font Awesome are no longer loaded by any layout.
+- Theme switch writes `data-bs-theme` (anti-FOUC is the only inline script of each layout); the toggle icon is chosen by CSS, which removes the moon→sun flicker on every page load.
+- `baseUrl` / `csrfToken` now come from `<meta>` tags instead of inline scripts; flash messages and the welcome popup go through a hidden `#flash-data` element handled in `sweetalert-utils.js`, with the `<noscript>` alert kept.
+- `errors.css` reduced to the `[data-tone]` colours for both themes; `errors-dark.css` is no longer loaded.
+
 ### Added
 
 - Frontend dependencies come from Composer (`almasaeed2010/adminlte` 4.10.1, dev only) and npm (`package.json`, pinned versions, `.nvmrc`); `npm run assets` (`scripts/sync-assets.mjs`) copies them into `public/` without a bundler and the copy is versioned.
 - Bootstrap 5.3.8, Bootstrap Icons 1.13.1, OverlayScrollbars 2.16.0, Tabulator 6.6.1, Tom Select 2.6.2, Chart.js 4.5.1, SweetAlert2 11.26.25, jsPDF 4.2.1, jspdf-autotable 5.0.9 and SheetJS 0.20.3 (from `cdn.sheetjs.com`; the npm package has two CVEs) in `public/`.
 - `.gitattributes` with `export-ignore` for `package*.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` and `tests/`.
 - `scripts/check-asset-paths.php` and the inventories `docs/data-api-inventory.md` and the JS-generated classes section of `docs/adminlte3-class-inventory.md`.
+- `docs/icon-map.md`: Font Awesome → Bootstrap Icons map (62 icons, `fa-spin` and `fa-stack` redesigns).
 
 ## [3.18.1] - 2026-10-27
 

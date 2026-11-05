@@ -41,21 +41,21 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase C — Shell, tema e iconos
 
-- [ ] T14. Reescribir `views/layouts/header.php`: `<head>` con anti-FOUC, `data-lte-color-mode="off"`, `<meta name="base-url">` y `<meta name="csrf-token">` en lugar de los `<script>` inline de `baseUrl`/`csrfToken`, `app-wrapper`, `app-header` y menú de usuario. (FR-1, FR-4, FR-5, FR-21)
+- [x] T14. Reescribir `views/layouts/header.php`: `<head>` con anti-FOUC, `data-lte-color-mode="off"`, `<meta name="base-url">` y `<meta name="csrf-token">` en lugar de los `<script>` inline de `baseUrl`/`csrfToken`, `app-wrapper`, `app-header` y menú de usuario. (FR-1, FR-4, FR-5, FR-21)
       Done when: verificado en una página de prueba; sin parpadeo al recargar en oscuro y sin `<script>` inline salvo el anti-FOUC.
-- [ ] T15. Reescribir `views/layouts/sidebar.php`: `app-sidebar`, `sidebar-menu`, `data-lte-toggle="sidebar"`/treeview, filtrado por permiso e ítem activo. (FR-2, FR-3, FR-4, FR-6)
+- [x] T15. Reescribir `views/layouts/sidebar.php`: `app-sidebar`, `sidebar-menu`, `data-lte-toggle="sidebar"`/treeview, filtrado por permiso e ítem activo. (FR-2, FR-3, FR-4, FR-6)
       Done when: verificado con un usuario sin permisos y con el admin; el botón colapsa y expande el menú.
-- [ ] T16. Reescribir `views/layouts/footer.php`: `app-footer`, versión y orden de carga de scripts. (FR-1, FR-7)
+- [x] T16. Reescribir `views/layouts/footer.php`: `app-footer`, versión y orden de carga de scripts. (FR-1, FR-7)
       Done when: verificado; sin errores de consola.
-- [ ] T17. Adaptar `views/layouts/messages.php`: toasts por `ToastUtils` (mensaje y icono por `data-*`, no por `<script>` inline) y alerta `<noscript>` de Bootstrap 5. (FR-9)
+- [x] T17. Adaptar `views/layouts/messages.php`: toasts por `ToastUtils` (mensaje y icono por `data-*`, no por `<script>` inline) y alerta `<noscript>` de Bootstrap 5. (FR-9)
       Done when: un mensaje flash aparece con y sin JavaScript y el archivo no contiene `<script>` inline.
-- [ ] T18. Reescribir el interruptor de tema: `theme-toggle.js` escribe `data-bs-theme` y `localStorage['theme']`; fallback a `prefers-color-scheme`. (FR-20, FR-22)
+- [x] T18. Reescribir el interruptor de tema: `theme-toggle.js` escribe `data-bs-theme` y `localStorage['theme']`; fallback a `prefers-color-scheme`. (FR-20, FR-22)
       Done when: verificado; la elección persiste al recargar y entre páginas, y `grep dark-mode public/js views` no da resultados salvo `index-dashboard.js`, que cubre T41. Las hojas CSS se migran en T44.
-- [ ] T19. Reescribir `views/layouts/auth.php` como página independiente con las clases de login de AdminLTE 4 y sin `<script>` inline salvo el anti-FOUC. (FR-8, FR-21)
+- [x] T19. Reescribir `views/layouts/auth.php` como página independiente con las clases de login de AdminLTE 4 y sin `<script>` inline salvo el anti-FOUC. (FR-8, FR-21)
       Done when: login, olvido, restablecimiento e invitación renderizan en ambos temas.
-- [ ] T20. Reescribir `views/layouts/error.php` y `views/errors/{403,404,500}.php` sin `error-page` ni `<script>` inline salvo el anti-FOUC; tonalidad por `[data-tone]`. (FR-31)
+- [x] T20. Reescribir `views/layouts/error.php` y `views/errors/{403,404,500}.php` sin `error-page` ni `<script>` inline salvo el anti-FOUC; tonalidad por `[data-tone]`. (FR-31)
       Done when: los tres códigos renderizan en ambos temas.
-- [ ] T21. Mapa de iconos: recontar los usos de Font Awesome (`grep -o 'fa-[a-z0-9-]*'` en `views/`, `public/js` y `public/css`) y tabla de los iconos distintos usados a su equivalente `bi bi-*` en `docs/icon-map.md`. (FR-35)
+- [x] T21. Mapa de iconos: recontar los usos de Font Awesome (`grep -o 'fa-[a-z0-9-]*'` en `views/`, `public/js` y `public/css`) y tabla de los iconos distintos usados a su equivalente `bi bi-*` en `docs/icon-map.md`. (FR-35)
       Done when: el recuento queda anotado, todos tienen equivalente verificado contra el CSS 1.13.1 o una nota de rediseño (`fa-stack`, `fa-spin`).
 
 ## Fase D — Helpers JS nativos (sin jQuery)
