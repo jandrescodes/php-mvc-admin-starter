@@ -6,6 +6,15 @@
  */
 
 /* ============================================
+   INTERRUPTOR DE TEMA - icono según data-bs-theme
+   ============================================ */
+
+:root[data-bs-theme="dark"] .theme-icon-to-dark,
+:root:not([data-bs-theme="dark"]) .theme-icon-to-light {
+    display: none;
+}
+
+/* ============================================
    SELECT2 - Animación de flecha
    ============================================ */
 
@@ -135,13 +144,24 @@
 
 .tooltip .arrow::before,
 .bs-tooltip-top .arrow::before,
-.bs-tooltip-auto[x-placement^=top] .arrow::before      { border-top-color:    #212529; }
+.bs-tooltip-auto[x-placement^=top] .arrow::before {
+    border-top-color: #212529;
+}
+
 .bs-tooltip-bottom .arrow::before,
-.bs-tooltip-auto[x-placement^=bottom] .arrow::before   { border-bottom-color: #212529; }
+.bs-tooltip-auto[x-placement^=bottom] .arrow::before {
+    border-bottom-color: #212529;
+}
+
 .bs-tooltip-left .arrow::before,
-.bs-tooltip-auto[x-placement^=left] .arrow::before     { border-left-color:   #212529; }
+.bs-tooltip-auto[x-placement^=left] .arrow::before {
+    border-left-color: #212529;
+}
+
 .bs-tooltip-right .arrow::before,
-.bs-tooltip-auto[x-placement^=right] .arrow::before    { border-right-color:  #212529; }
+.bs-tooltip-auto[x-placement^=right] .arrow::before {
+    border-right-color: #212529;
+}
 
 /* Tooltip con fondo primario para progress-bar */
 .tooltip .tooltip-inner.bg-primary {

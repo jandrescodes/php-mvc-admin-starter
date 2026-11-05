@@ -1,31 +1,29 @@
-</div>
-<!-- /.content-wrapper -->
+</main>
+<!-- /.app-main -->
 
-<!-- Main Footer -->
-<footer class="main-footer">
-    <!-- To the right -->
-    <div class="float-right d-none d-sm-inline">
-        <div class="text-muted">
-            <small>
-                <i class="fas fa-tag"></i> Version <?= APP_VERSION; ?>
-            </small>
-        </div>
+<footer class="app-footer">
+    <div class="float-end d-none d-sm-inline text-body-secondary">
+        <small><i class="bi bi-tag"></i> Version <?= APP_VERSION; ?></small>
     </div>
-    <div class="footer-content">
-        <strong>Copyright &copy; <?= date('Y'); ?>
-            <a href="#" class="text-decoration-none">BaseProject</a>
-        </strong>
-        - Base System
-    </div>
+    <strong>Copyright &copy; <?= date('Y'); ?>
+        <a href="#" class="text-decoration-none">BaseProject</a>
+    </strong>
+    - Base System
 </footer>
 </div>
-<!-- ./wrapper -->
+<!-- ./app-wrapper -->
 
-<!-- Bootstrap 4 -->
+<!-- Bootstrap 5 -->
 <script src="<?= URL; ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
 <script src="<?= URL; ?>/js/lib/adminlte/adminlte.min.js"></script>
+
+<!-- OverlayScrollbars (scroll del menú lateral) -->
+<script src="<?= URL; ?>/js/lib/overlayscrollbars/overlayscrollbars.browser.es6.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="<?= URL; ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
 
 <!-- Main application scripts -->
 <script src="<?= URL; ?>/js/core/common-utils.js"></script>
@@ -38,7 +36,7 @@ foreach ($pluginJsFiles as $js): ?>
     <script src="<?= URL; ?>/js/<?= $js; ?>"></script>
 <?php endforeach; ?>
 
-<!-- UI Components utilities (after plugins so Select2/Tooltip are available) -->
+<!-- UI Components utilities (after plugins) -->
 <script src="<?= URL; ?>/js/core/ui-components.js"></script>
 
 <!-- SweetAlert2 utilities -->

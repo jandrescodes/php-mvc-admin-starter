@@ -1,3 +1,16 @@
+// Lee las metas del layout; los módulos usan estos globales hasta que http.js los reemplace.
+const baseUrl = document.querySelector('meta[name="base-url"]')?.content ?? '';
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+// Scroll del menú lateral; en móvil se deja el nativo para no interferir con el táctil.
+document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.querySelector('.sidebar-wrapper');
+    const overlay = globalThis.OverlayScrollbarsGlobal?.OverlayScrollbars;
+    if (wrapper && overlay && window.innerWidth > 992) {
+        overlay(wrapper, { scrollbars: { theme: 'os-theme-light', autoHide: 'leave', clickScroll: true } });
+    }
+});
+
 /**
  * common-utils.js - Basic JavaScript utilities for the system
  *
