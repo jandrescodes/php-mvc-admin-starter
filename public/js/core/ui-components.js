@@ -1,367 +1,79 @@
 /**
- * UI Components Utilities
- * 
- * Funciones helper para inicializar y configurar componentes de UI
- * como Select2, Tooltips, y otros elementos reutilizables.
+ * Componentes de UI sin jQuery: selectores con búsqueda (Tom Select) y
+ * tooltips de Bootstrap 5.
  */
 
-// ============================================
-// ComponentUtils - Utilidades para componentes UI
-// ============================================
-
 const ComponentUtils = {
+    // Con pocas opciones el buscador estorba; equivale al minimumResultsForSearch de Select2.
+    SEARCH_MIN_OPTIONS: 7,
 
-    /**
-     * Configuración base para Select2
-     */
-    select2BaseConfig: {
-        theme: 'bootstrap4',
-        width: '100%',
-        allowClear: false,
-        minimumResultsForSearch: 7,
-        closeOnSelect: true,
-        dropdownAutoWidth: true,
-        language: {
-            noResults: function () {
-                return "No se encontraron resultados";
-            },
-            searching: function () {
-                return "Buscando...";
-            },
-            loadingMore: function () {
-                return "Cargando más resultados...";
-            },
-            inputTooShort: function () {
-                return "Por favor ingrese 1 o más caracteres";
-            },
-            inputTooLong: function () {
-                return "Por favor elimine algunos caracteres";
-            },
-            maximumSelected: function () {
-                return "Solo puede seleccionar un elemento";
-            }
-        }
-    },
+    // `.select2` sigue en las vistas sin migrar; las nuevas usan `.tom-select`.
+    selectSelector: 'select.tom-select, select.select2',
 
-    /**
-     * Configuración base para Tooltips
-     */
-    tooltipBaseConfig: {
-        placement: 'top',
-        trigger: 'hover focus',
-        delay: {
-            show: 200,
-            hide: 0
+    selectBaseConfig: {
+        maxOptions: null, // por defecto Tom Select oculta todo lo que pase de 50 opciones
+        allowEmptyOption: true, // conserva el «All» / «Select…» con value=""
+        render: {
+            no_results: () => '<div class="no-results">No se encontraron resultados</div>',
         },
-        container: 'body',
-        boundary: 'window',
-        animation: true
     },
 
     /**
-     * Inicializar Select2 en todos los elementos con clase .select2
-     * 
-     * @param {Object} customConfig - Configuración personalizada (opcional)
-     * @param {string} selector - Selector CSS (default: '.select2')
-     * @returns {boolean} - True si se inicializó correctamente
+     * Inicializa Tom Select en los <select> que coincidan. Es idempotente y no
+     * necesita dropdownParent: el menú vive dentro del contenedor del control,
+     * así que funciona igual dentro de un modal.
+     *
+     * @param {string|Element|NodeList} target - Selector o elementos (por defecto `selectSelector`)
+     * @param {object} customConfig - Opciones extra de Tom Select
+     * @returns {TomSelect[]}
      */
-    initSelect2: function (customConfig = {}, selector = '.select2') {
-        try {
-            // Verificar disponibilidad
-            const hasJQuery = typeof $ !== 'undefined';
-            const hasSelect2 = hasJQuery && typeof $.fn.select2 !== 'undefined';
-            const elements = hasJQuery ? $(selector) : [];
-
-            // Si no hay elementos, no hacer nada
-            if (elements.length === 0) return false;
-
-            // Si hay elementos pero falta el plugin, advertir
-            if (!hasSelect2) {
-                console.warn('Se encontraron elementos .select2 pero el plugin Select2 no está cargado.');
-                return false;
-            }
-
-            // Destruir instancias existentes para evitar duplicados
-            elements.each(function () {
-                if ($(this).data('select2')) {
-                    $(this).select2('destroy');
-                }
-            });
-
-            // Combinar configuración base con personalizada
-            const config = { ...this.select2BaseConfig, ...customConfig };
-
-            // Limpiar espacios en blanco de las opciones
-            this.trimSelectOptions(selector);
-
-            // Inicializar Select2
-            elements.select2(config);
-
-            // Manejar eventos de apertura/cierre para animaciones
-            this._setupSelect2Events();
-
-            return true;
-
-        } catch (error) {
-            console.error('Error al inicializar Select2:', error);
-            return false;
+    initSelects(target = this.selectSelector, customConfig = {}) {
+        if (typeof TomSelect === 'undefined') {
+            return [];
         }
-    },
+        const elements = typeof target === 'string' ? document.querySelectorAll(target)
+            : (target instanceof Element ? [target] : target);
 
-    /**
-     * Inicializar Select2 en un elemento específico
-     * 
-     * @param {string|jQuery} element - Elemento o selector
-     * @param {Object} customConfig - Configuración personalizada
-     * @returns {boolean}
-     */
-    initSelect2Single: function (element, customConfig = {}) {
-        try {
-            if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') {
-                return false;
+        const created = [];
+        elements.forEach((select) => {
+            if (select.tomselect) return;
+
+            const config = { ...this.selectBaseConfig, ...customConfig };
+            if (select.multiple) {
+                config.plugins = ['remove_button', ...(customConfig.plugins ?? [])];
+            } else if (select.options.length <= this.SEARCH_MIN_OPTIONS && !('controlInput' in customConfig)) {
+                config.controlInput = null;
             }
-
-            const $element = $(element);
-
-            // Destruir si ya existe
-            if ($element.data('select2')) {
-                $element.select2('destroy');
-            }
-
-            const config = { ...this.select2BaseConfig, ...customConfig };
-            $element.select2(config);
-
-            return true;
-
-        } catch (error) {
-            console.error('Error al inicializar Select2 single:', error);
-            return false;
-        }
-    },
-
-    /**
-     * Configurar eventos para Select2 (flechas de dropdown)
-     * @private
-     */
-    _setupSelect2Events: function () {
-        // Remover eventos previos para evitar duplicados
-        $(document).off('select2:open.componentUtils select2:close.componentUtils');
-
-        // Agregar clase cuando se abre el dropdown
-        $(document).on('select2:open.componentUtils', function (e) {
-            const targetId = $(e.target).attr('id');
-            if (targetId) {
-                $('#select2-' + targetId + '-container')
-                    .closest('.select2-container')
-                    .addClass('select2-container--arrow-up');
-            } else {
-                $('.select2-container--open').addClass('select2-container--arrow-up');
-            }
+            created.push(new TomSelect(select, config));
         });
+        return created;
+    },
 
-        // Remover clase cuando se cierra
-        $(document).on('select2:close.componentUtils', function () {
-            $('.select2-container').removeClass('select2-container--arrow-up');
+    destroySelects(target = this.selectSelector) {
+        document.querySelectorAll(target).forEach((select) => select.tomselect?.destroy());
+    },
+
+    /**
+     * Un único Tooltip delegado en <body>: cubre los elementos
+     * `[data-bs-toggle="tooltip"]` presentes y los que se añadan o redibujen
+     * después (tablas paginadas, modales).
+     */
+    initTooltips(customConfig = {}) {
+        if (typeof bootstrap === 'undefined' || this._tooltip) return this._tooltip ?? null;
+        this._tooltip = new bootstrap.Tooltip(document.body, {
+            selector: '[data-bs-toggle="tooltip"]',
+            trigger: 'hover focus',
+            container: 'body',
+            delay: { show: 200, hide: 0 },
+            ...customConfig,
         });
+        return this._tooltip;
     },
 
-    /**
-     * Limpiar espacios en blanco de las opciones de un select
-     * 
-     * @param {string} selector - Selector del select
-     */
-    trimSelectOptions: function (selector = 'select') {
-        try {
-            const selects = typeof $ !== 'undefined' ? $(selector) : [];
-            selects.find('option').each(function () {
-                const $option = $(this);
-                const text = $option.text();
-                if (text && text.trim() !== text) {
-                    $option.text(text.trim());
-                }
-
-                // También limpiar los tooltips si tienen
-                const title = $option.attr('title');
-                if (title && title.trim() !== title) {
-                    $option.attr('title', title.trim());
-                }
-            });
-        } catch (error) {
-            console.error('Error al limpiar opciones de select:', error);
-        }
+    initAll() {
+        this.initSelects();
+        this.initTooltips();
     },
-
-    /**
-     * Destruir todas las instancias de Select2
-     * 
-     * @param {string} selector - Selector CSS (default: '.select2')
-     */
-    destroySelect2: function (selector = '.select2') {
-        try {
-            if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
-                $(selector).each(function () {
-                    if ($(this).data('select2')) {
-                        $(this).select2('destroy');
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error al destruir Select2:', error);
-        }
-    },
-
-    /**
-     * Inicializar Tooltips en todos los elementos con data-toggle="tooltip"
-     * 
-     * @param {Object} customConfig - Configuración personalizada (opcional)
-     * @param {string} selector - Selector CSS (default: '[data-toggle="tooltip"]')
-     * @returns {boolean}
-     */
-    initTooltips: function (customConfig = {}, selector = '[data-toggle="tooltip"]') {
-        try {
-            // Verificar disponibilidad
-            const hasJQuery = typeof $ !== 'undefined';
-            const hasTooltip = hasJQuery && typeof $.fn.tooltip !== 'undefined';
-            const elements = hasJQuery ? $(selector) : [];
-
-            // Si no hay elementos, no hacer nada
-            if (elements.length === 0) return false;
-
-            // Si hay elementos pero falta el plugin, advertir
-            if (!hasTooltip) {
-                console.warn('Se encontraron elementos con data-toggle="tooltip" pero Bootstrap Tooltip no está cargado.');
-                return false;
-            }
-
-            // Destruir tooltips existentes
-            this.destroyTooltips(selector);
-
-            // Combinar configuración
-            const config = { ...this.tooltipBaseConfig, ...customConfig };
-
-            // Inicializar tooltips generales
-            $(selector + ':not(.progress-bar)').tooltip(config);
-
-            // Inicializar tooltips especiales para progress-bar
-            $('.progress-bar[data-toggle="tooltip"]').tooltip({
-                ...config,
-                template: '<div class="tooltip" role="tooltip">' +
-                    '<div class="arrow"></div>' +
-                    '<div class="tooltip-inner bg-primary"></div>' +
-                    '</div>'
-            });
-
-            // Manejar interacción táctil
-            this._setupTooltipTouchEvents(selector);
-
-            return true;
-
-        } catch (error) {
-            console.error('Error al inicializar Tooltips:', error);
-            if (typeof ToastUtils !== 'undefined') {
-                ToastUtils.error('Error al inicializar tooltips');
-            }
-            return false;
-        }
-    },
-
-    /**
-     * Configurar eventos touch para tooltips
-     * @private
-     */
-    _setupTooltipTouchEvents: function (selector) {
-        // Remover eventos previos (usando namespace para seguridad)
-        $(document).off('touchstart.componentUtils touchend.componentUtils touchcancel.componentUtils');
-
-        // Mostrar tooltip en touch
-        $(document).on('touchstart.componentUtils', selector, function () {
-            $(this).tooltip('show');
-        });
-
-        // Ocultar tooltip al finalizar touch
-        $(document).on('touchend.componentUtils touchcancel.componentUtils', selector, function () {
-            $(this).tooltip('hide');
-        });
-    },
-
-    /**
-     * Destruir todos los tooltips
-     * 
-     * @param {string} selector - Selector CSS (default: '[data-toggle="tooltip"]')
-     */
-    destroyTooltips: function (selector = '[data-toggle="tooltip"]') {
-        try {
-            if (typeof $ !== 'undefined' && typeof $.fn.tooltip !== 'undefined') {
-                $('.tooltip').remove();
-                $(selector).tooltip('dispose');
-            }
-        } catch (error) {
-            console.error('Error al destruir Tooltips:', error);
-        }
-    },
-
-    /**
-     * Reinicializar todos los componentes UI
-     * Útil después de cargar contenido dinámico vía AJAX
-     * 
-     * @param {Object} options - Opciones de configuración
-     * @returns {Object} - Estado de inicialización
-     */
-    initAll: function (options = {}) {
-        const results = {
-            select2: false,
-            tooltips: false
-        };
-
-        try {
-            // Limpiar todos los selects estándar primero
-            this.trimSelectOptions();
-
-            // Inicializar Select2
-            if (options.select2 !== false) {
-                results.select2 = this.initSelect2(
-                    options.select2Config || {},
-                    options.select2Selector || '.select2'
-                );
-            }
-
-            // Inicializar Tooltips
-            if (options.tooltips !== false) {
-                results.tooltips = this.initTooltips(
-                    options.tooltipsConfig || {},
-                    options.tooltipsSelector || '[data-toggle="tooltip"]'
-                );
-            }
-
-            return results;
-
-        } catch (error) {
-            console.error('Error al inicializar componentes:', error);
-            return results;
-        }
-    },
-
-    /**
-     * Destruir todos los componentes UI
-     */
-    destroyAll: function () {
-        this.destroySelect2();
-        this.destroyTooltips();
-    }
 };
 
-// ============================================
-// Inicialización automática al cargar el DOM
-// ============================================
-$(document).ready(function () {
-    // Inicializar automáticamente todos los componentes
-    ComponentUtils.initAll();
-});
-
-// También reinicializar después de que AdminLTE termine de cargar
-$(window).on('load', function () {
-    // Pequeño delay para asegurar que AdminLTE haya terminado
-    setTimeout(function () {
-        ComponentUtils.initAll();
-    }, 100);
-});
+document.addEventListener('DOMContentLoaded', () => ComponentUtils.initAll());

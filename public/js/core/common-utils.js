@@ -24,19 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 
 /**
- * Wrapper for ComponentUtils.initSelect2Single — initializes Select2 on a
- * specific selector with custom options. Use this when extra options are
- * needed (e.g. dropdownParent for modals); for general page initialization
- * ComponentUtils.initAll() in ui-components.js handles it automatically.
- *
- * @param {string} selector - Selector for elements to initialize (optional)
- * @param {object} options  - Additional Select2 options (optional)
- */
-function initializeSelect2(selector = '.select2', options = {}) {
-    ComponentUtils.initSelect2(options, selector);
-}
-
-/**
  * Formats a date into a readable string (MM/DD/YYYY)
  *
  * @param {string|Date} date - Date to format
@@ -57,16 +44,25 @@ function formatDate(date) {
  * field and keeps its icon and aria-pressed/aria-label state in sync —
  * no per-module wiring needed.
  */
-$(document).on('click', '[data-password-toggle]', function () {
-    const $btn = $(this);
-    const $field = $($btn.data('password-toggle'));
-    const icon = $btn.find('i');
-    const isHidden = $field.attr('type') === 'password';
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-password-toggle]');
+    if (!btn) return;
 
-    $field.attr('type', isHidden ? 'text' : 'password');
-    icon.toggleClass('fa-eye', isHidden).toggleClass('fa-eye-slash', !isHidden);
-    $btn.attr('aria-pressed', isHidden ? 'true' : 'false');
-    $btn.attr('aria-label', isHidden ? 'Hide password' : 'Show password');
+    const field = document.querySelector(btn.dataset.passwordToggle);
+    if (!field) return;
+
+    const reveal = field.type === 'password';
+    field.type = reveal ? 'text' : 'password';
+
+    // Las vistas aún mezclan Font Awesome y Bootstrap Icons hasta la fase de iconos.
+    const icon = btn.querySelector('i');
+    if (icon) {
+        const prefix = icon.className.includes('bi-eye') ? 'bi-' : 'fa-';
+        icon.classList.toggle(`${prefix}eye`, reveal);
+        icon.classList.toggle(`${prefix}eye-slash`, !reveal);
+    }
+    btn.setAttribute('aria-pressed', String(reveal));
+    btn.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
 });
 
 /**
@@ -98,73 +94,4 @@ function formatTime(time) {
  */
 function formatCurrency(amount, decimals = 2) {
     return '$ ' + parseFloat(amount).toFixed(decimals).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-}
-
-/**
- * Shows a toast notification using SweetAlert2
- *
- * @param {string} message - Message to display
- * @param {string} icon    - Icon type (success, error, warning, info)
- * @param {number} timer   - Duration in milliseconds (optional)
- */
-function showToast(message, icon = 'success', timer = 3000) {
-    if (typeof Swal !== 'undefined') {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: timer,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            }
-        });
-
-        Toast.fire({
-            icon: icon,
-            title: message
-        });
-    } else {
-        alert(message);
-    }
-}
-
-/**
- * Performs a simplified AJAX request
- *
- * @param {string}   url             - Request URL
- * @param {string}   method          - HTTP method (GET, POST)
- * @param {object}   data            - Data to send
- * @param {function} successCallback - Success callback
- * @param {function} errorCallback   - Error callback (optional)
- */
-function ajaxRequest(url, method = 'GET', data = {}, successCallback, errorCallback = null) {
-    $.ajax({
-        url: url,
-        type: method,
-        data: data,
-        dataType: 'json',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        success: function (response) {
-            if (successCallback && typeof successCallback === 'function') {
-                successCallback(response);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('AJAX error:', error);
-
-            if (errorCallback && typeof errorCallback === 'function') {
-                errorCallback(xhr, status, error);
-            } else if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'A communication error occurred with the server.'
-                });
-            }
-        }
-    });
 }

@@ -26,6 +26,7 @@
 <script src="<?= URL; ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
 
 <!-- Main application scripts -->
+<script src="<?= URL; ?>/js/core/http.js"></script>
 <script src="<?= URL; ?>/js/core/common-utils.js"></script>
 
 <!-- Conditional JS plugins -->
