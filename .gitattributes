@@ -1,0 +1,9 @@
+# Fuera del artefacto de despliegue (git archive, rsync/scp desde el runner)
+/package.json     export-ignore
+/package-lock.json export-ignore
+/.nvmrc           export-ignore
+/scripts/         export-ignore
+/docs/            export-ignore
+/specs/           export-ignore
+/deliverables/    export-ignore
+/tests/           export-ignore

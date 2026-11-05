@@ -24,15 +24,11 @@ class AssetRegistry
     public static function getPluginCssMap(): array
     {
         return [
-            'datatables' => [
-                'plugins/datatables/datatables.min.css',
-                'plugins/datatables/dataTables.bootstrap4.min.css',
-                'plugins/datatables/responsive.bootstrap4.min.css',
-                'plugins/datatables/buttons.bootstrap4.min.css',
+            'tabulator' => [
+                'plugins/tabulator/tabulator_bootstrap5.min.css',
             ],
-            'select2' => [
-                'plugins/select2/select2.min.css',
-                'plugins/select2/select2-bootstrap4.min.css',
+            'tom-select' => [
+                'plugins/tom-select/tom-select.bootstrap5.min.css',
             ],
         ];
     }
@@ -45,33 +41,19 @@ class AssetRegistry
     public static function getPluginJsMap(): array
     {
         return [
-            'datatables' => [
-                'plugins/datatables/jquery.dataTables.min.js',
-                'plugins/datatables/dataTables.bootstrap4.min.js',
-                'plugins/datatables/dataTables.responsive.min.js',
-                'plugins/datatables/responsive.bootstrap4.min.js',
-                'plugins/datatables/dataTables.buttons.min.js',
-                'plugins/datatables/buttons.bootstrap4.min.js',
-                'plugins/datatables/buttons.html5.min.js',
-                'plugins/datatables/buttons.print.min.js',
-                'plugins/datatables/buttons.colVis.min.js',
-                'core/common-datatable.js',
+            'tabulator' => [
+                'plugins/tabulator/tabulator.min.js',
             ],
-            'datatables-export' => [
-                'plugins/utils/jszip.min.js',
-                'plugins/utils/pdfmake.min.js',
-                'plugins/utils/vfs_fonts.js',
+            'tom-select' => [
+                'plugins/tom-select/tom-select.complete.min.js',
             ],
-            'select2' => [
-                'plugins/select2/select2.min.js',
-            ],
-            'validate' => [
-                'plugins/validations/jquery.validate.min.js',
-                'plugins/validations/additional-methods.min.js',
-                'core/common-validate.js',
+            'export' => [
+                'plugins/utils/xlsx.full.min.js',
+                'plugins/utils/jspdf.umd.min.js',
+                'plugins/utils/jspdf.plugin.autotable.min.js',
             ],
             'chart' => [
-                'plugins/chart/Chart.js',
+                'plugins/chart/chart.umd.min.js',
             ],
         ];
     }

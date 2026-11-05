@@ -4,6 +4,7 @@
 
 # System files
 /vendor/
+/node_modules/
 .DS_Store
 Thumbs.db
 bash.exe.stackdump
