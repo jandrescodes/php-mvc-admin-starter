@@ -24,35 +24,35 @@ jQuery está disponible antes que todo el código propio. AdminLTE 4 no necesita
 
 ## Resumen
 
-| Archivo                                    | Líneas | Usos  | Estáticos `$.x`           | Plugins jQuery               | Nativo                                                                           | Tarea             |
-| ------------------------------------------ | ------ | ----- | ------------------------- | ---------------------------- | -------------------------------------------------------------------------------- | ----------------- |
-| `core/common-datatable.js`                 | 225    | 5     | `$.extend` ×3             | —                            | —                                                                                | sin tarea propia¹ |
-| `core/common-utils.js`                     | 157    | 4     | `$.ajax` ×1               | —                            | `addEventListener` ×2                                                            | T23               |
-| `core/common-validate.js`                  | 55     | 4     | `$.validator` ×1          | —                            | —                                                                                | T24               |
-| `core/sweetalert-utils.js`                 | 365    | **0** | —                         | —                            | —                                                                                | T28               |
-| `core/ui-components.js`                    | 367    | 33    | `$.fn` ×5                 | `.select2` ×5, `.tooltip` ×5 | —                                                                                | T25               |
-| `modules/audit-log/index-audit.js`         | 196    | 23    | —                         | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T40               |
-| `modules/auth/accept-invitation.js`        | 40     | 5     | —                         | `.validate` ×1               | —                                                                                | **sin tarea²**    |
-| `modules/auth/forgot_password.js`          | 29     | 5     | —                         | `.validate` ×1               | —                                                                                | **sin tarea²**    |
-| `modules/auth/login.js`                    | 39     | 5     | —                         | `.validate` ×1               | —                                                                                | **sin tarea²**    |
-| `modules/auth/reset_password.js`           | 39     | 5     | —                         | `.validate` ×1               | —                                                                                | **sin tarea²**    |
-| `modules/dashboard/index-dashboard.js`     | 330    | **0** | —                         | —                            | `DOMContentLoaded` ×1, `addEventListener` ×2, `classList` ×6                     | T41               |
-| `modules/permissions/detail-permission.js` | 111    | 17    | `$.ajax` ×2               | `.DataTable` ×1, `.modal` ×2 | —                                                                                | T34               |
-| `modules/permissions/index-permissions.js` | 83     | 16    | `$.ajax` ×1               | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T32               |
-| `modules/permissions/modal-permission.js`  | 139    | 29    | `$.ajax` ×1               | `.modal` ×2, `.validate` ×2  | —                                                                                | T33               |
-| `modules/profile/theme-toggle.js`          | 65     | **0** | —                         | —                            | `DOMContentLoaded` ×1, `addEventListener` ×3, `classList` ×5, `querySelector` ×1 | T18               |
-| `modules/roles/detail-role.js`             | 55     | 10    | `$.param` ×1, `$.post` ×1 | —                            | —                                                                                | T31               |
-| `modules/roles/index-roles.js`             | 80     | 15    | `$.ajax` ×1               | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T29               |
-| `modules/roles/modal-role.js`              | 132    | 26    | `$.ajax` ×1               | `.modal` ×2, `.validate` ×2  | —                                                                                | T30               |
-| `modules/users/create-user.js`             | 200    | 50    | —                         | `.validate` ×1               | —                                                                                | T36               |
-| `modules/users/index-users.js`             | 129    | 4     | `$.ajax` ×2               | `.DataTable` ×1              | `DOMContentLoaded` ×1, `addEventListener` ×3, `classList` ×7                     | T35               |
-| `modules/users/profile-user.js`            | 102    | **0** | —                         | —                            | `addEventListener` ×3, `fetch` ×1, `querySelector` ×2                            | T39               |
-| `modules/users/show-user.js`               | 87     | 13    | `$.ajax` ×2               | `.tab` ×1                    | —                                                                                | T38               |
-| `modules/users/update-user.js`             | 179    | 37    | —                         | `.validate` ×1               | —                                                                                | T37               |
+| Archivo                                    | Líneas | Usos  | Estáticos `$.x`           | Plugins jQuery               | Nativo                                                                           | Tarea      |
+| ------------------------------------------ | ------ | ----- | ------------------------- | ---------------------------- | -------------------------------------------------------------------------------- | ---------- |
+| `core/common-datatable.js`                 | 225    | 5     | `$.extend` ×3             | —                            | —                                                                                | T26a/T26b¹ |
+| `core/common-utils.js`                     | 157    | 4     | `$.ajax` ×1               | —                            | `addEventListener` ×2                                                            | T23        |
+| `core/common-validate.js`                  | 55     | 4     | `$.validator` ×1          | —                            | —                                                                                | T24        |
+| `core/sweetalert-utils.js`                 | 365    | **0** | —                         | —                            | —                                                                                | T28        |
+| `core/ui-components.js`                    | 367    | 33    | `$.fn` ×5                 | `.select2` ×5, `.tooltip` ×5 | —                                                                                | T25        |
+| `modules/audit-log/index-audit.js`         | 196    | 23    | —                         | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T40        |
+| `modules/auth/accept-invitation.js`        | 40     | 5     | —                         | `.validate` ×1               | —                                                                                | T42/T43 ²  |
+| `modules/auth/forgot_password.js`          | 29     | 5     | —                         | `.validate` ×1               | —                                                                                | T42/T43 ²  |
+| `modules/auth/login.js`                    | 39     | 5     | —                         | `.validate` ×1               | —                                                                                | T42/T43 ²  |
+| `modules/auth/reset_password.js`           | 39     | 5     | —                         | `.validate` ×1               | —                                                                                | T42/T43 ²  |
+| `modules/dashboard/index-dashboard.js`     | 330    | **0** | —                         | —                            | `DOMContentLoaded` ×1, `addEventListener` ×2, `classList` ×6                     | T41        |
+| `modules/permissions/detail-permission.js` | 111    | 17    | `$.ajax` ×2               | `.DataTable` ×1, `.modal` ×2 | —                                                                                | T34        |
+| `modules/permissions/index-permissions.js` | 83     | 16    | `$.ajax` ×1               | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T32        |
+| `modules/permissions/modal-permission.js`  | 139    | 29    | `$.ajax` ×1               | `.modal` ×2, `.validate` ×2  | —                                                                                | T33        |
+| `modules/profile/theme-toggle.js`          | 65     | **0** | —                         | —                            | `DOMContentLoaded` ×1, `addEventListener` ×3, `classList` ×5, `querySelector` ×1 | T18        |
+| `modules/roles/detail-role.js`             | 55     | 10    | `$.param` ×1, `$.post` ×1 | —                            | —                                                                                | T31        |
+| `modules/roles/index-roles.js`             | 80     | 15    | `$.ajax` ×1               | `.DataTable` ×1, `.modal` ×1 | —                                                                                | T29        |
+| `modules/roles/modal-role.js`              | 132    | 26    | `$.ajax` ×1               | `.modal` ×2, `.validate` ×2  | —                                                                                | T30        |
+| `modules/users/create-user.js`             | 200    | 50    | —                         | `.validate` ×1               | —                                                                                | T36        |
+| `modules/users/index-users.js`             | 129    | 4     | `$.ajax` ×2               | `.DataTable` ×1              | `DOMContentLoaded` ×1, `addEventListener` ×3, `classList` ×7                     | T35        |
+| `modules/users/profile-user.js`            | 102    | **0** | —                         | —                            | `addEventListener` ×3, `fetch` ×1, `querySelector` ×2                            | T39        |
+| `modules/users/show-user.js`               | 87     | 13    | `$.ajax` ×2               | `.tab` ×1                    | —                                                                                | T38        |
+| `modules/users/update-user.js`             | 179    | 37    | —                         | `.validate` ×1               | —                                                                                | T37        |
 
 **Total: 306 líneas con uso de jQuery en 19 de 23 archivos.** 4 archivos son 100 % nativos.
 
-¹ Compartido por las migraciones de DataTables (T35/T29/T32/T40); su reescritura al `layout` de DataTables 3 va en T26.
+¹ Compartido por las migraciones de tablas (T29/T32/T35a/T40a); su reescritura a `table-utils.js` (Tabulator) va en T26a/T26b.
 ² Ver «Hallazgos» §7.
 
 ## Hallazgos
@@ -66,7 +66,7 @@ jQuery está disponible antes que todo el código propio. AdminLTE 4 no necesita
     - `show-user.js:12` → `a[data-toggle="pill"]` debe pasar a `a[data-bs-toggle="pill"]` (T38).
 6. **Envío de formularios create/update user nativo:** `create-user.js:109` y `update-user.js:88` hacen `form.submit()` dentro del `submitHandler` de jQuery Validate — no usan `$.ajax`; solo el botón/envoltorio usa `$`.
 7. **Los 4 módulos `auth/` no tenían tarea asignada** en `tasks.md` (hueco detectado en T2). Su jQuery se reduce a `$(document).ready` + `.validate(...)` (configuración de jQuery Validate, que pasa a validación nativa — C11). **Resuelto:** cubiertos por T42 y T43 en `tasks.md` (FR-8, FR-27).
-8. `common-datatable.js` aporta la configuración (`$.extend`) usada por los módulos con `.DataTable(...)`; se reescribe en T26 para el `layout` de DataTables 3.
+8. `common-datatable.js` aporta la configuración (`$.extend`) usada por los módulos con `.DataTable(...)`; se reescribe en T26a/T26b como `table-utils.js` (Tabulator).
 
 ## Detalle por archivo — líneas con uso de jQuery
 

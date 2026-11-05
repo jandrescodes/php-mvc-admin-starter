@@ -21,32 +21,32 @@
 
 ### CSS — `getPluginCssMap()` (6 archivos, todos existen)
 
-| Clave        | Archivos                                           | Nota migración                                                       |
-| ------------ | -------------------------------------------------- | -------------------------------------------------------------------- |
-| `datatables` | `plugins/datatables/datatables.min.css`            | genérico, sirve para BS5                                             |
-|              | `plugins/datatables/dataTables.bootstrap4.min.css` | ⚠️ integración **BS4** → sustituir por `dataTables.bootstrap5` (T13) |
-|              | `plugins/datatables/responsive.bootstrap4.min.css` | ⚠️ **BS4** → `responsive.bootstrap5` (T13)                           |
-|              | `plugins/datatables/buttons.bootstrap4.min.css`    | ⚠️ **BS4** → `buttons.bootstrap5` (T13)                              |
-| `select2`    | `plugins/select2/select2.min.css`                  | genérico                                                             |
-|              | `plugins/select2/select2-bootstrap4.min.css`       | ⚠️ tema **BS4** → tema Select2 para BS5 (T13)                        |
+| Clave        | Archivos                                           | Nota migración                                               |
+| ------------ | -------------------------------------------------- | ------------------------------------------------------------ |
+| `datatables` | `plugins/datatables/datatables.min.css`            | genérico, sirve para BS5                                     |
+|              | `plugins/datatables/dataTables.bootstrap4.min.css` | ⚠️ integración **BS4** → se elimina con DataTables (C7, T49) |
+|              | `plugins/datatables/responsive.bootstrap4.min.css` | ⚠️ **BS4** → se elimina con DataTables (C7, T49)             |
+|              | `plugins/datatables/buttons.bootstrap4.min.css`    | ⚠️ **BS4** → se elimina con DataTables (C7, T49)             |
+| `select2`    | `plugins/select2/select2.min.css`                  | genérico                                                     |
+|              | `plugins/select2/select2-bootstrap4.min.css`       | ⚠️ tema **BS4** → se elimina con Select2 (C5, T49)           |
 
 ### JS — `getPluginJsMap()` (18 archivos, todos existen)
 
-| Clave               | Archivos                                                                   | Nota migración                          |
-| ------------------- | -------------------------------------------------------------------------- | --------------------------------------- |
-| `datatables`        | `jquery.dataTables.min.js`                                                 | núcleo, jQuery; se sustituye por Tabulator (C7) |
-|                     | `dataTables.bootstrap4.min.js`                                             | ⚠️ **BS4** → `.bootstrap5` (T13)        |
-|                     | `dataTables.responsive.min.js`                                             | genérico                                |
-|                     | `responsive.bootstrap4.min.js`                                             | ⚠️ **BS4** → `.bootstrap5` (T13)        |
-|                     | `dataTables.buttons.min.js`                                                | genérico                                |
-|                     | `buttons.bootstrap4.min.js`                                                | ⚠️ **BS4** → `.bootstrap5` (T13)        |
-|                     | `buttons.html5.min.js` · `buttons.print.min.js` · `buttons.colVis.min.js`  | genéricos (export)                      |
-|                     | `core/common-datatable.js`                                                 | **código propio** dentro del mapa       |
-| `datatables-export` | `plugins/utils/jszip.min.js` · `pdfmake.min.js` · `vfs_fonts.js`           | requeridos por `buttons.html5`; sin CSS |
-| `select2`           | `plugins/select2/select2.min.js`                                           | jQuery; se sustituye por Tom Select (C5) |
+| Clave               | Archivos                                                                   | Nota migración                                   |
+| ------------------- | -------------------------------------------------------------------------- | ------------------------------------------------ |
+| `datatables`        | `jquery.dataTables.min.js`                                                 | núcleo, jQuery; se sustituye por Tabulator (C7)  |
+|                     | `dataTables.bootstrap4.min.js`                                             | ⚠️ **BS4** → se elimina con DataTables (C7, T49) |
+|                     | `dataTables.responsive.min.js`                                             | genérico                                         |
+|                     | `responsive.bootstrap4.min.js`                                             | ⚠️ **BS4** → se elimina con DataTables (C7, T49) |
+|                     | `dataTables.buttons.min.js`                                                | genérico                                         |
+|                     | `buttons.bootstrap4.min.js`                                                | ⚠️ **BS4** → se elimina con DataTables (C7, T49) |
+|                     | `buttons.html5.min.js` · `buttons.print.min.js` · `buttons.colVis.min.js`  | genéricos (export)                               |
+|                     | `core/common-datatable.js`                                                 | **código propio** dentro del mapa                |
+| `datatables-export` | `plugins/utils/jszip.min.js` · `pdfmake.min.js` · `vfs_fonts.js`           | requeridos por `buttons.html5`; sin CSS          |
+| `select2`           | `plugins/select2/select2.min.js`                                           | jQuery; se sustituye por Tom Select (C5)         |
 | `validate`          | `plugins/validations/jquery.validate.min.js` · `additional-methods.min.js` | jQuery; se sustituye por validación nativa (C11) |
-|                     | `core/common-validate.js`                                                  | **código propio** dentro del mapa       |
-| `chart`             | `plugins/chart/Chart.js`                                                   | sin jQuery; sin CSS                     |
+|                     | `core/common-validate.js`                                                  | **código propio** dentro del mapa                |
+| `chart`             | `plugins/chart/Chart.js`                                                   | sin jQuery; sin CSS                              |
 
 **Resumen de ataduras BS4 en el registry: 7 archivos** (4 CSS + 3 JS de integración DataTables… ver nota) — en total: `dataTables.bootstrap4.css/js`, `responsive.bootstrap4.css/js`, `buttons.bootstrap4.css/js`, `select2-bootstrap4.min.css` = **7**.
 
@@ -57,7 +57,7 @@
 | Línea | Asset                                                                  | Migración                                                      |
 | ----- | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
 | 24    | `css/lib/bootstrap/bootstrap.min.css` (v5.0.2)                         | eliminar: AdminLTE 4 ya incluye el CSS de Bootstrap 5.3.8 (T8) |
-| 26-27 | `css/lib/fontawesome/all.min.css` + `css/core/webfonts.css`            | sin cambio                                                     |
+| 26-27 | `css/lib/fontawesome/all.min.css` + `css/core/webfonts.css`            | **se elimina**: Bootstrap Icons (C8, T8/T21, T49)              |
 | 30    | `css/lib/adminlte/adminlte.min.css` (v3, **incluye BS4.6.1 embebido**) | reemplazar por v4 (T8, T14)                                    |
 | 32    | `css/core/ui-components.css`                                           | sin cambio                                                     |
 | 34    | `css/core/dark-mode.css`                                               | reescribir sobre `[data-bs-theme]` (T44)                       |
