@@ -8,8 +8,8 @@
 /* ─── Tokens específicos de auth (complementan --dm-* de dark-mode.css) ──── */
 html.dark-mode {
     --login-dark-gradient-start: #1a1d21;
-    --login-dark-gradient-end:   #2c3038;
-    --login-dark-card-border:    #4b545c;
+    --login-dark-gradient-end: #2c3038;
+    --login-dark-card-border: #4b545c;
 }
 
 /* ─── Fondo de la página ──────────────────────────────────────────────────── */
@@ -78,7 +78,8 @@ html.dark-mode .login-page .form-control:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--dm-text);
     caret-color: var(--dm-text);
     border-color: var(--dm-border);
-    transition: background-color 9999s ease-in-out 0s; /* evita el flash amarillo */
+    transition: background-color 9999s ease-in-out 0s;
+    /* evita el flash amarillo */
 }
 
 /* Light mode — fondo blanco/casi-blanco consistente con el diseño */
@@ -132,4 +133,10 @@ html.dark-mode .auth-theme-toggle {
 
 html.dark-mode .auth-theme-toggle:hover {
     color: var(--dm-text);
+}
+
+/* Icono del interruptor según data-bs-theme (mismo criterio que ui-components.css, que auth no carga) */
+:root[data-bs-theme="dark"] .theme-icon-to-dark,
+:root:not([data-bs-theme="dark"]) .theme-icon-to-light {
+    display: none;
 }
