@@ -363,3 +363,32 @@ function showInfo(message) {
 function showWelcomeMessage(userName) {
     AlertUtils.welcome(userName);
 }
+
+/**
+ * Muestra los mensajes flash y la bienvenida que messages.php deja en #flash-data.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    const flash = document.getElementById('flash-data');
+    if (!flash) return;
+
+    const { welcome, message, icon } = flash.dataset;
+
+    if (welcome !== undefined && typeof Swal !== 'undefined') {
+        AlertUtils.welcome(welcome);
+    }
+
+    if (message === undefined) return;
+
+    if (typeof Swal !== 'undefined' && typeof ToastUtils[icon] === 'function') {
+        ToastUtils[icon](message);
+        return;
+    }
+
+    // SweetAlert2 no cargó: alerta Bootstrap simple.
+    const bsClass = { success: 'success', error: 'danger', warning: 'warning', info: 'info' }[icon] || 'info';
+    const alertEl = document.createElement('div');
+    alertEl.className = 'alert alert-' + bsClass + ' text-center m-3';
+    alertEl.setAttribute('role', 'alert');
+    alertEl.textContent = message;
+    document.body.insertBefore(alertEl, document.body.firstChild);
+});
