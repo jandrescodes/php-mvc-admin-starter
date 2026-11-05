@@ -9,29 +9,31 @@ Fuente de descarga según la documentación oficial de AdminLTE 4 (rutas Compose
 - **Composer:** `composer require --dev almasaeed2010/adminlte:^4.10` → `vendor/almasaeed2010/adminlte/dist/` (4.10.1; el paquete npm `admin-lte` se quedó en 4.10.0). Solo `css/adminlte.min.css` y `js/adminlte.min.js` se usan; `adminlte.css` ya incluye el CSS de Bootstrap 5.3.8. `require-dev`: producción no instala `vendor/` de desarrollo.
 - **npm:** `package.json` privado con `devDependencies` fijas (sin `^`) y `package-lock.json` versionado: `bootstrap`, `overlayscrollbars`, `bootstrap-icons`, `tabulator-tables`, `tom-select`, `chart.js`, `sweetalert2`, `jspdf`, `jspdf-autotable`, y `xlsx` desde el tarball de `cdn.sheetjs.com` (el paquete de npm, 0.18.5, tiene dos CVE). Node 22 LTS (`.nvmrc`; mínimo 18 según AdminLTE). `node_modules/` y `vendor/` fuera de Git.
 - **Copia:** `scripts/sync-assets.mjs` (Node sin dependencias) copia solo los archivos listados abajo a `public/` y lo que copia se versiona. Se ejecuta con `npm run assets`. Es un paso de desarrollo, no un build: no transforma, concatena ni minifica.
-- **Despliegue:** `package.json`, `package-lock.json`, `scripts/`, `node_modules/` y `docs/`/`specs/` no se despliegan; el servidor no necesita Node.
+- **Despliegue:** no existe workflow de despliegue en el repo. La exclusión se define con `.gitattributes` (`export-ignore` para `package.json`, `package-lock.json`, `scripts/`, `.nvmrc`, `docs/`, `specs/`, `deliverables/`, `tests/`) y se documenta la lista para cualquier `rsync`/`scp` del runner; el servidor no necesita Node ni `node_modules/`.
 - **Dependabot:** se añade el ecosistema `npm` y se mantiene `composer`. SheetJS (tarball) no lo vigila Dependabot.
+- **CI (NFR-9):** el job `quality` de `.github/workflows/tests.yml` añade `npm ci && npm run assets && git diff --exit-code -- public/` (Node 22). Como un bump de Dependabot solo cambia el lockfile, ese check falla hasta que se ejecute `npm run assets` y se versione la copia. El filtro `paths-ignore` deja de ignorar `package*.json`, `scripts/**` y `composer.lock`. Es el único cambio de CI/CD dentro del alcance.
+- **Rama de migración:** todo el trabajo va en `feat/adminlte4-migration`; `main` conserva AdminLTE 3.2.0 funcionando (respaldo) hasta que T53 a T55 pasen. Dentro de la rama, las fases C y D dejan pantallas con jQuery rotas a propósito: no hay capa de convivencia (sería código desechable). Hasta la fase E, el gate de las fases B a D se verifica en las pantallas sin JS de módulo (login y errores) y en una página de prueba; el gate completo de cada pantalla es el de la fase E.
 - Convención de rutas: `public/css/lib/`, `public/js/lib/` (shell) y `public/css|js/plugins/<lib>/` (plugins). La suma sha384 de cada archivo copiado y su origen se guardan en `AGENTS.md` (sección Dependencias frontend).
-- AdminLTE 4.10.1 no trae hojas para Tabulator, Tom Select ni Flatpickr, y `adminlte-select2.css` deja de hacer falta.
+- AdminLTE 4.10.1 no trae hojas para Tabulator ni Tom Select, y `adminlte-select2.css` deja de hacer falta.
 
 ## Librerías: versión objetivo
 
-| Función                 | Hoy                                               | Objetivo                                                                                                     | Destino en `public/`                                      |
-| ----------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| Shell                   | AdminLTE 3.2.0                                    | **AdminLTE 4.10.1** (`adminlte.min.css/js`)                                                                  | `css/lib/adminlte/`, `js/lib/adminlte/`                   |
-| Bootstrap JS            | 4.6.1 (CSS 5.0.2)                                 | **5.3.8** `bootstrap.bundle.min.js` (incluye Popper)                                                         | `js/lib/bootstrap/`                                       |
-| Scroll del menú         | —                                                 | **OverlayScrollbars 2.16.0** (CSS+JS)                                                                        | `css/lib/overlayscrollbars/`, `js/lib/overlayscrollbars/` |
-| Tablas                  | DataTables 1.11.4 + Buttons + Responsive (jQuery) | **Tabulator 6.7.1** (`tabulator.min.js` + `tabulator_bootstrap5.min.css`); respaldo 6.6.1 (la de la preview) | `js/plugins/tabulator/`, `css/plugins/tabulator/`         |
-| Exportación Excel       | JSZip 3.7.1                                       | **SheetJS 0.20.3**, solo desde `cdn.sheetjs.com` (el paquete de npm, 0.18.5, tiene dos CVE)                  | `js/plugins/utils/`                                       |
-| Exportación PDF cliente | pdfmake 0.2.4                                     | **jsPDF 4.2.1** (primera sin los 13 avisos de 2026) + **jspdf-autotable 5.0.9**                              | `js/plugins/utils/`                                       |
-| Selectores              | Select2 4.0.13 (jQuery)                           | **Tom Select 2.6.2** `tom-select.complete.min.js` + `tom-select.bootstrap5.min.css` (Apache-2.0)             | `js/plugins/tom-select/`, `css/plugins/tom-select/`       |
-| Fechas                  | `<input>` + botón                                 | **`<input type="date">` nativo** (C9); sin Flatpickr                                                         | —                                                         |
-| Validación              | jQuery Validate 1.19.3                            | **Validación nativa** (Constraint Validation API) + helper propio                                            | `js/core/form-validator.js`                               |
-| Iconos                  | Font Awesome 6.5.2 (256 usos, 67 iconos)          | **Bootstrap Icons 1.13.2** (CSS + `fonts/*.woff2`/`.woff`)                                                   | `css/lib/bootstrap-icons/`                                |
-| Gráficos                | Chart.js 2.9.4                                    | **Chart.js 4.6.1** `chart.umd.min.js`; respaldo 4.5.1                                                        | `js/plugins/chart/`                                       |
-| Diálogos                | SweetAlert2 11.12.1                               | **SweetAlert2 11.26.25** (C10)                                                                               | `js/plugins/sweetalert2/`, `css/plugins/sweetalert2/`     |
-| jQuery                  | 3.6.0                                             | **Eliminado** (NFR-7)                                                                                        | —                                                         |
-| moment, iCheck          | sin uso / login                                   | **Eliminados**                                                                                               | —                                                         |
+| Función                 | Hoy                                                       | Objetivo                                                                                                     | Destino en `public/`                                      |
+| ----------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Shell                   | AdminLTE 3.2.0                                            | **AdminLTE 4.10.1** (`adminlte.min.css/js`)                                                                  | `css/lib/adminlte/`, `js/lib/adminlte/`                   |
+| Bootstrap JS            | 4.6.1 (CSS 5.0.2)                                         | **5.3.8** `bootstrap.bundle.min.js` (incluye Popper)                                                         | `js/lib/bootstrap/`                                       |
+| Scroll del menú         | —                                                         | **OverlayScrollbars 2.17.0** (CSS+JS; opcional según AdminLTE, se conserva por ser el scroll de su menú)     | `css/lib/overlayscrollbars/`, `js/lib/overlayscrollbars/` |
+| Tablas                  | DataTables 1.11.4 + Buttons + Responsive (jQuery)         | **Tabulator 6.7.1** (`tabulator.min.js` + `tabulator_bootstrap5.min.css`); respaldo 6.6.1 (la de la preview) | `js/plugins/tabulator/`, `css/plugins/tabulator/`         |
+| Exportación Excel       | JSZip 3.7.1                                               | **SheetJS 0.20.3**, solo desde `cdn.sheetjs.com` (el paquete de npm, 0.18.5, tiene dos CVE)                  | `js/plugins/utils/`                                       |
+| Exportación PDF cliente | pdfmake 0.2.4                                             | **jsPDF 4.2.1** (primera sin los 13 avisos de 2026) + **jspdf-autotable 5.0.9**                              | `js/plugins/utils/`                                       |
+| Selectores              | Select2 4.0.13 (jQuery)                                   | **Tom Select 2.6.2** `tom-select.complete.min.js` + `tom-select.bootstrap5.min.css` (Apache-2.0)             | `js/plugins/tom-select/`, `css/plugins/tom-select/`       |
+| Fechas                  | `<input>` + botón                                         | **`<input type="date">` nativo** (C9); sin Flatpickr                                                         | —                                                         |
+| Validación              | jQuery Validate 1.19.3                                    | **Validación nativa** (Constraint Validation API) + helper propio                                            | `js/core/form-validator.js`                               |
+| Iconos                  | Font Awesome 6.5.2 (a recontar en T21; ~303 tokens `fa-`) | **Bootstrap Icons 1.13.2** (CSS + `fonts/*.woff2`/`.woff`)                                                   | `css/lib/bootstrap-icons/`                                |
+| Gráficos                | Chart.js 2.9.4                                            | **Chart.js 4.6.1** `chart.umd.min.js`; respaldo 4.5.1                                                        | `js/plugins/chart/`                                       |
+| Diálogos                | SweetAlert2 11.12.1                                       | **SweetAlert2 11.26.25** (C10)                                                                               | `js/plugins/sweetalert2/`, `css/plugins/sweetalert2/`     |
+| jQuery                  | 3.6.0                                                     | **Eliminado** (NFR-7)                                                                                        | —                                                         |
+| moment, iCheck          | sin uso / login                                           | **Eliminados**                                                                                               | —                                                         |
 
 Dos versiones tienen menos de 14 días (Tabulator 6.7.1, Chart.js 4.6.1): se vuelve a las que usa la preview si algo falla.
 
@@ -58,7 +60,7 @@ Sin cambios.
 
 ## Algoritmos y lógica no trivial
 
-- **Tema (FR-20 a FR-22):** `<html data-lte-color-mode="off">` desactiva el módulo de color de AdminLTE; el interruptor propio (`localStorage['theme']`, `light|dark`, fallback `prefers-color-scheme`) escribe `data-bs-theme` en `<html>`; el anti-FOUC inline en `<head>` lo aplica antes del primer pintado. `html.dark-mode` desaparece. AdminLTE 4, Tabulator (`tabulator_bootstrap5`) y Tom Select (variables `--bs-*`) siguen `data-bs-theme`; solo el borde del desplegable de Tom Select queda fijo y se corrige con una regla propia.
+- **Tema (FR-20 a FR-22):** `<html data-lte-color-mode="off">` desactiva el módulo de color de AdminLTE; el interruptor propio (`localStorage['theme']`, `light|dark`, fallback `prefers-color-scheme`) escribe `data-bs-theme` en `<html>`; el anti-FOUC inline en `<head>` lo aplica antes del primer pintado. `html.dark-mode` desaparece del JS en T18 y de las hojas en T44; `index-dashboard.js` (MutationObserver sobre la clase `dark-mode`, líneas 30 y 107) pasa a observar `data-bs-theme` en T41. AdminLTE 4, Tabulator (`tabulator_bootstrap5`) y Tom Select (variables `--bs-*`) siguen `data-bs-theme`; solo el borde del desplegable de Tom Select queda fijo y se corrige con una regla propia.
 - **SweetAlert2 (FR-23):** cada llamada pasa `theme: 'dark'|'light'` (o `bootstrap-5-dark|light`) leído de `data-bs-theme`. Nunca `'auto'` ni `'bootstrap-5'` a secas: siguen al sistema, no al interruptor.
 - **Tablas (FR-11, NFR-8, C7):** Tabulator no se inicializa sobre un `<table>` ya renderizado (pierde `data-*` de la fila y exporta el HTML crudo). La vista imprime los datos como JSON en un atributo `data-*` del contenedor, incluidas las banderas de permiso por fila; los badges y botones se dibujan en `formatter` con `escapeHtml`. Sin endpoint nuevo.
     - Búsqueda global: un `<input>` con `setFilter`. Paginación, orden y `layout` desde las opciones de Tabulator.
@@ -73,14 +75,18 @@ Sin cambios.
 - **Iconos (FR-35, C8):** mapa de los 67 iconos distintos de Font Awesome a Bootstrap Icons (clase `bi bi-…`), verificado contra el CSS 1.13.2. `fa-spin` pasa a `spinner-border`; `fa-stack` no tiene equivalente y se rediseña.
 - **Orden de carga:** Bootstrap bundle → AdminLTE → OverlayScrollbars → SweetAlert2 → plugins (Tabulator, Tom Select, Chart.js; SheetJS y jsPDF solo donde hay exportación) → helpers propios (`http`, `form-validator`, `table-utils`, `ui-components`) → módulo de la pantalla.
 - **CSRF (FR-30):** sin cambio de comportamiento; `http.js` reutiliza el token devuelto tras cada envío.
+- **Scripts inline de los layouts:** `baseUrl` y `csrfToken` pasan de `<script>` inline a `<meta name="base-url">` / `<meta name="csrf-token">` leídos por `http.js`; así los layouts quedan listos para una CSP (solo el anti-FOUC sigue inline, con nonce si se añade CSP). Alcance: `header.php`, `auth.php`, `error.php` y `messages.php` (T14, T17, T19, T20).
+- **Clases armadas en JS:** el barrido de clases de Bootstrap 4 incluye las que el JS genera (`badge-*`, `custom-file-*`, `form-group`, `mr-*`/`ml-*`, `fa-*`), no solo las vistas y el CSS.
+- **Peso de la auditoría:** `AuditLogController` no pone límite de filas y los datos viajan en el HTML. Se acepta como riesgo del proyecto (spec § Riesgos aceptados); T40 mide el tamaño del HTML y lo anota en `AGENTS.md`.
 
 ## Decisiones técnicas
 
-- **Stack sin jQuery del preview de AdminLTE 4:** Tabulator, Tom Select, Bootstrap Icons, validación nativa. Es un ejercicio deliberado de práctica; AdminLTE 3.2.0 sigue en otros proyectos como respaldo. (C2, C5, C7, C8, C11)
+- **Regla de adopción (CHG-2):** lo que AdminLTE 4 cubre se reemplaza; lo propio que no cubre se conserva y se adapta. Excepciones justificadas: SweetAlert2 (C10), interruptor de tema propio sobre `data-bs-theme`, `ToastUtils`/`AlertUtils`, fechas nativas (C9) y exportación con SheetJS/jsPDF (C12). Cualquier otra se añade aquí con su motivo. (FR-33)
+- **Stack sin jQuery del preview de AdminLTE 4:** Tabulator, Tom Select, Bootstrap Icons, validación nativa. Alcance: solo los componentes que el proyecto ya usa. DataTables 3.1.5 (ya sin jQuery) se reevaluó el 2026-11-05 y se descartó: el objetivo es adoptar los componentes tal como AdminLTE 4 los documenta, además de la práctica; AdminLTE 3.2.0 sigue en otros proyectos como respaldo. (C2, C5, C7, C8, C11)
 - **Datos de las tablas desde la vista, no desde un endpoint nuevo:** respeta «backend sin cambios» y la regla de AGENTS.md de pasar datos a JS por `data-*`. (C7)
 - **Exportación con paridad** (Excel + PDF) y reducción documentada si la prueba falla. (C12)
 - **SweetAlert2 se conserva:** AdminLTE no lo reemplaza y sustituirlo obliga a reescribir `confirm`, `loading`, `welcome` y 24 llamadas directas a `Swal`. (C10)
-- **Fechas nativas:** Flatpickr deja el campo `readonly` sin `allowInput` (sale de la validación), `altInput` desconecta el label y su tema oscuro es global. (C9)
+- **Fechas nativas (en lugar de Flatpickr, que AdminLTE 4 sí documenta):** Flatpickr deja el campo `readonly` sin `allowInput` (sale de la validación), `altInput` desconecta el label y su tema oscuro es global. (C9)
 - **Composer y npm solo en desarrollo, sin CDN en tiempo de ejecución:** siguen la documentación oficial de AdminLTE 4, dan versiones fijas con lockfile y Dependabot. El script de copia mantiene `public/` estático y el despliegue sin Node. (C1, NFR-1, NFR-3, NFR-6)
 
 ## Contrato de interfaz
@@ -96,7 +102,9 @@ Rutas y endpoints sin cambios. Los endpoints AJAX siguen devolviendo `{success: 
 
 ## Riesgos
 
+- **Tabulator frente a DataTables 3:** se mantiene Tabulator por decisión de producto (CHG-1). Coste asumido: datos en JSON, formatters, colvis propio y exportación con SheetJS/jsPDF.
 - **Tabulator reescribe cada tabla** (datos JSON, formatters, filtros): es el trabajo más grande → una tabla por tarea, de la más simple (roles) a la más compleja (auditoría).
+- **Desfase npm↔`public/`:** mitigado por el check de CI de NFR-9.
 - **SheetJS solo en `cdn.sheetjs.com`:** entra a `package.json` como tarball con URL fija; Dependabot no lo vigilará; se anota la versión y el origen en `AGENTS.md` y se revisa a mano.
 - **jsPDF publica avisos con frecuencia:** versión fijada en 4.2.1 y revisión en cada release del proyecto.
 - **Tabulator 6.7.1 y Chart.js 4.6.1 muy recientes** → respaldo 6.6.1 / 4.5.1.
@@ -110,29 +118,31 @@ Rutas y endpoints sin cambios. Los endpoints AJAX siguen devolviendo `{success: 
 
 ## FR cubiertos por cada parte
 
-| Parte                                                   | FR / NFR                                  |
-| ------------------------------------------------------- | ----------------------------------------- | -------------------------- | --------------------------- |
-| `views/layouts/header.php`                              | FR-1, FR-4, FR-5, FR-21                   |
-| `views/layouts/sidebar.php`                             | FR-2, FR-3, FR-4, FR-6                    |
-| `views/layouts/footer.php`                              | FR-1, FR-7                                |
-| `views/layouts/messages.php`                            | FR-9                                      |
-| `views/layouts/auth.php`                                | FR-8, FR-21                               |
-| `views/layouts/error.php`, `views/errors/*`             | FR-31                                     |
-| `views/users/*`, `views/roles/*`, `views/permissions/*` | FR-11 a FR-16, FR-27, FR-32, FR-35, NFR-8 |
-| `views/audit-log/*`                                     | FR-18, FR-19, FR-36                       |
-| `views/dashboard/index.php`                             | FR-17                                     |
-| `views/auth/*`                                          | FR-8, FR-10, FR-27, FR-34                 |
-| `public/js/core/http.js`                                | FR-28, FR-29, FR-30, NFR-7                |
-| `public/js/core/form-validator.js`                      | FR-14, FR-27, NFR-7                       |
-| `public/js/core/table-utils.js`                         | FR-11, FR-26, NFR-8                       |
-| `public/js/core/ui-components.js`                       | FR-25, FR-26, FR-32                       |
-| `public/js/core/common-utils.js`                        | FR-30, FR-32                              |
-| `public/js/core/sweetalert-utils.js`                    | FR-10, FR-16, FR-23, FR-28                |
-| `public/js/modules/users                                | roles                                     | permissions/\*`            | FR-11 a FR-16, FR-28, FR-29 |
-| `public/js/modules/audit-log/index-audit.js`            | FR-18, FR-19, FR-36                       |
-| `public/js/modules/dashboard/index-dashboard.js`        | FR-17, FR-23                              |
-| `public/js/modules/auth/*`                              | FR-8, FR-27                               |
-| `public/js/modules/profile/theme-toggle.js`             | FR-20, FR-22                              |
-| `public/css/core/*`, `public/css/modules/**`            | FR-20, FR-23                              |
-| `app/Core/AssetRegistry.php` y `public/\*\*/lib         | plugins`                                  | FR-33, NFR-1, NFR-6, NFR-7 |
-| Todo el trabajo                                         | FR-24, NFR-2, NFR-4, NFR-5                |
+| Parte                                                    | FR / NFR                                  |
+| -------------------------------------------------------- | ----------------------------------------- |
+| `views/layouts/header.php`                               | FR-1, FR-4, FR-5, FR-21                   |
+| `views/layouts/sidebar.php`                              | FR-2, FR-3, FR-4, FR-6                    |
+| `views/layouts/footer.php`                               | FR-1, FR-7                                |
+| `views/layouts/messages.php`                             | FR-9                                      |
+| `views/layouts/auth.php`                                 | FR-8, FR-21                               |
+| `views/layouts/error.php`, `views/errors/*`              | FR-31                                     |
+| `views/users/*`, `views/roles/*`, `views/permissions/*`  | FR-11 a FR-16, FR-27, FR-32, FR-35, NFR-8 |
+| `views/audit-log/*`                                      | FR-18, FR-19, FR-36                       |
+| `views/dashboard/index.php`                              | FR-17                                     |
+| `views/auth/*`                                           | FR-8, FR-10, FR-27, FR-34                 |
+| `public/js/core/http.js`                                 | FR-28, FR-29, FR-30, NFR-7                |
+| `public/js/core/form-validator.js`                       | FR-14, FR-27, NFR-7                       |
+| `public/js/core/table-utils.js`                          | FR-11, FR-26, NFR-8                       |
+| `public/js/core/ui-components.js`                        | FR-25, FR-26, FR-32                       |
+| `public/js/core/common-utils.js`                         | FR-30, FR-32                              |
+| `public/js/core/sweetalert-utils.js`                     | FR-10, FR-16, FR-23, FR-28                |
+| `public/js/modules/{users,roles,permissions}/*`          | FR-11 a FR-16, FR-28, FR-29               |
+| `public/js/modules/audit-log/index-audit.js`             | FR-18, FR-19, FR-36                       |
+| `public/js/modules/dashboard/index-dashboard.js`         | FR-17, FR-23                              |
+| `public/js/modules/auth/*`                               | FR-8, FR-27                               |
+| `public/js/modules/profile/theme-toggle.js`              | FR-20, FR-22                              |
+| `public/css/core/*`, `public/css/modules/**`             | FR-20, FR-23                              |
+| `app/Core/AssetRegistry.php` y `public/**/{lib,plugins}` | FR-33, NFR-1, NFR-6, NFR-7                |
+| `.github/workflows/tests.yml`, `.gitattributes`          | NFR-9, NFR-1                              |
+| `README.md`, `CONTRIBUTING.md`, `AGENTS.md`              | NFR-6 (documentación)                     |
+| Todo el trabajo                                          | FR-24, NFR-2, NFR-4, NFR-5                |

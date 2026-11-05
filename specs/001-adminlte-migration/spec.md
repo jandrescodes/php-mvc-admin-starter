@@ -7,6 +7,8 @@
 
 Pasar la capa de presentación de AdminLTE 3.2.0 (Bootstrap 4, jQuery) a AdminLTE 4.x (Bootstrap 5.3), adoptando los componentes y las librerías que AdminLTE 4 documenta como suyos (tablas, selectores, iconos, validación, gráficos), todos sin jQuery. El comportamiento de negocio no cambia.
 
+**Regla de adopción:** se reemplaza por el componente de AdminLTE 4 todo lo que AdminLTE 4 cubre. Se conserva y se adapta lo propio que AdminLTE 4 no cubre (tema, notificaciones, reglas de negocio de la interfaz), y cada excepción queda justificada en el plan.
+
 El proyecto sirve también de práctica del stack nuevo; otros proyectos siguen en AdminLTE 3.2.0, que queda como respaldo si la migración se descarta.
 
 ## Por qué
@@ -31,7 +33,8 @@ El proyecto sirve también de práctica del stack nuevo; otros proyectos siguen 
 
 - El comportamiento PHP: controladores, modelos, servicios, rutas, middlewares, autenticación, permisos, CSRF, base de datos. Se conserva tal cual; solo cambia el markup que las vistas imprimen.
 - Funcionalidades de negocio nuevas.
-- Cambios de CI/CD.
+- Cambios de CI/CD, salvo la verificación de que `public/` coincide con los lockfiles (NFR-9).
+- Componentes de AdminLTE 4 que el proyecto no usa hoy (p. ej. calendarios, mapas, editores, widgets de demostración): solo se migran los componentes que ya existen en las pantallas actuales.
 - Navegadores no evergreen.
 - Endpoints nuevos o cambios de contrato en los existentes para alimentar las tablas.
 
@@ -87,7 +90,7 @@ FR-28. WHEN se completa una acción mutante, THE SYSTEM shall notificar el resul
 FR-29. WHILE una acción mutante AJAX está en curso, THE SYSTEM shall mostrar un indicador de carga.
 FR-30. WHEN un envío POST termina con éxito, o falla en una ruta sensible, THE SYSTEM shall seguir rotando el token CSRF y el cliente shall usar el token vigente en el siguiente envío. (Comportamiento existente; se conserva.)
 FR-32. THE SYSTEM shall usar la API de Bootstrap 5 en modales, pestañas, desplegables, colapsables y tooltips, sin atributos ni clases de Bootstrap 4 / AdminLTE 3 que ya no existan.
-FR-33. THE SYSTEM shall usar para cada función de interfaz la librería que AdminLTE 4 documenta, en una versión estable, y no conservar archivos de librerías que ya no se usen.
+FR-33. THE SYSTEM shall usar para cada función de interfaz la librería que AdminLTE 4 documenta o, si no documenta ninguna (diálogos, exportación), la que el plan justifique, en una versión estable, y no conservar archivos de librerías que ya no se usen.
 FR-35. THE SYSTEM shall presentar todos los iconos con el conjunto de iconos predeterminado de AdminLTE 4.
 FR-36. WHEN la persona usuaria elige fechas de un filtro, THE SYSTEM shall aceptar y mostrar fechas en un formato legible y operable por teclado.
 
@@ -101,6 +104,7 @@ NFR-5. THE SYSTEM shall poder verificarse con un checklist manual por módulo cu
 NFR-6. THE SYSTEM shall servir cada librería de frontend en una versión fija y reproducible (`composer.lock` y `package-lock.json`) desde el propio repositorio, sin depender de CDN en tiempo de ejecución.
 NFR-7. THE SYSTEM shall funcionar sin jQuery.
 NFR-8. THE SYSTEM shall mostrar los datos de usuario que lleguen a tablas, selectores o diálogos escapados, nunca como HTML.
+NFR-9. WHEN se propone un cambio al repositorio, THE SYSTEM shall verificar en CI que los archivos de frontend copiados a `public/` coinciden con los que producen `composer.lock` y `package-lock.json`, y las actualizaciones automáticas de dependencias de npm y Composer shall incluir esa verificación.
 
 ## Suposiciones
 
@@ -126,6 +130,8 @@ NFR-8. THE SYSTEM shall mostrar los datos de usuario que lleguen a tablas, selec
 - La exportación de auditoría a PDF funciona igual que antes.
 - Ningún atributo `data-toggle`, `data-dismiss`, `data-target`, `data-parent`, `data-card-widget` ni `data-widget` de Bootstrap 4 / AdminLTE 3 queda en `views/` ni en `public/js/`.
 - Pint, PHPStan y las suites existentes pasan sin tocar el backend.
+- El CI falla si `public/` no coincide con los lockfiles.
+- `README.md`, `CONTRIBUTING.md` y `AGENTS.md` describen el stack nuevo (AdminLTE 4, sin jQuery) y enlazan solo a documentos que existen.
 
 ## Clarificaciones (Fase 3 de SDD) — resueltas
 
@@ -140,7 +146,7 @@ Verificado en la documentación oficial y en el código fuente de cada versión 
 | C5  | ¿Qué selector se usa?                              | El que AdminLTE 4 documenta para reemplazar a Select2 (búsqueda, selección múltiple, etiquetas). Sin jQuery y con tema para Bootstrap 5.                                                                                                                                                                                                                                                                                                       | FR-23, FR-25. Sustituye la decisión previa de usar Select2 con su hoja de compatibilidad.                                    |
 | C6  | ¿Casillas `iCheck`?                                | Se usan en un solo lugar (login). Se reemplazan por el estilo nativo de Bootstrap 5.                                                                                                                                                                                                                                                                                                                                                           | FR-34, FR-33.                                                                                                                |
 
-| C7 | ¿Qué librería de tablas se usa y de dónde salen los datos? | La que AdminLTE 4 documenta para reemplazar a DataTables. No funciona bien sobre un `<table>` ya renderizado (pierde los `data-*` de la fila y exporta el HTML crudo). Los datos viajan como JSON en un atributo `data-*` del contenedor que imprime la vista; los badges y botones se dibujan en cliente con escape. | FR-11, NFR-8. Sin endpoint nuevo (fuera de alcance). |
+| C7 | ¿Qué librería de tablas se usa y de dónde salen los datos? | **Tabulator** (decisión del 2026-11-05, tras reevaluarla frente a DataTables 3.1.5, que ya no requiere jQuery): es la que AdminLTE 4 documenta y el objetivo es adoptar los componentes de AdminLTE 4 tal como los implementa, además de servir de práctica; DataTables 3 queda como alternativa descartada, con su motivo en `docs/analisis-migracion-adminlte4.md` §4. Tabulator no funciona bien sobre un `<table>` ya renderizado (pierde los `data-*` de la fila y exporta el HTML crudo). Los datos viajan como JSON en un atributo `data-*` del contenedor que imprime la vista; los badges y botones se dibujan en cliente con escape. | FR-11, NFR-8. Sin endpoint nuevo (fuera de alcance). |
 | C8 | ¿Qué iconos se usan? | Los que AdminLTE 4 trae por defecto (SVG de fuente). El proyecto usa 67 iconos distintos de Font Awesome, todos con equivalente verificado. | FR-35. |
 | C9 | ¿Se usa un selector de fechas de terceros? | No. Solo el filtro de auditoría elige fechas y el campo nativo de fecha cumple FR-36; el selector de terceros añadiría problemas de accesibilidad (campo de solo lectura, etiqueta desconectada, tema oscuro propio). | FR-36. |
 | C10 | ¿Se conserva SweetAlert2? | Sí. AdminLTE 4 no lo sustituye, es independiente de jQuery y reemplazarlo obligaría a reescribir confirmaciones, carga y bienvenida. Se le pasa el tema activo. | FR-10, FR-16, FR-23, FR-28. |
@@ -148,3 +154,21 @@ Verificado en la documentación oficial y en el código fuente de cada versión 
 | C12 | ¿Cómo se exporta con la nueva tabla? | Con paridad: Copiar, CSV, Excel, PDF e Imprimir, usando las librerías de exportación que la tabla requiere (Excel y PDF). Si alguna falla en la prueba de exportación, se reduce a copiar, CSV e imprimir y se registra aquí. | FR-11. |
 
 El `plan.md` recoge estas decisiones y las versiones concretas.
+
+## Riesgos aceptados
+
+- El registro de auditoría se consulta sin límite de filas en el backend (`AuditLogController`), y con Tabulator esas filas viajan como JSON en el HTML. Es un hallazgo del proyecto, no de la migración: el backend está fuera de alcance, así que se documenta en `AGENTS.md` y se resuelve en una spec aparte.
+
+## Changes
+
+### CHG-1 — 2026-11-05 — Alinear la migración con la auditoría de dependencias y CI
+
+- Type: modify
+- FRs: FR-33, NFR-9
+- Reason: la auditoría pidió confirmar la librería de tablas frente a la alternativa sin jQuery de DataTables, evitar que las actualizaciones automáticas dejen `public/` desincronizado, acotar la migración a los componentes que el proyecto ya usa y dejar la documentación del repositorio al día.
+
+### CHG-2 — 2026-11-05 — Regla para conservar o reemplazar lo existente
+
+- Type: modify
+- FRs: FR-33
+- Reason: dejar escrito cuándo un componente propio se reemplaza por el de AdminLTE 4 y cuándo se conserva, para que la decisión no se tome caso por caso.
