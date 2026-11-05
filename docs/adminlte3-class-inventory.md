@@ -411,6 +411,67 @@ _También en `lib/bootstrap/icheck-bootstrap.min.css` (`auth.php:25`, tema BS4) 
 
 ---
 
+## Clases generadas en JS (T1b)
+
+> Clases de Bootstrap 4 / AdminLTE 3 / Font Awesome que el JS propio añade, quita o inserta como cadena HTML y que el barrido de `views/` y CSS no ve. Método: `grep -rnE` sobre `public/js/core` y `public/js/modules` de `class=`, `addClass|removeClass|toggleClass`, `classList`, `customClass` y los prefijos `badge-`, `custom-`, `form-group`, `mr-|ml-|pr-|pl-`, `fa-`. Cada fila se verificó contra la línea citada. Fuera de este inventario, por tener tarea propia: `data-toggle|dismiss|target` (T5), la clase `dark-mode` de `theme-toggle.js:15` y de `index-dashboard.js` (T18/T41) y los `Swal.close` (sin clase).
+
+| Archivo:línea                                           | Clase(s)                                                 | Equivalente BS5.3 / Bootstrap Icons                                                    | Tarea |
+| ------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----- |
+| `public/js/core/common-utils.js:54`                     | `fa-eye`, `fa-eye-slash`                                 | `bi-eye`, `bi-eye-slash`                                                               | T23   |
+| `public/js/core/common-validate.js:24`                  | `form-group` (comentario)                                | (sin clase en BS5; contenedor `mb-3`)                                                  | T24   |
+| `public/js/core/common-validate.js:31`                  | `form-group`                                             | contenedor `mb-3` / `.input-group`                                                     | T24   |
+| `public/js/core/ui-components.js:248`                   | plantilla de tooltip `tooltip`                           | igual en BS5                                                                           | T25   |
+| `public/js/core/ui-components.js:249`                   | `arrow`                                                  | `tooltip-arrow` (o plantilla por defecto)                                              | T25   |
+| `public/js/core/ui-components.js:156`                   | `select2-container--arrow-up`                            | (Select2 se elimina; Tom Select)                                                       | T25   |
+| `public/js/core/ui-components.js:158`                   | `select2-container--open`, `select2-container--arrow-up` | (ídem)                                                                                 | T25   |
+| `public/js/core/ui-components.js:164`                   | `select2-container`                                      | (ídem)                                                                                 | T25   |
+| `public/js/core/sweetalert-utils.js:274`                | `animated fadeInDown`                                    | hoja propia/animate; revisar que exista                                                | T28   |
+| `public/js/core/sweetalert-utils.js:291`                | `img-fluid`                                              | igual en BS5                                                                           | T28   |
+| `public/js/modules/auth/login.js:32`                    | `fa-sign-in-alt`, `fa-spinner`, `fa-spin`                | `bi-box-arrow-in-right`; `spinner-border spinner-border-sm`                            | T42   |
+| `public/js/modules/auth/forgot_password.js:22`          | `fa-envelope`, `fa-spinner`, `fa-spin`                   | `bi-envelope`; `spinner-border`                                                        | T43   |
+| `public/js/modules/auth/reset_password.js:32`           | `fa-lock`, `fa-spinner`, `fa-spin`                       | `bi-lock`; `spinner-border`                                                            | T43   |
+| `public/js/modules/auth/accept-invitation.js:33`        | `fa-check`, `fa-spinner`, `fa-spin`                      | `bi-check-lg`; `spinner-border`                                                        | T43   |
+| `public/js/modules/users/create-user.js:25`             | `badge-success`, `badge-danger`                          | `text-bg-success`, `text-bg-danger`                                                    | T36a  |
+| `public/js/modules/users/create-user.js:26`             | `badge-warning`                                          | `text-bg-warning`                                                                      | T36a  |
+| `public/js/modules/users/create-user.js:34`             | `badge-warning`, `badge-danger`, `badge-success`         | `text-bg-*`                                                                            | T36a  |
+| `public/js/modules/users/create-user.js:36`             | `badge-warning`, `badge-success`, `badge-danger`         | `text-bg-*`                                                                            | T36a  |
+| `public/js/modules/users/create-user.js:107`            | `fas fa-spinner fa-spin mr-1`                            | `spinner-border spinner-border-sm me-1`                                                | T36b  |
+| `public/js/modules/users/create-user.js:125`            | `custom-file-input`                                      | `form-control` en `<input type="file">`                                                | T36a  |
+| `public/js/modules/users/create-user.js:127`            | `custom-file-label`                                      | (sin etiqueta propia en BS5; texto en un `<span>` propio)                              | T36a  |
+| `public/js/modules/users/create-user.js:183`            | `badge-danger`, `badge-success`                          | `text-bg-danger`, `text-bg-success`                                                    | T36a  |
+| `public/js/modules/users/create-user.js:185`            | `badge-success`, `badge-danger`                          | `text-bg-success`, `text-bg-danger`                                                    | T36a  |
+| `public/js/modules/users/update-user.js:86`             | `fas fa-spinner fa-spin mr-1`                            | `spinner-border spinner-border-sm me-1`                                                | T37   |
+| `public/js/modules/users/update-user.js:104`            | `custom-file-input`                                      | `form-control` en `<input type="file">`                                                | T37   |
+| `public/js/modules/users/update-user.js:106`            | `custom-file-label`                                      | (texto en un `<span>` propio)                                                          | T37   |
+| `public/js/modules/users/update-user.js:162`            | `badge-danger`, `badge-success`                          | `text-bg-danger`, `text-bg-success`                                                    | T37   |
+| `public/js/modules/users/update-user.js:164`            | `badge-success`, `badge-danger`                          | `text-bg-success`, `text-bg-danger`                                                    | T37   |
+| `public/js/modules/users/profile-user.js:50`            | `fas fa-spinner fa-spin`                                 | `spinner-border spinner-border-sm`                                                     | T39   |
+| `public/js/modules/users/profile-user.js:61`            | `fas fa-key`, `mr-1`                                     | `bi-key`, `me-1`                                                                       | T39   |
+| `public/js/modules/users/profile-user.js:84`            | `fas fa-key`, `mr-1`                                     | `bi-key`, `me-1`                                                                       | T39   |
+| `public/js/modules/users/profile-user.js:97`            | `fas fa-spinner fa-spin`                                 | `spinner-border spinner-border-sm`                                                     | T39   |
+| `public/js/modules/roles/index-roles.js:28`             | `fas fa-save`                                            | `bi-floppy`                                                                            | T29   |
+| `public/js/modules/roles/modal-role.js:70`              | `fas fa-save`                                            | `bi-floppy`                                                                            | T30   |
+| `public/js/modules/roles/modal-role.js:92`              | `fas fa-spinner fa-spin`                                 | `spinner-border spinner-border-sm`                                                     | T30   |
+| `public/js/modules/permissions/index-permissions.js:31` | `fas fa-save`                                            | `bi-floppy`                                                                            | T32   |
+| `public/js/modules/permissions/modal-permission.js:71`  | `fas fa-save`                                            | `bi-floppy`                                                                            | T33   |
+| `public/js/modules/permissions/modal-permission.js:95`  | `fas fa-spinner fa-spin`                                 | `spinner-border spinner-border-sm`                                                     | T33   |
+| `public/js/modules/permissions/modal-permission.js:137` | `fas fa-save`                                            | `bi-floppy`                                                                            | T33   |
+| `public/js/modules/permissions/detail-permission.js:66` | `fas fa-user-plus`, `mr-1`                               | `bi-person-plus`, `me-1`                                                               | T34   |
+| `public/js/modules/audit-log/index-audit.js:53`         | `badge-info`                                             | `text-bg-info`                                                                         | T40b  |
+| `public/js/modules/audit-log/index-audit.js:54`         | `badge-primary`                                          | `text-bg-primary`                                                                      | T40b  |
+| `public/js/modules/audit-log/index-audit.js:55`         | `badge-warning`                                          | `text-bg-warning`                                                                      | T40b  |
+| `public/js/modules/audit-log/index-audit.js:56`         | `badge-secondary`                                        | `text-bg-secondary`                                                                    | T40b  |
+| `public/js/modules/audit-log/index-audit.js:71`         | `badge-dark`                                             | `text-bg-dark`                                                                         | T40b  |
+| `public/js/modules/audit-log/index-audit.js:73`         | `badge`, `badge-pill`                                    | `badge rounded-pill`                                                                   | T40b  |
+| `public/js/modules/audit-log/index-audit.js:109`        | `fas fa-check`, `mr-1`                                   | `bi-check-lg`, `me-1`                                                                  | T40b  |
+| `public/js/modules/audit-log/index-audit.js:110`        | `fas fa-times`, `mr-1`                                   | `bi-x-lg`, `me-1`                                                                      | T40b  |
+| `public/js/modules/audit-log/index-audit.js:117`        | `pr-3`                                                   | `pe-3`                                                                                 | T40b  |
+| `public/js/modules/audit-log/index-audit.js:153`        | `text-white-50`                                          | revisar en 5.3.8 (no hay utilidad `text-white-50`; usar `text-white` con `opacity-75`) | T40b  |
+| `public/js/modules/profile/theme-toggle.js:18`          | `fa-moon`, `fa-sun`                                      | `bi-moon`, `bi-sun`                                                                    | T18   |
+| `public/js/modules/profile/theme-toggle.js:19`          | `fa-sun`, `fa-moon`                                      | `bi-sun`, `bi-moon`                                                                    | T18   |
+
+**Resumen:** 52 usos en 18 archivos: `badge-*` (14 filas), `custom-file-*` (4), `form-group` (2), prefijos `mr-`/`pr-` (8), `fa-*` (iconos y `fa-spin`) y el tooltip con `.arrow`. `login-animation` (`login.css`), `metrics-visible` y `rotated` (`dashboard.css`) están definidas en CSS del proyecto. **Sin definición en ningún CSS propio:** `touch-device` y `animated fadeInDown` (la animación de SweetAlert2 de bienvenida): revisarlas en T28 y T35a; si no hacen nada, se eliminan.
+
 ## Referencia — familias de clases que AdminLTE 4 sí define
 
 Extraídas del CSS de `AdminLTE@v4.10.1` para orientar la Fase 2 (confirmar markup oficial al implementar):
