@@ -5,16 +5,15 @@ on:
   # push too would double the CI spend for any branch with an open PR. Direct
   # pushes still run on main and on release tags.
   #
-  # Skip runs when a change cannot affect test outcomes (docs, static assets).
-  # Any change to PHP, composer.*, or the workflow itself still triggers.
+  # Skip runs when a change cannot affect test outcomes (docs, images).
+  # Any change to PHP, composer.*, package*.json, scripts/ or public/ css/js still
+  # triggers: the quality job checks that public/ matches what `npm run assets` produces.
   push:
     branches: [main]
     tags: ["*"]
     paths-ignore:
       - "**.md"
       - "docs/**"
-      - "public/css/**"
-      - "public/js/**"
       - "public/img/**"
       - "LICENSE"
       - ".gitignore"
@@ -22,11 +21,12 @@ on:
     paths-ignore:
       - "**.md"
       - "docs/**"
-      - "public/css/**"
-      - "public/js/**"
       - "public/img/**"
       - "LICENSE"
       - ".gitignore"
+
+permissions:
+  actions: read
 
 # Cancel superseded runs on the same ref so rapid pushes don't pile up.
 concurrency:
@@ -55,6 +55,24 @@ jobs:
 
       - name: Static analysis (PHPStan)
         run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Sync frontend assets
+        run: npm run assets
+
+      - name: Check public/ is in sync with package-lock.json
+        run: git diff --exit-code -- public/
+
+      - name: Check asset registry paths
+        run: php scripts/check-asset-paths.php
 
   unit:
     name: Unit Tests (PHP ${{ matrix.php }})
