@@ -4,6 +4,7 @@
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
 > El `AGENTS.md` (fuente única de convenciones; `CLAUDE.md` solo lo importa) siempre debe estar
 > disponible para el agente como contexto base.
+> **Migración en curso:** los bloques `Stack:` de abajo describen AdminLTE 3 + jQuery (estado de `main`). En la rama `feat/adminlte4-migration` el stack pasa a AdminLTE 4 / Bootstrap 5.3 sin jQuery (Tabulator, Tom Select, `fetch`); se actualizan al cerrar la migración (T56).
 
 ---
 

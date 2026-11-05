@@ -29,6 +29,9 @@ cd php-mvc-admin-starter
 # Install dependencies
 composer install
 
+# Frontend assets (only when changing package.json / the AdminLTE version): Node 22 (.nvmrc)
+npm ci && npm run assets   # copies into public/; commit the result — CI fails if public/ is out of sync
+
 # Verify your setup — style, static analysis, and the unit suite
 composer lint && composer stan && composer test:unit
 
@@ -119,7 +122,7 @@ JavaScript functions and modules should include JSDoc documentation:
  * @returns {type} Description of return value
  */
 function myFunction(parameter) {
-  // Implementation
+    // Implementation
 }
 ```
 
@@ -262,6 +265,7 @@ When adding new features, follow the existing project structure:
 │   ├── Models/           # App\Models; Traits/ holds UserAuthTrait, UserPasswordTrait, UserStatsTrait
 │   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger, AuditLogPdfExporter)
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
+├── scripts/              # sync-assets.mjs (npm run assets), check-asset-paths.php — dev/CI only, not deployed
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates
 │   ├── layouts/          # header, sidebar, footer, messages (admin) + auth.php, error.php (standalone layouts)

@@ -148,8 +148,9 @@ The `integration` job spins up a MySQL 8.0 service container and generates `.env
 
 **Triggers:** `pull_request` against any branch, and `push` to `main` or tags only. Feature branches
 are validated through the PR event, not through their own pushes (avoids the duplicate push+PR run).
-`paths-ignore` skips runs when only docs or static assets (`public/css`/`js`/`img`, `*.md`, `LICENSE`,
-`.gitignore`) changed. A `concurrency` group cancels superseded runs on the same ref.
+`paths-ignore` skips runs when only docs or images (`public/img`, `*.md`, `docs/`, `LICENSE`,
+`.gitignore`) changed; css/js, `package*.json` and `scripts/` changes do run (the `quality` job checks `public/`
+against `npm run assets`). A `concurrency` group cancels superseded runs on the same ref.
 
 ## Static analysis & code style
 

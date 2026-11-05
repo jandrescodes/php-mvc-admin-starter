@@ -19,23 +19,24 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase B — Fuentes de assets y copia a `public/` (versiones en `plan.md`)
 
-- [ ] T6. Ejecutar `composer require --dev almasaeed2010/adminlte:^4.10` y confirmar que `composer.lock` fija 4.10.1. (FR-1, NFR-3, NFR-6)
+- [x] T6. Ejecutar `composer require --dev almasaeed2010/adminlte:^4.10` y confirmar que `composer.lock` fija 4.10.1. (FR-1, NFR-3, NFR-6)
       Done when: `vendor/almasaeed2010/adminlte/dist/css/adminlte.min.css` existe y `composer check` sigue verde.
-- [ ] T7. Crear `package.json` privado (`devDependencies` fijas: bootstrap 5.3.8, overlayscrollbars 2.17.0, bootstrap-icons 1.13.2, tabulator-tables 6.7.1, tom-select 2.6.2, chart.js 4.6.1, sweetalert2 11.26.25, jspdf 4.2.1, jspdf-autotable 5.0.9, xlsx 0.20.3 desde `cdn.sheetjs.com`), `.nvmrc` (22), `package-lock.json`, y añadir `node_modules/` a `.gitignore`. (FR-33, NFR-1, NFR-6)
+- [x] T7. Crear `package.json` privado (`devDependencies` fijas: bootstrap 5.3.8, overlayscrollbars 2.16.0, bootstrap-icons 1.13.1, tabulator-tables 6.6.1, tom-select 2.6.2, chart.js 4.5.1, sweetalert2 11.26.25, jspdf 4.2.1, jspdf-autotable 5.0.9, xlsx 0.20.3 desde `cdn.sheetjs.com`), `.nvmrc` (22), `package-lock.json`, y añadir `node_modules/` a `.gitignore`. (FR-33, NFR-1, NFR-6)
       Done when: `npm ci` termina sin errores y `npm ls` muestra las versiones del plan.
-- [ ] T8. Escribir `scripts/sync-assets.mjs` + `npm run assets`: copia `adminlte.min.css/js`, `bootstrap.bundle.min.js`, OverlayScrollbars (CSS+JS) y Bootstrap Icons (CSS + `fonts/*.woff2`/`.woff` con ruta relativa) a `public/css|js/lib/`. (FR-1, FR-32, FR-35, NFR-6)
+- [x] T8. Escribir `scripts/sync-assets.mjs` + `npm run assets`: copia `adminlte.min.css/js`, `bootstrap.bundle.min.js`, OverlayScrollbars (CSS+JS) y Bootstrap Icons (CSS + `fonts/*.woff2`/`.woff` con ruta relativa) a `public/css|js/lib/`. (FR-1, FR-32, FR-35, NFR-6)
       Done when: tras `npm run assets` los archivos existen con la versión esperada en su cabecera y un `<i class="bi bi-house">` de prueba muestra el icono sin 404 de fuentes.
-- [ ] T9. Ampliar el script con Tabulator (`tabulator.min.js` + `tabulator_bootstrap5.min.css`) y Tom Select (`tom-select.complete.min.js` + `tom-select.bootstrap5.min.css`) a `public/**/plugins/`. (FR-11, FR-25, NFR-6)
+- [x] T9. Ampliar el script con Tabulator (`tabulator.min.js` + `tabulator_bootstrap5.min.css`) y Tom Select (`tom-select.complete.min.js` + `tom-select.bootstrap5.min.css`) a `public/**/plugins/`. (FR-11, FR-25, NFR-6)
       Done when: archivos presentes con la versión esperada y el script es idempotente (segunda ejecución sin cambios en `git status`).
-- [ ] T10. Ampliar el script con SheetJS (`xlsx.full.min.js`), jsPDF (`jspdf.umd.min.js`) y jspdf-autotable. (FR-11, NFR-6)
+- [x] T10. Ampliar el script con SheetJS (`xlsx.full.min.js`), jsPDF (`jspdf.umd.min.js`) y jspdf-autotable. (FR-11, NFR-6)
       Done when: archivos presentes con las versiones esperadas y su sha384 anotado.
-- [ ] T11. Ampliar el script con Chart.js (`chart.umd.min.js`) y SweetAlert2 (JS+CSS), y añadir el ecosistema `npm` a `.github/dependabot.yml`. (FR-17, FR-28, NFR-6)
+      Evidencia (`public/js/plugins/utils/`): `xlsx.full.min.js` (SheetJS 0.20.3) `sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT`; `jspdf.umd.min.js` (4.2.1) `sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3`; `jspdf.plugin.autotable.min.js` (5.0.9) `sha384-A77YsHWitrPuAj8E0AuB033EXzymUxIajnWKPzrrzqFoYYSCEpFennDUjMG2R1L3`. T12 los traslada a `AGENTS.md`.
+- [x] T11. Ampliar el script con Chart.js (`chart.umd.min.js`) y SweetAlert2 (JS+CSS), y añadir el ecosistema `npm` a `.github/dependabot.yml`; los bumps de Bootstrap, Bootstrap Icons, OverlayScrollbars, Tabulator, Tom Select y Chart.js se agrupan y se aplican solo al subir AdminLTE o por un aviso de seguridad (plan § Librerías). (FR-17, FR-28, NFR-6)
       Done when: archivos presentes con las versiones esperadas y Dependabot lista composer y npm.
-- [ ] T12. Crear `.gitattributes` con `export-ignore` para `package.json`, `package-lock.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` y `tests/`, y documentar en `AGENTS.md` (sección Dependencias frontend, con sha384 y origen) el flujo `npm ci && npm run assets` y la lista de exclusión para `rsync`/`scp`. (NFR-1, NFR-6)
+- [x] T12. Crear `.gitattributes` con `export-ignore` para `package.json`, `package-lock.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` y `tests/`, y documentar en `AGENTS.md` (sección Dependencias frontend, con sha384 y origen) el flujo `npm ci && npm run assets` y la lista de exclusión para `rsync`/`scp`. (NFR-1, NFR-6)
       Done when: `git archive HEAD | tar -t` no lista esos archivos y `AGENTS.md` describe el flujo.
-- [ ] T13. Reescribir los mapas de `AssetRegistry` con las rutas nuevas y el orden de carga del plan, y añadir `scripts/check-asset-paths.php`, que recorre los mapas y falla si una ruta no existe en `public/`. (FR-33, NFR-2, NFR-9)
+- [x] T13. Reescribir los mapas de `AssetRegistry` con las rutas nuevas y el orden de carga del plan, y añadir `scripts/check-asset-paths.php`, que recorre los mapas y falla si una ruta no existe en `public/`. (FR-33, NFR-2, NFR-9)
       Done when: `php scripts/check-asset-paths.php` imprime OK y `composer test:unit` sigue verde.
-- [ ] T13b. Añadir al job `quality` de `tests.yml` los pasos Node 22, `npm ci`, `npm run assets`, `git diff --exit-code -- public/` y `php scripts/check-asset-paths.php`, y quitar `package*.json`, `scripts/**` y `composer.lock` de `paths-ignore`. (NFR-9)
+- [x] T13b. Añadir al job `quality` de `tests.yml` los pasos Node 22, `npm ci`, `npm run assets`, `git diff --exit-code -- public/` y `php scripts/check-asset-paths.php`, y quitar `package*.json`, `scripts/**` y `composer.lock` de `paths-ignore`. (NFR-9)
       Done when: una rama de prueba con `package-lock.json` modificado sin regenerar `public/` falla el CI, y la rama sincronizada pasa.
 
 ## Fase C — Shell, tema e iconos
@@ -55,7 +56,7 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 - [ ] T20. Reescribir `views/layouts/error.php` y `views/errors/{403,404,500}.php` sin `error-page` ni `<script>` inline salvo el anti-FOUC; tonalidad por `[data-tone]`. (FR-31)
       Done when: los tres códigos renderizan en ambos temas.
 - [ ] T21. Mapa de iconos: recontar los usos de Font Awesome (`grep -o 'fa-[a-z0-9-]*'` en `views/`, `public/js` y `public/css`) y tabla de los iconos distintos usados a su equivalente `bi bi-*` en `docs/icon-map.md`. (FR-35)
-      Done when: el recuento queda anotado, todos tienen equivalente verificado contra el CSS 1.13.2 o una nota de rediseño (`fa-stack`, `fa-spin`).
+      Done when: el recuento queda anotado, todos tienen equivalente verificado contra el CSS 1.13.1 o una nota de rediseño (`fa-stack`, `fa-spin`).
 
 ## Fase D — Helpers JS nativos (sin jQuery)
 
@@ -148,7 +149,7 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
       Done when: menú, modales y tablas operables en 375 px y 1280 px y con teclado.
 - [ ] T56b. Actualizar `README.md` (AdminLTE 3, jQuery y Moment, líneas ~60, 64 y 258-259) y `CONTRIBUTING.md` (enlaces a `docs/ACCESS_CONTROL.md` y compañía, que ahora están en `docs/legacy/`). (NFR-6)
       Done when: ambos describen el stack nuevo y `grep -n 'docs/[A-Z_]*\.md'` solo apunta a archivos que existen.
-- [ ] T56. Actualizar `AGENTS.md`: pila (AdminLTE 4 / Bootstrap 5.3, sin jQuery), tabla de versiones, origen y sha384 de cada librería (SheetJS y jsPDF a vigilar a mano), orden de carga, tema por `data-bs-theme`, lecciones nuevas (incluida la nota de que SweetAlert2 desde la 11.4.9 incluye protestware limitado a dominios `.ru`/`.su`/`.рф`, y el riesgo aceptado de la auditoría sin límite); corregir menciones obsoletas (`.fail` de jQuery, `$(document).on`). (NFR-6)
+- [ ] T56. Actualizar `AGENTS.md`: pila (AdminLTE 4 / Bootstrap 5.3, sin jQuery), tabla de versiones, origen y sha384 de cada librería (SheetJS y jsPDF a vigilar a mano), orden de carga, tema por `data-bs-theme`, la regla de versiones (las seis librerías que usa AdminLTE se mantienen en su versión y suben juntas con AdminLTE; excepción: avisos de seguridad), lecciones nuevas (incluida la nota de que SweetAlert2 desde la 11.4.9 incluye protestware limitado a dominios `.ru`/`.su`/`.рф`, y el riesgo aceptado de la auditoría sin límite); corregir menciones obsoletas (`.fail` de jQuery, `$(document).on`). (NFR-6)
       Done when: `AGENTS.md` coincide con el estado final del repo.
 
 ## Cierre de la feature

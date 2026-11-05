@@ -245,9 +245,9 @@ composer check     # lint + stan + full test suite (run before every commit)
 `.github/workflows/tests.yml` runs three jobs — `quality` (Pint + PHPStan), `unit`, and `integration`
 (MySQL 8.0 service container, `.env.testing` generated at runtime — no secrets committed).
 
-Triggered on `pull_request` (any branch) and on `push` to `main` or tags. Docs- and static-asset-only
-changes are skipped via `paths-ignore`; superseded runs on the same ref are cancelled.
-[Dependabot](.github/dependabot.yml) opens weekly update PRs for Composer and GitHub Actions.
+Triggered on `pull_request` (any branch) and on `push` to `main` or tags. Docs- and image-only
+changes are skipped via `paths-ignore` (css/js changes run, since `quality` verifies `public/` against `npm run assets`); superseded runs on the same ref are cancelled.
+[Dependabot](.github/dependabot.yml) opens weekly update PRs for Composer, npm and GitHub Actions.
 
 ## Tech Stack
 

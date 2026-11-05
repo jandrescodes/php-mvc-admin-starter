@@ -52,6 +52,28 @@ composer check                 # lint + stan + all suites — the CI gate; run b
   throws in the constructor under 7.x. 6.11.4 bundles 165 font files (full `dejavusans`) and works.
   Close any Dependabot PR that raises this constraint.
 
+### Dependencias frontend
+
+Composer (`almasaeed2010/adminlte`, require-dev) y npm (`package.json`, devDependencies fijas) son solo
+**fuentes de descarga**: `npm run assets` (`scripts/sync-assets.mjs`) copia los archivos a `public/`
+sin transformarlos y lo copiado se versiona. No hay bundler ni CDN en tiempo de ejecución, y el servidor
+no necesita Node.
+
+```bash
+composer install && npm ci && npm run assets   # Node 22 (.nvmrc); idempotente
+```
+
+- Al cambiar `package-lock.json` o la versión de AdminLTE, ejecuta `npm run assets` y commitea `public/`.
+- Las seis librerías de AdminLTE 4.10.1 (Bootstrap, Bootstrap Icons, OverlayScrollbars, Tabulator, Tom Select, Chart.js) se mantienen en sus versiones y suben juntas con AdminLTE; Dependabot las ignora salvo avisos de seguridad.
+- **SheetJS 0.20.3 solo viene de `cdn.sheetjs.com`** (tarball con integridad en el lockfile): el paquete `xlsx` de npm (0.18.5) tiene CVE-2023-30533 y CVE-2024-22363, corregidos en 0.19.3 y 0.20.2. Dependabot no lo vigila: revísalo a mano. Escáneres como OSV lo marcan por el nombre del paquete aunque la versión ya esté corregida.
+- **Despliegue (`rsync`/`scp`)**: excluir `.git/`, `.github/`, `node_modules/`, `vendor/` (se instala en destino), `package.json`, `package-lock.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` y `tests/`. `.gitattributes` aplica la misma lista a `git archive`.
+
+| Archivo en `public/js/plugins/utils/` | Origen                            | sha384                                                             |
+| ------------------------------------- | --------------------------------- | ------------------------------------------------------------------ |
+| `xlsx.full.min.js`                    | SheetJS 0.20.3, `cdn.sheetjs.com` | `EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT` |
+| `jspdf.umd.min.js`                    | jsPDF 4.2.1, npm                  | `qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3` |
+| `jspdf.plugin.autotable.min.js`       | jspdf-autotable 5.0.9, npm        | `A77YsHWitrPuAj8E0AuB033EXzymUxIajnWKPzrrzqFoYYSCEpFennDUjMG2R1L3` |
+
 ## Architecture
 
 - **Entry point:** `public/index.php` starts the session and loads `app/Config/config.php`, which bootstraps `vendor/autoload.php` (PSR-4 + `files` for helpers) + phpdotenv, then instantiates `App\Core\Router`. Apache rewrites all requests to `index.php` via `public/.htaccess`.
@@ -73,7 +95,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
 - **Permissions:** `hasPermission()` reads `$_SESSION['user_permissions']` — zero DB per call. Admins (role `is_system = 1`) get `['*']`. Non-admins get an `array_unique` **union** of their direct `user_permissions` and the permissions inherited from their role via `role_permissions`. The cache is refreshed by `refreshPermissionsIfStale()` (called by `AuthMiddleware` on every authed request) comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`.
 - **Error handling:** `App\Core\ErrorHandler` handles 403/404/500, auto-detects AJAX (`X-Requested-With`) → JSON or `views/errors/*.php`. Each error view sets only `$code`, `$tone` (`'danger'`|`'warning'`), `$heading`, `$message`, then `require`s `views/layouts/error.php` (owns the full standalone document). Styling: `public/css/modules/errors/errors.css` + `errors-dark.css` (reuses `--dm-*`). `[data-tone]` on `<body>` drives the `.error-code` color — never hardcode it per view.
 - **Static analysis:** PHPStan `phpstan.neon`, **level 5** — analyses `app/` + `routes/`, excludes `app/Config/config.php`. Bootstrap `define()` constants (`URL`, `APP_VERSION`, `APP_BASE_PATH`) are declared in `phpstan-constants.php` (`scanFiles`) and listed under `dynamicConstantNames` so PHPStan does not narrow them to literal values — add any new bootstrap constant there too.
-- **CI:** `.github/workflows/tests.yml` — jobs `quality` (pint `--test` + phpstan) / `unit` / `integration` (MySQL 8.0 service container, `.env.testing` generated at runtime, no secrets committed). Runs on `pull_request` (any branch) and `push` to `main` or tags only — feature branches are covered by the PR event. `paths-ignore` skips docs/static-asset-only changes; a `concurrency` group cancels superseded runs on the same ref. `actions/checkout@v5`. Dependabot (`.github/dependabot.yml`) opens weekly update PRs for Composer and GitHub Actions.
+- **CI:** `.github/workflows/tests.yml` — jobs `quality` (pint `--test` + phpstan) / `unit` / `integration` (MySQL 8.0 service container, `.env.testing` generated at runtime, no secrets committed). Runs on `pull_request` (any branch) and `push` to `main` or tags only — feature branches are covered by the PR event. `paths-ignore` skips docs/image-only changes (css/js changes run, because `quality` verifies `public/` against `npm run assets`); a `concurrency` group cancels superseded runs on the same ref. `actions/checkout@v5`. Dependabot (`.github/dependabot.yml`) opens weekly update PRs for Composer, npm (grouped) and GitHub Actions.
 
 ## Critical conventions (deviation breaks things)
 

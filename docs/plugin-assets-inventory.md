@@ -1,5 +1,7 @@
 # Inventario de plugins y assets en `AssetRegistry.php` (T3 — Spec 001)
 
+> **Estado (T13):** este inventario describe el registro **de AdminLTE 3 (línea base)**. `AssetRegistry` ya tiene los mapas nuevos (`tabulator`, `tom-select`, `export`, `chart`); `datatables`, `datatables-export`, `select2` y `validate` se eliminaron y los controladores que aún los piden (`User`, `Role`, `Permission`, `AuditLog`) se actualizan en la fase E. `php scripts/check-asset-paths.php` valida las rutas.
+>
 > Migración AdminLTE 3.2.0 → 4.10.1 · Alcance: `app/Core/AssetRegistry.php` + layouts que cargan assets globales + matriz de plugins por página.
 
 ## Método

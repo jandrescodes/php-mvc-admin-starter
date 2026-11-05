@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-migration`, spec `specs/001-adminlte-migration/`). Work in progress: screens keep AdminLTE 3 markup until the layout and module phases land, so this branch is not releasable yet; `main` stays on AdminLTE 3.
+
+### Changed
+
+- Spec 001 adjusted after the project audit (CHG-1: CI check for `public/`, transition strategy, Tabulator decision, accepted audit-log risk; CHG-2: adoption rule — replace what AdminLTE 4 covers, keep and adapt what it does not).
+- `AssetRegistry` maps rewritten for the new stack (`tabulator`, `tom-select`, `export`, `chart`); the `datatables`, `select2` and `validate` keys are gone and their controllers move in the module phase.
+- CI: the `quality` job installs Node 22, runs `npm ci && npm run assets`, fails if `public/` differs from the lockfile (`git diff --exit-code -- public/`) and runs `scripts/check-asset-paths.php`; css/js changes no longer skip CI.
+- Dependabot now covers npm, with the AdminLTE-aligned libraries grouped and held until AdminLTE itself is bumped.
+
+### Added
+
+- Frontend dependencies come from Composer (`almasaeed2010/adminlte` 4.10.1, dev only) and npm (`package.json`, pinned versions, `.nvmrc`); `npm run assets` (`scripts/sync-assets.mjs`) copies them into `public/` without a bundler and the copy is versioned.
+- Bootstrap 5.3.8, Bootstrap Icons 1.13.1, OverlayScrollbars 2.16.0, Tabulator 6.6.1, Tom Select 2.6.2, Chart.js 4.5.1, SweetAlert2 11.26.25, jsPDF 4.2.1, jspdf-autotable 5.0.9 and SheetJS 0.20.3 (from `cdn.sheetjs.com`; the npm package has two CVEs) in `public/`.
+- `.gitattributes` with `export-ignore` for `package*.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` and `tests/`.
+- `scripts/check-asset-paths.php` and the inventories `docs/data-api-inventory.md` and the JS-generated classes section of `docs/adminlte3-class-inventory.md`.
+
 ## [3.18.1] - 2026-10-27
 
 Security hardening patch (audit + browser verification). No schema changes.
@@ -954,6 +972,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[unreleased]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.1...main
 [3.18.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.0...3.18.1
 [3.18.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.17.0...3.18.0
 [3.17.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.1...3.17.0
