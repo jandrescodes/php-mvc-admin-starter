@@ -36,12 +36,28 @@ class RoleController extends Controller
     {
         $roles      = $this->roleModel->getAllWithUserCount();
         $statistics = $this->roleModel->getStatistics();
+        $permissions = (new Permission())->getAllActive();
+
+        $assignedByRole = $this->roleModel->getAssignedPermissionIdsByRole();
+
+        $rolesJson = json_encode(
+            array_map(static fn (array $role): array => [
+                'id'          => (int) $role['id'],
+                'system'      => !empty($role['is_system']),
+                'permissions' => $assignedByRole[(int) $role['id']] ?? [],
+                'name'        => $role['name'],
+                'description' => $role['description'] ?? '',
+                'users'       => (int) ($role['total_users'] ?? 0),
+                'status'      => (int) $role['status'],
+            ], $roles),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
 
         $this->render(
             'roles/index',
-            compact('roles', 'statistics'),
-            ['datatables', 'datatables-export', 'validate'],
-            ['roles/modal-role', 'roles/index-roles'],
+            compact('statistics', 'permissions', 'rolesJson'),
+            ['tabulator', 'export', 'tom-select'],
+            ['roles/index-roles', 'roles/modal-role'],
             ['roles/roles']
         );
     }
@@ -74,8 +90,9 @@ class RoleController extends Controller
             $_SESSION['message'] = 'Role created successfully.';
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
-                'success' => true,
-                'message' => 'Role created successfully.',
+                'success'    => true,
+                'message'    => 'Role created successfully.',
+                'csrf_token' => generateCSRFToken(),
                 'role'    => [
                     'id'          => $newRoleId,
                     'name'        => $data['name'],
@@ -130,8 +147,9 @@ class RoleController extends Controller
             $_SESSION['message'] = 'Role updated successfully.';
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
-                'success' => true,
-                'message' => 'Role updated successfully.',
+                'success'    => true,
+                'message'    => 'Role updated successfully.',
+                'csrf_token' => generateCSRFToken(),
                 'role'    => [
                     'id'          => $id,
                     'name'        => $data['name'],
@@ -160,7 +178,10 @@ class RoleController extends Controller
         }
 
         $role = $this->roleModel->getById($id);
-        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+        if (!$role) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role not found.']);
+        }
+        if (!empty($role['is_system']) && !Auth::isAdmin()) {
             $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 
@@ -211,8 +232,9 @@ class RoleController extends Controller
         $this->render(
             'roles/detail',
             compact('role', 'allPermissions', 'assignedIds'),
-            ['validate'],
-            ['roles/detail-role']
+            [],
+            ['roles/detail-role'],
+            ['roles/roles']
         );
     }
 
@@ -231,7 +253,10 @@ class RoleController extends Controller
         }
 
         $role = $this->roleModel->getById($roleId);
-        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+        if (!$role) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role not found.']);
+        }
+        if (!empty($role['is_system']) && !Auth::isAdmin()) {
             $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 

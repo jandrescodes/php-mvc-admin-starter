@@ -26,6 +26,7 @@ class AssetRegistry
         return [
             'tabulator' => [
                 'plugins/tabulator/tabulator_bootstrap5.min.css',
+                'core/table.css',
             ],
             'tom-select' => [
                 'plugins/tom-select/tom-select.bootstrap5.min.css',

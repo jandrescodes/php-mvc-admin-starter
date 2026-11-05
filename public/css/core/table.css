@@ -1,0 +1,246 @@
+/*
+ * Ajustes de Tabulator sobre tabulator_bootstrap5. Se carga con el plugin
+ * `tabulator`, después de su CSS.
+ *
+ * Tamaños: variables --tbl-* sobre `.tabulator` (por tabla con style="--tbl-cell-py: …")
+ * o con los modificadores `.tbl-sm`, `.tbl-lg`. Colores: variables de Bootstrap, así
+ * que siguen el tema (data-bs-theme) sin reglas aparte.
+ */
+.tabulator {
+    --tbl-font-size: 0.875rem;
+    --tbl-header-py: 0.5rem;
+    --tbl-header-px: 0.75rem;
+    --tbl-cell-py: 0.375rem;
+    --tbl-cell-px: 0.75rem;
+
+    font-size: var(--tbl-font-size);
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+}
+
+.tabulator.tbl-sm {
+    --tbl-font-size: 0.8125rem;
+    --tbl-header-py: 0.3rem;
+    --tbl-header-px: 0.5rem;
+    --tbl-cell-py: 0.2rem;
+    --tbl-cell-px: 0.5rem;
+}
+
+.tabulator.tbl-lg {
+    --tbl-font-size: 1rem;
+    --tbl-header-py: 0.75rem;
+    --tbl-header-px: 1rem;
+    --tbl-cell-py: 0.625rem;
+    --tbl-cell-px: 1rem;
+}
+
+.tabulator .tabulator-header {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-bottom-color: var(--bs-border-color);
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    color: inherit;
+    background-color: transparent;
+    border-right-color: transparent;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: var(--tbl-header-py) var(--tbl-header-px);
+}
+
+.tabulator-row,
+.tabulator-row.tabulator-row-even {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* Filas alternas (equivalente a table-striped). */
+.tabulator.tbl-striped .tabulator-row.tabulator-row-even {
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.07);
+}
+
+/* Resaltado de fila al pasar el cursor (equivalente a table-hover). */
+.tabulator.tbl-hover .tabulator-row:hover {
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.12);
+}
+
+.tabulator-row .tabulator-cell {
+    padding: var(--tbl-cell-py) var(--tbl-cell-px);
+    border-right-color: transparent;
+}
+
+.tabulator .tabulator-placeholder span {
+    color: var(--bs-secondary-color);
+}
+
+/* Bordes (equivalentes a table-bordered / table-borderless de Bootstrap). */
+.tabulator.tbl-bordered .tabulator-header .tabulator-col,
+.tabulator.tbl-bordered .tabulator-row .tabulator-cell {
+    border-right: 1px solid var(--bs-border-color);
+}
+
+.tabulator.tbl-bordered .tabulator-header .tabulator-col:last-child,
+.tabulator.tbl-bordered .tabulator-row .tabulator-cell:last-child {
+    border-right-color: transparent;
+}
+
+.tabulator.tbl-borderless,
+.tabulator.tbl-borderless .tabulator-header,
+.tabulator.tbl-borderless .tabulator-footer {
+    border-color: transparent;
+}
+
+/* Pie y paginador nativos con los colores de Bootstrap; la página activa en primary. */
+.tabulator .tabulator-footer {
+    color: var(--bs-body-color);
+    background-color: transparent;
+    border-top-color: var(--bs-border-color);
+    font-weight: normal;
+}
+
+/* Tabulator fija el alto del contenedor 1px por encima del de las filas: ese píxel dejaba una franja entre la última fila y el pie. */
+.tabulator:has(.tabulator-footer) .tabulator-tableholder {
+    margin-bottom: -1px;
+}
+
+/* Esa diferencia de 1px también dejaba un scroll vertical de un píxel; la tabla se pagina, así que no necesita scroll vertical propio. */
+.tabulator .tabulator-tableholder {
+    overflow-y: hidden;
+}
+
+.tabulator .tabulator-footer .tabulator-paginator {
+    color: inherit;
+}
+
+.tabulator .tabulator-footer .tabulator-page-size {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    border-radius: var(--bs-border-radius-sm);
+}
+
+.tabulator .tabulator-footer .tabulator-page {
+    color: var(--bs-body-color);
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    border-radius: var(--bs-border-radius-sm);
+}
+
+.tabulator .tabulator-footer .tabulator-page.active {
+    color: var(--bs-white);
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    /* Los números no activos solo cambian el color del texto a primary; primera/anterior/siguiente/última se oscurecen. */
+    .tabulator .tabulator-footer .tabulator-pages .tabulator-page:not(:disabled):not(.active):hover {
+        color: var(--bs-primary);
+    }
+
+    .tabulator .tabulator-footer .tabulator-page:not(:disabled):not(.active):not(.tabulator-pages .tabulator-page):hover {
+        background: var(--bs-secondary-bg);
+        color: var(--bs-body-color);
+    }
+}
+
+/* Controles de la tabla (Show, Search, Showing) al tamaño de la tabla pequeña. */
+.tbl-toolbar,
+.tbl-toolbar .form-control-sm,
+.tbl-toolbar .form-select-sm {
+    font-size: 0.8125rem;
+}
+
+/* La barra de herramientas aparece junto con la tabla (la activa TableUtils.create con `toolbar`). */
+.tbl-toolbar:not(.tbl-toolbar-ready) {
+    visibility: hidden;
+}
+
+/* Móvil: el pie se apila y el paginador salta de línea en vez de desbordar. */
+@media (max-width: 576px) {
+    .tabulator .tabulator-footer {
+        white-space: normal;
+    }
+
+    .tabulator .tabulator-footer .tabulator-footer-contents {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .tabulator .tabulator-footer .tabulator-paginator {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem 0.5rem;
+        text-align: center;
+    }
+
+    .tabulator .tabulator-footer .tabulator-page-counter {
+        flex: 1 0 100%;
+    }
+
+    .tabulator .tabulator-footer .tabulator-pages {
+        margin: 0;
+    }
+
+    .tabulator .tabulator-footer .tabulator-page[data-page="first"],
+    .tabulator .tabulator-footer .tabulator-page[data-page="last"] {
+        display: none;
+    }
+}
+
+/* Control de fila responsiva como en DataTables: círculo verde con "+", rojo con "−" al abrir. */
+.tabulator-row .tabulator-cell .tabulator-responsive-collapse-toggle {
+    width: 1.1rem;
+    height: 1.1rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    background: var(--bs-success);
+    color: #fff;
+}
+
+.tabulator-row .tabulator-cell .tabulator-responsive-collapse-toggle.open {
+    background: var(--bs-danger);
+}
+
+/* Control dentro de la primera celda (sin columna propia); se oculta si la fila no tiene columnas colapsadas. */
+.tabulator-row .tabulator-cell .tbl-first-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tabulator-row .tabulator-cell .tbl-first-cell .tabulator-responsive-collapse-toggle {
+    flex: none;
+}
+
+.tabulator-row:not(:has(.tabulator-responsive-collapse > *)) .tabulator-cell .tabulator-responsive-collapse-toggle {
+    display: none;
+}
+
+/* Detalle de fila desplegada (responsiveLayout: 'collapse'). */
+.tabulator-row .tabulator-responsive-collapse {
+    padding: 0.5rem 0.75rem;
+    border-top-color: var(--bs-border-color);
+    font-size: var(--tbl-font-size);
+}
+
+.tabulator-row .tabulator-responsive-collapse td,
+.tabulator-row .tabulator-responsive-collapse .tabulator-responsive-collapse-table {
+    white-space: normal;
+}
+
+.tabulator-row .tabulator-responsive-collapse td {
+    padding: 0.125rem 0.5rem 0.125rem 0;
+    vertical-align: top;
+    word-break: break-word;
+}
+
+.tabulator-row .tabulator-responsive-collapse td:first-child {
+    white-space: nowrap;
+}

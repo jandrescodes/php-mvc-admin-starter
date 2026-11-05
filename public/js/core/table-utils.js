@@ -6,6 +6,7 @@
  * (definido en sweetalert-utils.js), porque un formatter devuelve HTML.
  */
 const TableUtils = {
+    /** Tamaños de página por defecto; cada módulo los cambia con `pageSizes` / `pageSize` en `create()`. */
     PAGE_SIZES: [10, 25, 50, 100],
 
     langs: {
@@ -114,12 +115,14 @@ const TableUtils = {
     },
 
     /** Opciones comunes: paginación, orden, layout y textos en español. */
-    baseOptions() {
+    baseOptions(pageSizes = this.PAGE_SIZES, pageSize = pageSizes[0]) {
         return {
             layout: 'fitColumns',
+            responsiveLayoutCollapseStartOpen: false,
+            responsiveLayout: 'collapse', // lo que no cabe pasa a una fila desplegable (`responsive`: mayor número se oculta antes)
             pagination: true,
-            paginationSize: this.PAGE_SIZES[0],
-            paginationSizeSelector: this.PAGE_SIZES,
+            paginationSize: pageSize,
+            paginationSizeSelector: [...pageSizes], // Tabulator hace unshift sobre el array recibido
             paginationCounter: 'rows',
             movableColumns: false,
             clipboard: true,
@@ -167,67 +170,214 @@ const TableUtils = {
     /**
      * Rellena un `.dropdown-menu` de Bootstrap con una casilla por columna para
      * mostrarla u ocultarla (Tabulator no trae selector de columnas). Una columna
-     * con `columnToggle: false` en su definición no aparece (p. ej. acciones).
+     * con `columnToggle: false` en la definición que se pasa a `create` no aparece (p. ej. acciones).
      * Use `data-bs-auto-close="outside"` en el botón para que el menú no se cierre
      * en cada clic.
      */
-    bindColumnToggle(table, menu) {
+    bindColumnToggle(table, menu, hidden = new Set()) {
         const element = typeof menu === 'string' ? document.querySelector(menu) : menu;
         if (!table || !element) return;
 
         element.replaceChildren();
         table.getColumns().forEach((column, index) => {
             const definition = column.getDefinition();
-            if (!definition.title || definition.columnToggle === false) return;
+            if (!definition.title || hidden.has(definition.title)) return;
 
             const id = `${element.id || 'col-menu'}-${index}`;
-            const item = document.createElement('div');
-            item.className = 'form-check mx-3 my-1';
+            // El <label> es el ítem completo: se puede pulsar en cualquier punto de la fila.
+            const item = document.createElement('label');
+            item.className = 'dropdown-item d-flex align-items-center gap-2 mb-0';
+            item.htmlFor = id;
 
             const check = document.createElement('input');
             check.type = 'checkbox';
-            check.className = 'form-check-input';
+            check.className = 'form-check-input mt-0';
             check.id = id;
             check.checked = column.isVisible();
             check.addEventListener('change', () => column.toggle());
 
-            const label = document.createElement('label');
-            label.className = 'form-check-label';
-            label.htmlFor = id;
-            label.textContent = definition.title;
+            const text = document.createElement('span');
+            text.textContent = definition.title;
 
-            item.append(check, label);
+            item.append(check, text);
             element.append(item);
         });
     },
 
+    LABELS: {
+        info: (from, to, total, all) => {
+            const base = total === 0 ? 'Showing 0 to 0 of 0 entries' : `Showing ${from} to ${to} of ${total} entries`;
+            return all > total ? `${base} (filtered from ${all} total entries)` : base;
+        },
+        previous: 'Previous',
+        next: 'Next',
+    },
+
+    /** Rellena un `<select>` con los tamaños de página (como "Show N entries" de DataTables). */
+    bindPageSize(table, select, pageSizes = this.PAGE_SIZES) {
+        const element = typeof select === 'string' ? document.querySelector(select) : select;
+        if (!table || !element) return;
+
+        if (element.options.length === 0) {
+            pageSizes.forEach((size) => element.add(new Option(String(size), String(size))));
+        }
+        element.value = String(table.getPageSize());
+        element.addEventListener('change', () => table.setPageSize(Number(element.value)));
+    },
+
+    /**
+     * Números de página con puntos suspensivos (1 … 7 8 9 … 19), igual que el
+     * `simple_numbers` de DataTables. `slots` es el máximo de casillas (7 o 5).
+     */
+    pageNumbers(total, current, slots = 7) {
+        if (total <= slots) return Array.from({ length: total }, (_, i) => i + 1);
+        const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
+        if (current <= slots - 3) return [...range(1, slots - 2), '…', total];
+        if (current >= total - (slots - 4)) return [1, '…', ...range(total - (slots - 3), total)];
+        const middle = slots - 4;
+        const start = current - Math.floor(middle / 2);
+        return [1, '…', ...range(start, start + middle - 1), '…', total];
+    },
+
+    /**
+     * Pie propio: `info` (texto "Showing X to Y of N entries") y `pager`
+     * (`<ul class="pagination">` de Bootstrap con Previous/Next), en lugar del
+     * paginador nativo de Tabulator. En pantallas pequeñas muestra menos números.
+     */
+    bindPager(table, { info, pager }) {
+        const infoElement = typeof info === 'string' ? document.querySelector(info) : info;
+        const pagerElement = typeof pager === 'string' ? document.querySelector(pager) : pager;
+        const compact = globalThis.matchMedia('(max-width: 575.98px)');
+
+        const render = () => {
+            const size = table.getPageSize();
+            const total = table.getDataCount('active');
+            const pages = Math.max(table.getPageMax() || 1, 1);
+            const current = table.getPage() || 1;
+
+            if (infoElement) {
+                const from = total === 0 ? 0 : (current - 1) * size + 1;
+                const to = Math.min(current * size, total);
+                infoElement.textContent = this.LABELS.info(from, to, total, table.getDataCount('all'));
+            }
+            if (!pagerElement) return;
+
+            const item = (label, page, { disabled = false, active = false } = {}) => {
+                const li = document.createElement('li');
+                li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+                const control = document.createElement(page === null ? 'span' : 'button');
+                control.className = 'page-link';
+                control.textContent = label;
+                if (page !== null) {
+                    control.type = 'button';
+                    control.dataset.page = String(page);
+                    control.disabled = disabled;
+                }
+                if (active) control.setAttribute('aria-current', 'page');
+                li.append(control);
+                return li;
+            };
+
+            pagerElement.replaceChildren(
+                item(this.LABELS.previous, current - 1, { disabled: current <= 1 }),
+                ...this.pageNumbers(pages, current, compact.matches ? 5 : 7).map((page) =>
+                    page === '…' ? item('…', null, { disabled: true }) : item(String(page), page, { active: page === current })
+                ),
+                item(this.LABELS.next, current + 1, { disabled: current >= pages })
+            );
+        };
+
+        pagerElement?.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-page]');
+            if (button && !button.disabled) table.setPage(Number(button.dataset.page));
+        });
+        table.on('pageLoaded', render);
+        table.on('renderComplete', render); // dataFiltered/dataProcessed llegan antes de repaginar y dejan total y página viejos
+        compact.addEventListener('change', render);
+        render();
+    },
+
+    /**
+     * Pone el control `+`/`−` de la fila responsiva dentro de la primera celda, como el
+     * `dtr-inline` de DataTables, en vez de una columna propia. Va en la primera columna
+     * con `responsive: 0` (la que nunca se oculta; si no hay, la primera): el control
+     * vive en esa celda y Tabulator solo muestra el detalle de las columnas ocultas.
+     */
+    _embedCollapseToggle(columns) {
+        const host = columns.find((column) => column.responsive === 0) ?? columns[0];
+        if (!host) return;
+
+        const inner = host.formatter;
+        host.formatter = function (cell, params, onRendered) {
+            // Copiar/exportar formatea con una fila simulada sin estado responsivo: ahí solo va el contenido.
+            if (!cell.getRow()._row?.modules?.responsiveLayout) return inner.call(this, cell, params, onRendered);
+
+            // Es el formatter interno `responsiveCollapse` del módulo, que conserva el estado abierto/cerrado de la fila.
+            const toggle = cell.getTable().modules.format.constructor.formatters.responsiveCollapse(cell, params, onRendered);
+            cell.getElement().classList.remove('tabulator-row-handle'); // esa clase centra la celda
+            const content = document.createElement('span');
+            const rendered = inner.call(this, cell, params, onRendered);
+            if (typeof rendered === 'string') content.innerHTML = rendered;
+            else if (rendered) content.append(rendered);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'tbl-first-cell';
+            wrapper.append(toggle, content);
+            return wrapper;
+        };
+    },
+
     /**
      * Crea la tabla. `options.data` por defecto sale de `data-rows` del contenedor.
-     * `searchInput` y `columnMenu` (selectores o elementos) activan la búsqueda
-     * global y el selector de columnas. Las columnas que no definan `formatter` usan el texto escapado y `sorter` natural.
+     * `searchInput`, `columnMenu`, `pageSizeSelect`, `info` y `pager` (selectores o elementos)
+     * activan la búsqueda global, el selector de columnas, el tamaño de página y el pie propio; `pageSizes` (opciones del selector) y `pageSize` (el inicial) los fija cada módulo; `toolbar` (clase `tbl-toolbar`, oculta por
+     * CSS) se muestra cuando la tabla está construida. El tamaño y los bordes se eligen con clases
+     * del contenedor impreso por la vista (`tbl-sm`, `tbl-bordered`, … en `table.css`). Las columnas
+     * que no definan `formatter` usan el texto escapado y `sorter` natural.
      */
     create(container, options = {}) {
         const element = typeof container === 'string' ? document.querySelector(container) : container;
         if (!element || typeof Tabulator === 'undefined') return null;
 
-        const columns = (options.columns ?? []).map(({ exportAs, ...column }) => ({
-            formatter: this.formatters.text,
-            sorter: 'alphanum', // el sorter por defecto ('string') ordena 19 antes que 2
-            ...(exportAs ? { accessorDownload: exportAs, accessorClipboard: exportAs } : {}),
-            ...column,
-        }));
+        // `columnToggle` no es una opción de Tabulator (avisa "Invalid column definition option"): se quita y se recuerda aparte.
+        const hiddenFromToggle = new Set();
+        const columns = (options.columns ?? []).map(({ exportAs, columnToggle, ...column }) => {
+            if (columnToggle === false && column.title) hiddenFromToggle.add(column.title);
+            return {
+                formatter: this.formatters.text,
+                sorter: 'alphanum', // el sorter por defecto ('string') ordena 19 antes que 2
+                ...(exportAs ? { accessorDownload: exportAs, accessorClipboard: exportAs } : {}),
+                ...column,
+            };
+        });
 
-        const { searchInput, columnMenu, ...tabulatorOptions } = options;
+        const { searchInput, columnMenu, toolbar, pageSizeSelect, info, pager, pageSizes: sizes, pageSize: size, ...tabulatorOptions } = options;
+        // El tamaño inicial siempre es una opción del selector.
+        const pageSize = size ?? sizes?.[0] ?? this.PAGE_SIZES[0];
+        const pageSizes = [...new Set([...(sizes ?? this.PAGE_SIZES), pageSize])].sort((a, b) => a - b);
+
+        this._embedCollapseToggle(columns);
+
+        // Con un paginador propio, Tabulator pagina pero no dibuja su pie nativo.
+        const customPager = pager || info ? { paginationElement: document.createElement('div') } : {};
+
         const table = new Tabulator(element, {
-            ...this.baseOptions(),
+            ...this.baseOptions(pageSizes, pageSize),
             data: this.readRows(element),
+            ...customPager,
             ...tabulatorOptions,
             columns,
         });
 
+        table.on('clipboardCopied', () => ToastUtils.success('Copied to clipboard', 'The table data is ready to paste.'));
+
         table.on('tableBuilt', () => {
             if (searchInput) this.bindSearch(table, searchInput);
-            if (columnMenu) this.bindColumnToggle(table, columnMenu);
+            if (columnMenu) this.bindColumnToggle(table, columnMenu, hiddenFromToggle);
+            if (pageSizeSelect) this.bindPageSize(table, pageSizeSelect, pageSizes);
+            if (pager || info) this.bindPager(table, { info, pager });
+            const toolbars = typeof toolbar === 'string' ? document.querySelectorAll(toolbar) : [toolbar];
+            toolbars.forEach((toolbarElement) => toolbarElement?.classList.add('tbl-toolbar-ready'));
         });
         return table;
     },

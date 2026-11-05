@@ -274,6 +274,26 @@ class Role extends Model
     }
 
     /**
+     * Returns the assigned permission IDs of every role in one query (avoids one query per role).
+     *
+     * @return array<int, int[]>  role_id => permission_id[]
+     */
+    public function getAssignedPermissionIdsByRole(): array
+    {
+        try {
+            $stmt = $this->connection->query("SELECT role_id, permission_id FROM role_permissions");
+            $byRole = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $byRole[(int) $row['role_id']][] = (int) $row['permission_id'];
+            }
+            return $byRole;
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
      * Returns the names of active permissions assigned to a role.
      * Used by Auth::resolvePermNames() to build the UNION cache.
      *

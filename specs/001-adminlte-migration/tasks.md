@@ -81,11 +81,11 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase E — Pantallas (markup + JS de cada una)
 
-- [ ] T29. `views/roles/index.php` + `index-roles.js`: tabla con Tabulator, estado y borrado con confirmación. (FR-11, FR-12, FR-16, FR-26, FR-35)
+- [x] T29. `views/roles/index.php` + `index-roles.js`: tabla con Tabulator, estado y borrado con confirmación. (FR-11, FR-12, FR-16, FR-26, FR-35)
       Done when: verificado; la tabla pagina, ordena, busca y exporta.
-- [ ] T30. `views/roles/_modal_role.php` + `modal-role.js`: modal crear/editar, validación y sincronizar permisos. (FR-12, FR-13, FR-14, FR-15, FR-25, FR-27, FR-32)
+- [x] T30. `views/roles/_modal_role.php` + `modal-role.js`: modal crear/editar, validación y sincronizar permisos. (FR-12, FR-13, FR-14, FR-15, FR-25, FR-27, FR-32)
       Done when: verificado; el Tom Select abre dentro del modal y la unicidad del nombre se valida.
-- [ ] T31. `views/roles/detail.php` + `detail-role.js`. (FR-11, FR-13)
+- [x] T31. `views/roles/detail.php` + `detail-role.js`. (FR-11, FR-13)
       Done when: verificado; el detalle muestra los permisos del rol.
 - [ ] T32. `views/permissions/index.php` + `index-permissions.js`. (FR-11, FR-12, FR-26)
       Done when: verificado; la tabla de permisos pagina, ordena, busca y exporta.

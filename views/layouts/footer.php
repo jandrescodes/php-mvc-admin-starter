@@ -28,6 +28,7 @@
 <!-- Main application scripts -->
 <script src="<?= URL; ?>/js/core/http.js"></script>
 <script src="<?= URL; ?>/js/core/common-utils.js"></script>
+<script src="<?= URL; ?>/js/core/form-validator.js"></script>
 
 <!-- Conditional JS plugins -->
 <?php
@@ -42,6 +43,9 @@ foreach ($pluginJsFiles as $js): ?>
 
 <!-- SweetAlert2 utilities -->
 <script src="<?= URL; ?>/js/core/sweetalert-utils.js"></script>
+
+<!-- Tablas (Tabulator); solo actúa si la vista carga el plugin -->
+<script src="<?= URL; ?>/js/core/table-utils.js"></script>
 
 <!-- Dark mode toggle (global) -->
 <script src="<?= URL; ?>/js/modules/profile/theme-toggle.js"></script>

@@ -1,132 +1,118 @@
 /**
- * modal-role.js - Shared role modal logic
- *
- * Handles opening in edit mode, jQuery Validate with remote name check,
- * form submission via AJAX, isSubmitting guard, and reset on close.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Roles
- * @author jandrescodes
- * @version 1.0
+ * Modal de rol (crear/editar): abre en modo crear o editar, valida con
+ * FormValidator (unicidad del nombre en el servidor), envía por AJAX y
+ * sincroniza los permisos elegidos en un segundo POST.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    const modalEl = document.getElementById('modalRole');
+    const form = document.getElementById('formRole');
+    if (!modalEl || !form) return;
 
-/** @type {boolean} Prevents double submission while a request is in flight. */
-let isSubmitting = false;
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const header = document.getElementById('modalRoleHeader');
+    const title = document.getElementById('modalRoleLabel');
+    const saveBtn = document.getElementById('btnSaveRole');
+    const field = (id) => document.getElementById(id);
+    const permSelect = field('rolePermissions');
+    const permHint = field('rolePermissionsHint');
+    const permissions = ComponentUtils.initSelects(permSelect)[0] ?? permSelect.tomselect;
 
-$(document).ready(function () {
+    const MODES = {
+        create: { title: 'Create New Role', header: 'text-bg-primary', button: 'btn-primary', label: 'Save', icon: 'bi-floppy' },
+        edit: { title: 'Edit Role', header: 'text-bg-warning', button: 'btn-warning', label: 'Update', icon: 'bi-floppy' },
+    };
 
-    // -------------------------------------------------------------------------
-    // jQuery Validate
-    // -------------------------------------------------------------------------
-    $('#formRole').validate({
-        rules: {
+    const setMode = (mode, role = {}) => {
+        const cfg = MODES[mode];
+        field('roleAction').value = mode;
+        field('roleId').value = role.id ?? '';
+        field('roleName').value = role.name ?? '';
+        field('roleDescription').value = role.description ?? '';
+        title.textContent = cfg.title;
+        header.className = `modal-header ${cfg.header}`;
+        saveBtn.className = `btn ${cfg.button}`;
+        saveBtn.innerHTML = `<i class="bi ${cfg.icon}" aria-hidden="true"></i> ${cfg.label}`;
+        // El texto original que FormValidator restaura tras el envío.
+        delete saveBtn.dataset.originalHtml;
+
+        // El rol de sistema tiene acceso total: sus permisos no se asignan uno a uno.
+        const system = Boolean(role.system);
+        permissions.clear(true);
+        permissions.setValue(system ? [] : (role.permissions ?? []), true);
+        system ? permissions.disable() : permissions.enable();
+        permHint.textContent = system
+            ? 'System role: has full access, no individual permissions needed.'
+            : 'You can only grant permissions you hold yourself.';
+    };
+
+    const syncPermissions = (roleId, ids) => Http.post(`${baseUrl}roles/sync-permissions`, {
+        role_id: roleId,
+        permissions: ids,
+    });
+
+    FormValidator.init(form, {
+        loadingText: 'Processing...',
+        fields: {
             name: {
-                required: true,
-                maxlength: 60,
+                messages: { required: 'Role name is required.', maxlength: 'Role name cannot exceed 60 characters.' },
                 remote: {
                     url: `${baseUrl}roles/check-name`,
-                    type: 'POST',
-                    data: {
-                        name: () => $('#roleName').val(),
-                        role_id: () => $('#roleId').val() || null,
-                        csrf_token: () => csrfToken
-                    }
-                }
-            },
-            description: {
-                maxlength: 255
-            }
-        },
-        messages: {
-            name: {
-                required: 'Role name is required.',
-                maxlength: 'Role name cannot exceed 60 characters.'
-            },
-            description: {
-                maxlength: 'Description cannot exceed 255 characters.'
-            }
-        },
-        submitHandler: function () {
-            submitRole();
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // Open modal in edit mode
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-edit', function () {
-        const id          = $(this).data('id');
-        const name        = $(this).data('name');
-        const description = $(this).data('description') || '';
-
-        $('#roleAction').val('edit');
-        $('#roleId').val(id);
-        $('#roleName').val(name);
-        $('#roleDescription').val(description);
-
-        $('#modalRoleHeader').removeClass('bg-primary').addClass('bg-warning');
-        $('#modalRoleLabel').text('Edit Role');
-        $('#btnSaveRole').removeClass('btn-primary').addClass('btn-warning')
-            .html('<i class="fas fa-save"></i> Update');
-
-        $('#modalRole').modal('show');
-    });
-
-    // -------------------------------------------------------------------------
-    // AJAX submission (triggered by validate submitHandler)
-    // -------------------------------------------------------------------------
-    /**
-     * @returns {void}
-     */
-    function submitRole() {
-        if (isSubmitting) return;
-
-        const action   = $('#roleAction').val();
-        const formData = $('#formRole').serialize();
-        const url      = action === 'create' ? `${baseUrl}roles/create` : `${baseUrl}roles/update`;
-        const toastMsg = action === 'create' ? 'Creating role...' : 'Updating role...';
-        const $btn     = $('#btnSaveRole');
-        const origHtml = $btn.html();
-
-        isSubmitting = true;
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
-
-        $('#modalRole').modal('hide');
-
-        ToastUtils.loadingWithMinTime(toastMsg, () => {
-            $.ajax({
-                url,
-                type: 'POST',
-                dataType: 'json',
-                data: formData,
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        Swal.close();
-                        isSubmitting = false;
-                        $btn.prop('disabled', false).html(origHtml);
-                        ToastUtils.error('Error', response.message);
-                    }
+                    data: () => ({ name: field('roleName').value, role_id: field('roleId').value }),
                 },
-                error: function () {
-                    Swal.close();
-                    isSubmitting = false;
-                    $btn.prop('disabled', false).html(origHtml);
-                    ToastUtils.error('Error', 'A communication error occurred with the server.');
-                }
+            },
+            description: { messages: { maxlength: 'Description cannot exceed 255 characters.' } },
+        },
+        submit: async (formEl, formData) => {
+            // Se leen antes de cerrar: al ocultarse el modal se limpia el formulario.
+            const isCreate = field('roleAction').value === 'create';
+            const editId = field('roleId').value;
+            const selected = [...permissions.getValue()]; // copia: Tom Select devuelve su arreglo interno, que clear() vacía
+            const syncable = !permissions.isDisabled && (!isCreate || selected.length > 0);
+            modal.hide();
+            const response = await new Promise((resolve) => {
+                ToastUtils.loadingWithMinTime(isCreate ? 'Creating role...' : 'Updating role...', async () => {
+                    resolve(await Http.post(`${baseUrl}roles/${isCreate ? 'create' : 'update'}`, formData));
+                }, 800);
             });
-        }, 800);
-    }
+            if (response.ok && response.data?.success) {
+                if (syncable) {
+                    const sync = await syncPermissions(isCreate ? response.data.role.id : editId, selected);
+                    if (!(sync.ok && sync.data?.success)) {
+                        Swal.close();
+                        ToastUtils.error('Error', `Role saved, but permissions were not updated: ${sync.data?.message ?? 'communication error.'}`);
+                        setTimeout(() => location.reload(), 3000);
+                        return;
+                    }
+                }
+                location.reload();
+                return;
+            }
+            Swal.close();
+            ToastUtils.error('Error', response.data?.message ?? 'A communication error occurred with the server.');
+        },
+    });
 
-    // -------------------------------------------------------------------------
-    // Reset on modal close
-    // -------------------------------------------------------------------------
-    $('#modalRole').on('hidden.bs.modal', function () {
-        isSubmitting = false;
-        $('#formRole')[0].reset();
-        $('#formRole').validate().resetForm();
-        $('#formRole').find('.is-invalid').removeClass('is-invalid');
-        $('#btnSaveRole').prop('disabled', false);
+    document.getElementById('btnNewRole')?.addEventListener('click', () => {
+        setMode('create');
+        modal.show();
+    });
+
+    document.addEventListener('click', (event) => {
+        const btn = event.target.closest('.btn-edit');
+        if (!btn) return;
+        setMode('edit', {
+            id: btn.dataset.id,
+            name: btn.dataset.name,
+            description: btn.dataset.description,
+            system: btn.dataset.system === '1',
+            permissions: JSON.parse(btn.dataset.permissions || '[]').map(String),
+        });
+        modal.show();
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        form.reset();
+        FormValidator.reset(form);
+        permissions.clear(true);
     });
 });
