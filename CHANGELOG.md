@@ -20,6 +20,9 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - Theme switch writes `data-bs-theme` (anti-FOUC is the only inline script of each layout); the toggle icon is chosen by CSS, which removes the moon→sun flicker on every page load.
 - `baseUrl` / `csrfToken` now come from `<meta>` tags instead of inline scripts; flash messages and the welcome popup go through a hidden `#flash-data` element handled in `sweetalert-utils.js`, with the `<noscript>` alert kept.
 - `errors.css` reduced to the `[data-tone]` colours for both themes; `errors-dark.css` is no longer loaded.
+- `common-utils.js`: the password toggle is a delegated vanilla listener (accepts `fa-` and `bi-` icons); `ajaxRequest`, `initializeSelect2` and the duplicated `showToast` are gone (T23, T25, T28).
+- `ui-components.js` rewritten without jQuery: Tom Select (`maxOptions: null`, `allowEmptyOption`, no `dropdownParent`) and one delegated Bootstrap 5 tooltip on `<body>` (T25).
+- `sweetalert-utils.js` passes `theme: 'dark'|'light'` from `data-bs-theme` on every call (`SwalTheme`) and uses button colours with ≥ 4.5:1 contrast (`#0a58ca`, `#b02a37`) (T28).
 
 ### Added
 
@@ -27,6 +30,9 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - Bootstrap 5.3.8, Bootstrap Icons 1.13.1, OverlayScrollbars 2.16.0, Tabulator 6.6.1, Tom Select 2.6.2, Chart.js 4.5.1, SweetAlert2 11.26.25, jsPDF 4.2.1, jspdf-autotable 5.0.9 and SheetJS 0.20.3 (from `cdn.sheetjs.com`; the npm package has two CVEs) in `public/`.
 - `.gitattributes` with `export-ignore` for `package*.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` and `tests/`.
 - `scripts/check-asset-paths.php` and the inventories `docs/data-api-inventory.md` and the JS-generated classes section of `docs/adminlte3-class-inventory.md`.
+- `public/js/core/http.js` (`Http.get/post/request`): `fetch` with `X-Requested-With`, `URLSearchParams`, the current CSRF token and JSON/error handling; it updates the `csrf-token` meta and hidden inputs when a response carries `csrf_token` (T22). Loaded by `footer.php` and `auth.php`.
+- `public/js/core/form-validator.js` (`FormValidator.init/reset`): native validation with Bootstrap 5 `.is-invalid` / `.invalid-feedback`, `equalTo`, `remote` uniqueness (`fetch` + debounce + `AbortController`) and AJAX submit with a spinner; no duplicate AdminLTE `<id>-error` (T24).
+- `public/js/core/table-utils.js` (`TableUtils`): Tabulator defaults (pagination, natural sort, Spanish texts), escaped formatters, global search, column-visibility dropdown and Copy / CSV / Print / Excel / PDF export with page-numbered footer (T26a–T27b).
 - `docs/icon-map.md`: Font Awesome → Bootstrap Icons map (62 icons, `fa-spin` and `fa-stack` redesigns).
 
 ## [3.18.1] - 2026-10-27

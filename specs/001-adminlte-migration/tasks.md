@@ -60,23 +60,23 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase D — Helpers JS nativos (sin jQuery)
 
-- [ ] T22. `public/js/core/http.js`: `fetch` con `X-Requested-With`, token CSRF vigente y `URLSearchParams`; manejo de JSON y errores. (FR-28, FR-29, FR-30, NFR-7)
+- [x] T22. `public/js/core/http.js`: `fetch` con `X-Requested-With`, token CSRF vigente y `URLSearchParams`; manejo de JSON y errores. (FR-28, FR-29, FR-30, NFR-7)
       Done when: una petición de prueba recibe JSON (no HTML) en un 403 de CSRF y el siguiente envío usa el token nuevo.
-- [ ] T23. `common-utils.js`: toggle de contraseña, delegación de eventos y selectores `data-bs-*`; eliminar `ajaxRequest` muerto. (FR-30, FR-32, NFR-7)
+- [x] T23. `common-utils.js`: toggle de contraseña, delegación de eventos y selectores `data-bs-*`; eliminar `ajaxRequest` muerto. (FR-30, FR-32, NFR-7)
       Done when: el toggle funciona en login y en un formulario admin; sin referencias a jQuery.
-- [ ] T24. `public/js/core/form-validator.js`: validación nativa, `.invalid-feedback`, unicidad con `fetch` + `AbortController` + debounce, `equalTo` y envío AJAX con indicador de carga. (FR-14, FR-27, FR-29, NFR-7)
+- [x] T24. `public/js/core/form-validator.js`: validación nativa, `.invalid-feedback`, unicidad con `fetch` + `AbortController` + debounce, `equalTo` y envío AJAX con indicador de carga. (FR-14, FR-27, FR-29, NFR-7)
       Done when: un formulario de prueba marca los campos inválidos, rechaza un correo repetido y no deja `<id>-error` duplicado de AdminLTE.
-- [ ] T25. `ui-components.js`: Tom Select (`maxOptions: null`, `allowEmptyOption`, etiquetas) y tooltips delegados de Bootstrap 5. (FR-25, FR-26, FR-24)
+- [x] T25. `ui-components.js`: Tom Select (`maxOptions: null`, `allowEmptyOption`, etiquetas) y tooltips delegados de Bootstrap 5. (FR-25, FR-26, FR-24)
       Done when: un select con búsqueda y un tooltip funcionan en una página y dentro de un modal, sin `dropdownParent`.
-- [ ] T26a. `public/js/core/table-utils.js`: opciones de Tabulator (paginación, orden, `layout`), formatters con `escapeHtml` y textos en español. (FR-11, NFR-8)
+- [x] T26a. `public/js/core/table-utils.js`: opciones de Tabulator (paginación, orden, `layout`), formatters con `escapeHtml` y textos en español. (FR-11, NFR-8)
       Done when: una tabla de prueba con una celda con marcado HTML la muestra como texto.
-- [ ] T26b. `table-utils.js`: búsqueda global, selector de columnas visibles con dropdown de Bootstrap y tooltips delegados tras redibujar. (FR-11, FR-26)
+- [x] T26b. `table-utils.js`: búsqueda global, selector de columnas visibles con dropdown de Bootstrap y tooltips delegados tras redibujar. (FR-11, FR-26)
       Done when: la tabla de prueba filtra, oculta columnas y conserva los tooltips tras ordenar y paginar.
-- [ ] T27a. `table-utils.js`: exportación Copiar, CSV e Imprimir (nativas de Tabulator). (FR-11, NFR-8)
+- [x] T27a. `table-utils.js`: exportación Copiar, CSV e Imprimir (nativas de Tabulator). (FR-11, NFR-8)
       Done when: los tres formatos salen con acentos y una celda con marcado sin `<b>…</b>` literal.
-- [ ] T27b. `table-utils.js`: exportación Excel (SheetJS) y PDF (jsPDF + autotable con pie de página en `documentProcessing`). (FR-11, NFR-8)
+- [x] T27b. `table-utils.js`: exportación Excel (SheetJS) y PDF (jsPDF + autotable con pie de página en `documentProcessing`). (FR-11, NFR-8)
       Done when: ambos descargan con acentos y una celda con marcado sin `<b>…</b>` literal; si alguno falla, se reduce según C12 y se registra.
-- [ ] T28. `sweetalert-utils.js`: pasar `theme` según `data-bs-theme`; conservar `escapeHtml`; sin jQuery; mover el `Swal.fire` directo de `common-utils.js:149` a `ToastUtils`/`AlertUtils`. (FR-23, FR-28, NFR-7)
+- [x] T28. `sweetalert-utils.js`: pasar `theme` según `data-bs-theme`; conservar `escapeHtml`; sin jQuery; mover el `Swal.fire` directo de `common-utils.js:149` a `ToastUtils`/`AlertUtils`. (FR-23, FR-28, NFR-7)
       Done when: toast y diálogo se ven bien en claro y oscuro y `grep 'Swal.fire' public/js/modules public/js/core/common-utils.js` no da resultados.
 
 ## Fase E — Pantallas (markup + JS de cada una)
