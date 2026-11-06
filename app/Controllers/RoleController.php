@@ -40,10 +40,13 @@ class RoleController extends Controller
 
         $assignedByRole = $this->roleModel->getAssignedPermissionIdsByRole();
 
+        $isAdmin = Auth::isAdmin();
+
         $rolesJson = json_encode(
             array_map(static fn (array $role): array => [
                 'id'          => (int) $role['id'],
                 'system'      => !empty($role['is_system']),
+                'manage'      => $isAdmin || empty($role['is_system']),
                 'permissions' => $assignedByRole[(int) $role['id']] ?? [],
                 'name'        => $role['name'],
                 'description' => $role['description'] ?? '',
@@ -260,9 +263,17 @@ class RoleController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 
-        $newPerms = array_diff($permissions, array_map('intval', $this->roleModel->getAssignedPermissionIds($roleId)));
+        $assigned = array_map('intval', $this->roleModel->getAssignedPermissionIds($roleId));
+        $newPerms = array_diff($permissions, $assigned);
         if (!Auth::canGrantPermissionIds($newPerms)) {
             $this->jsonResponse(['success' => false, 'message' => 'You cannot grant permissions you do not hold.']);
+        }
+
+        // Solo cuentan los activos: son los únicos que el formulario muestra y el modelo reemplaza.
+        $activeIds    = array_map('intval', array_column((new Permission())->getAllActive(), 'id'));
+        $removedPerms = array_intersect(array_diff($assigned, $permissions), $activeIds);
+        if (!Auth::canGrantPermissionIds($removedPerms)) {
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot remove permissions you do not hold.']);
         }
 
         if ($this->roleModel->syncPermissions($roleId, $permissions)) {
@@ -273,8 +284,11 @@ class RoleController extends Controller
                 ['role_id' => $roleId, 'permission_ids' => $permissions, 'total' => count($permissions)]
             );
             regenerateCSRFToken();
-            $_SESSION['message'] = 'Permissions updated successfully.';
-            $_SESSION['icon']    = 'success';
+            // Al crear/editar el rol desde el modal, el mensaje del rol (primer POST) manda sobre el de permisos.
+            if (empty($_SESSION['message'])) {
+                $_SESSION['message'] = 'Permissions updated successfully.';
+                $_SESSION['icon']    = 'success';
+            }
             $this->jsonResponse(['success' => true, 'message' => 'Permissions updated successfully.']);
         }
 

@@ -319,7 +319,9 @@ class Role extends Model
     }
 
     /**
-     * Replaces all permissions for a role in a single transaction (DELETE + INSERT).
+     * Replaces the active permissions of a role in a single transaction (DELETE + INSERT).
+     * Los inactivos asignados se conservan: la UI solo lista activos, así que un guardado
+     * no debe borrarlos en silencio (reaparecen al reactivar el permiso).
      * Invalidates the permission cache for every user of the role.
      *
      * @param int   $roleId
@@ -332,7 +334,9 @@ class Role extends Model
             $this->connection->beginTransaction();
 
             $stmt = $this->connection->prepare(
-                "DELETE FROM role_permissions WHERE role_id = :role_id"
+                "DELETE rp FROM role_permissions rp
+                 JOIN permissions p ON p.id = rp.permission_id
+                 WHERE rp.role_id = :role_id AND p.status = 1"
             );
             $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
             $stmt->execute();
@@ -343,7 +347,7 @@ class Role extends Model
                     continue;
                 }
                 $stmt = $this->connection->prepare(
-                    "INSERT INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
+                    "INSERT IGNORE INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
                 );
                 $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
                 $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);
