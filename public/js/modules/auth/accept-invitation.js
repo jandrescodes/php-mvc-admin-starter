@@ -1,40 +1,32 @@
 /**
- * accept-invitation.js — Standalone page to accept an invitation and set password.
+ * Aceptar invitación: validación nativa con FormValidator y envío normal del
+ * formulario con aviso de carga.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.login-box')?.classList.add('login-animation');
 
-$(document).ready(function () {
-    $('.login-box').addClass('login-animation');
-
-    $('#accept-invitation-form').validate({
-        rules: {
+    FormValidator.init('#accept-invitation-form', {
+        loadingText: 'Activating...',
+        fields: {
             password: {
-                required: true,
-                minlength: 8
+                messages: {
+                    required: 'Password is required.',
+                    minlength: 'Password must be at least 8 characters.',
+                },
             },
             confirm_password: {
-                required: true,
-                minlength: 8,
-                equalTo: '#password'
-            }
-        },
-        messages: {
-            password: {
-                required: 'Password is required.',
-                minlength: 'Password must be at least 8 characters.'
+                equalTo: '#password',
+                messages: {
+                    required: 'Please confirm your password.',
+                    minlength: 'Password must be at least 8 characters.',
+                    equalTo: 'Passwords do not match.',
+                },
             },
-            confirm_password: {
-                required: 'Please confirm your password.',
-                minlength: 'Password must be at least 8 characters.',
-                equalTo: 'Passwords do not match.'
-            }
         },
-        submitHandler: function (form) {
-            $('#btn-accept').prop('disabled', true);
-            $('#btn-icon').removeClass('fa-check').addClass('fa-spinner fa-spin');
-
-            ToastUtils.loadingWithMinTime('Activating account...', () => {
-                form.submit();
-            }, 800);
-        }
+        submit: async (form) => {
+            ToastUtils.loadingWithMinTime('Activating account...', () => form.submit(), 800);
+            // Sin resolver: el botón sigue en «Activating...» y no se reenvía mientras el navegador navega.
+            await new Promise(() => {});
+        },
     });
 });

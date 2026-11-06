@@ -54,6 +54,7 @@
     <script src="<?= URL ?>js/plugins/validations/additional-methods.min.js"></script>
     <script src="<?= URL ?>js/core/common-validate.js"></script>
     <script src="<?= URL ?>js/core/http.js"></script>
+    <script src="<?= URL ?>js/core/form-validator.js"></script>
     <script src="<?= URL ?>js/core/common-utils.js"></script>
     <?php foreach ($module_scripts ?? [] as $script): ?>
         <script src="<?= URL ?>js/modules/auth/<?= $script ?>.js"></script>
