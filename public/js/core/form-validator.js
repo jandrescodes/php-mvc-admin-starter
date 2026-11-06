@@ -38,6 +38,9 @@ const FormValidator = (() => {
 
     const state = new WeakMap();
 
+    /** Tom Select oculta el `<select>` y dibuja su propio control: el estado de validación va en ese contenedor. */
+    const wrapperOf = (field) => field.tomselect?.wrapper ?? null;
+
     const feedbackFor = (field) => {
         const id = `${field.id || field.name}-error`;
         let box = document.getElementById(id);
@@ -45,7 +48,7 @@ const FormValidator = (() => {
             box = document.createElement('div');
             box.id = id;
             box.className = 'invalid-feedback d-block';
-            const anchor = field.closest('.input-group') ?? field;
+            const anchor = field.closest('.input-group') ?? wrapperOf(field) ?? field;
             anchor.insertAdjacentElement('afterend', box);
         }
         return box;
@@ -56,6 +59,7 @@ const FormValidator = (() => {
         box.textContent = message;
         field.classList.add('is-invalid');
         field.classList.remove('is-valid');
+        wrapperOf(field)?.classList.add('is-invalid');
         field.setAttribute('aria-invalid', 'true');
         field.setAttribute('aria-describedby', box.id);
     };
@@ -63,7 +67,9 @@ const FormValidator = (() => {
     const clear = (field) => {
         document.getElementById(`${field.id || field.name}-error`)?.remove();
         field.classList.remove('is-invalid');
-        field.classList.toggle('is-valid', field.value !== '');
+        // Una casilla siempre tiene `value`: marcarla como válida pintaría su etiqueta de verde sin que la persona haya hecho nada.
+        field.classList.toggle('is-valid', field.value !== '' && field.type !== 'checkbox' && field.type !== 'radio');
+        wrapperOf(field)?.classList.remove('is-invalid');
         field.removeAttribute('aria-invalid');
         field.removeAttribute('aria-describedby');
     };
@@ -186,7 +192,8 @@ const FormValidator = (() => {
 
             const results = await Promise.all(controls().map((el) => validateField(el, ctx)));
             if (results.some((ok) => ok === false || ok === null)) {
-                form.querySelector('.is-invalid')?.focus();
+                const firstInvalid = form.querySelector('.is-invalid');
+                firstInvalid?.tomselect ? firstInvalid.tomselect.focus() : firstInvalid?.focus();
                 ctx.submitting = false;
                 return;
             }
@@ -217,6 +224,7 @@ const FormValidator = (() => {
             el.setCustomValidity?.('');
             document.getElementById(`${el.id || el.name}-error`)?.remove();
             el.classList.remove('is-invalid', 'is-valid');
+            wrapperOf(el)?.classList.remove('is-invalid');
             el.removeAttribute('aria-invalid');
             el.removeAttribute('aria-describedby');
         });

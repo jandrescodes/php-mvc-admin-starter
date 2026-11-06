@@ -36,10 +36,27 @@ class UserController extends Controller
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
         $users         = $this->userModel->getAll();
 
+        $usersJson = json_encode(
+            array_map(static fn (array $user): array => [
+                'id'             => (int) $user['id'],
+                'name'           => trim($user['name'] . ' ' . $user['first_surname']),
+                'document'       => trim($user['document_type'] . ' ' . $user['document_number']),
+                'email'          => $user['email'],
+                'role'           => $user['role_name'] ?? 'N/A',
+                'status'         => (int) $user['status'],
+                'self'           => (int) $user['id'] === $currentUserId,
+                // Mismo criterio que el servidor aplica al editar, cambiar el estado o reenviar la invitación.
+                'manage'         => Auth::canManageUser($user),
+            ], $users),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
+        $roleNames = array_values(array_unique(array_map(static fn (array $user): string => $user['role_name'] ?? 'N/A', $users)));
+        sort($roleNames);
+
         $this->render(
             'users/index',
-            compact('users', 'currentUserId'),
-            ['datatables', 'datatables-export'],
+            compact('usersJson', 'roleNames'),
+            ['tabulator', 'export', 'tom-select'],
             ['users/index-users'],
             ['users/users']
         );
@@ -53,7 +70,7 @@ class UserController extends Controller
         $this->render(
             'users/create',
             compact('allPermissions', 'activeRoles'),
-            ['select2', 'validate'],
+            ['tom-select'],
             ['users/create-user'],
             ['users/users']
         );
@@ -64,10 +81,12 @@ class UserController extends Controller
         $user            = $this->getUserOrRedirect((int) $id);
         $userPermissions = $this->permissionModel->getByUserId((int) $user['id']);
         $isAdminUser     = (bool) ($user['role_is_system'] ?? false);
+        // Editar, reenviar la invitación y desbloquear solo se ofrecen si el servidor las aceptaría.
+        $canManage       = Auth::canManageUser($user);
 
         $this->render(
             'users/show',
-            compact('user', 'userPermissions', 'isAdminUser'),
+            compact('user', 'userPermissions', 'isAdminUser', 'canManage'),
             [],
             ['users/show-user'],
             ['users/users']
@@ -88,7 +107,7 @@ class UserController extends Controller
         $this->render(
             'users/update',
             compact('user', 'allPermissions', 'assignedPermissions', 'activeRoles', 'currentRoleId'),
-            ['select2', 'validate'],
+            ['tom-select'],
             ['users/update-user'],
             ['users/users']
         );

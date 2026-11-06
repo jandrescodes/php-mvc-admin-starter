@@ -1,5 +1,5 @@
 <!-- Content Header -->
-<div class="app-content-header">
+<section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
@@ -13,10 +13,10 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Main content -->
-<div class="app-content">
+<section class="app-content">
     <div class="container-fluid">
         <!-- Info boxes -->
         <div class="row">
@@ -68,7 +68,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-2 mb-2 align-items-center tbl-toolbar" id="rolesTop">
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-6 text-center text-md-start">
                                 <label class="d-inline-flex align-items-center gap-2 mb-0">
                                     Show
                                     <select class="form-select form-select-sm w-auto" id="rolesPageSize" aria-label="Entries per page"></select>
@@ -87,9 +87,9 @@
                                         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Reports</button>
                                         <ul class="dropdown-menu">
                                             <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
                                             <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
+                                            <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
+                                            <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
                                             <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
                                         </ul>
                                     </div>
@@ -114,6 +114,6 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <?php include __DIR__ . '/_modal_role.php'; ?>

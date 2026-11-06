@@ -332,62 +332,25 @@
    ============================================ */
 
 /**
- * Estilos para tabs dentro de cards con outline.
- * Uso: <div class="card card-{color} card-outline card-outline-tabs">
- * Colores soportados: info, success, primary, warning, danger
+ * Tabs dentro de una card con outline: <div class="card card-{color} card-outline card-outline-tabs">
+ * La card no lleva borde superior (AdminLTE 4 lo quita): el acento es el borde
+ * superior de la pestaña activa. Cualquier color de card funciona sin reglas
+ * propias porque todo sale de `--lte-card-variant-bg`, que AdminLTE 4 define
+ * en `.card-{color}`. AdminLTE 4 solo estiliza `.card-header a`, y las tabs de
+ * Bootstrap 5 son `<button class="nav-link">`, así que se cubren aquí.
  */
-
-/* Tabs activos - color neutro para todos (alta especificidad para override) */
-.card-outline-tabs .nav-link.active,
-.card-info.card-outline-tabs .nav-link.active,
-.card-success.card-outline-tabs .nav-link.active,
-.card-primary.card-outline-tabs .nav-link.active,
-.card-warning.card-outline-tabs .nav-link.active,
-.card-danger.card-outline-tabs .nav-link.active {
-    color: #495057;
+.card-outline-tabs .nav-tabs .nav-link {
+    border-top: 3px solid transparent; /* reserva el alto del acento para que la pestaña activa no empuje al resto */
+    color: color-mix(in srgb, var(--lte-card-variant-bg) 55%, var(--bs-body-color));
 }
 
-/* --- Info (para vistas show) --- */
-.card-info.card-outline-tabs .nav-link {
-    color: #17a2b8;
+.card-outline-tabs .nav-tabs .nav-link:hover,
+.card-outline-tabs .nav-tabs .nav-link:focus-visible {
+    border-top-color: var(--bs-border-color);
+    color: color-mix(in srgb, var(--lte-card-variant-bg) 30%, var(--bs-body-color));
 }
 
-.card-info.card-outline-tabs .nav-link:hover {
-    color: #117a8b;
-}
-
-/* --- Success (para vistas edit) --- */
-.card-success.card-outline-tabs .nav-link {
-    color: #28a745;
-}
-
-.card-success.card-outline-tabs .nav-link:hover {
-    color: #1e7e34;
-}
-
-/* --- Primary (para vistas create) --- */
-.card-primary.card-outline-tabs .nav-link {
-    color: #007bff;
-}
-
-.card-primary.card-outline-tabs .nav-link:hover {
-    color: #0056b3;
-}
-
-/* --- Warning --- */
-.card-warning.card-outline-tabs .nav-link {
-    color: #ffc107;
-}
-
-.card-warning.card-outline-tabs .nav-link:hover {
-    color: #d39e00;
-}
-
-/* --- Danger --- */
-.card-danger.card-outline-tabs .nav-link {
-    color: #dc3545;
-}
-
-.card-danger.card-outline-tabs .nav-link:hover {
-    color: #bd2130;
+.card-outline-tabs .nav-tabs .nav-link.active {
+    border-top-color: var(--lte-card-variant-bg);
+    color: var(--bs-body-color);
 }

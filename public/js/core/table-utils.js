@@ -58,49 +58,133 @@ const TableUtils = {
         badge: (map) => (value) => String(map[value]?.label ?? value ?? ''),
     },
 
+    SYSTEM_NAME: 'Base MVC System',
+
     /**
-     * Exporta la tabla en `copy`, `csv` o `print` (nativos de Tabulator). Toma las
-     * filas filtradas de todas las páginas y las columnas visibles; una columna con
-     * `download: false` queda fuera. El CSV lleva BOM para que Excel respete los acentos.
+     * Exporta la tabla en `copy`, `pdf`, `xlsx`, `csv` o `print`. Toma las filas
+     * filtradas de todas las páginas y las columnas visibles; una columna con
+     * `download: false` queda fuera. Mismos reportes que DataTables Buttons:
+     * PDF con título centrado, subtítulo, fecha de generación y pie
+     * (sistema · página · confidencial); Excel con título y mensajes arriba y abajo;
+     * impresión con título y fecha; CSV con BOM para que Excel respete los acentos.
+     * `title` y `subtitle` encabezan el reporte; `filename` no lleva extensión ni fecha.
      */
-    exportTable(table, type, { filename = 'export', title = '', sheetName = 'Datos', footerLabel = '' } = {}) {
+    exportTable(table, type, { filename = 'export', title = '', subtitle = '', sheetName = 'Data', systemName = this.SYSTEM_NAME } = {}) {
         if (!table) return;
+        const stamp = new Date().toISOString().slice(0, 10);
+        const file = `${filename}_${stamp}`;
+        const generated = new Date().toLocaleString('en-US');
+        const subtitleText = subtitle || `Record of ${title.toLowerCase()}`;
+
         if (type === 'copy') {
             table.copyToClipboard('active');
         } else if (type === 'csv') {
-            table.download('csv', `${filename}.csv`, { bom: true });
+            table.download('csv', `${file}.csv`, { bom: true });
         } else if (type === 'print') {
-            table.print('active', true);
+            this._printFrame(table, { title, subtitle: subtitleText, generated, systemName });
         } else if (type === 'xlsx') {
-            if (typeof XLSX === 'undefined') return ToastUtils.error('No se pudo exportar', 'La librería de Excel no está cargada.');
-            table.download('xlsx', `${filename}.xlsx`, { sheetName });
+            if (typeof XLSX === 'undefined') return ToastUtils.error('Export failed', 'The Excel library is not loaded.');
+            table.download('xlsx', `${file}.xlsx`, {
+                sheetName,
+                documentProcessing: (workbook) => this._decorateSheet(workbook, { title, subtitleText, closing: `Document generated on ${new Date().toLocaleDateString('en-US')}` }),
+            });
         } else if (type === 'pdf') {
-            if (!globalThis.jspdf?.jsPDF) return ToastUtils.error('No se pudo exportar', 'La librería de PDF no está cargada.');
-            table.download('pdf', `${filename}.pdf`, {
-                orientation: 'landscape',
-                title,
+            if (!globalThis.jspdf?.jsPDF) return ToastUtils.error('Export failed', 'The PDF library is not loaded.');
+            table.download('pdf', `${file}.pdf`, {
+                orientation: 'portrait',
+                jsPDF: { format: 'letter' },
+                // Sin `title` de Tabulator (pisaría didDrawPage): encabezado y pie se dibujan en documentProcessing, con el total de páginas ya conocido.
                 autoTable: () => ({
-                    styles: { fontSize: 9 },
-                    headStyles: { fillColor: [75, 84, 92] },
-                    margin: { top: title ? 50 : 40, left: 40, right: 40, bottom: 40 },
+                    styles: { fontSize: 9, cellPadding: 4, overflow: 'linebreak' },
+                    headStyles: { fontSize: 10, fillColor: [75, 84, 92], textColor: 255 },
+                    startY: 90, // el encabezado solo se dibuja en la primera página
+                    margin: { top: 40, left: 40, right: 40, bottom: 40 },
                 }),
-                // `title` hace que Tabulator pise didDrawPage, así que el pie se dibuja aquí, con el total de páginas ya conocido.
-                documentProcessing: (doc) => this._drawFooter(doc, footerLabel),
+                documentProcessing: (doc) => this._decoratePdf(doc, { title, subtitleText, generated, systemName }),
             });
         }
     },
 
-    _drawFooter(doc, label) {
+    /**
+     * Imprime en un iframe aislado con una tabla simple de Bootstrap, como la vista de
+     * impresión de DataTables Buttons: un documento limpio sin el layout de AdminLTE, que
+     * es lo que hacía salir la tabla en muchas hojas.
+     */
+    _printFrame(table, { title, subtitle, generated, systemName }) {
+        const css = document.querySelector('link[href*="adminlte.min.css"]')?.href ?? '';
+        const frame = Object.assign(document.createElement('iframe'), { title: 'print' });
+        frame.style.cssText = 'position:fixed;width:794px;height:0;border:0;visibility:hidden';
+        document.body.appendChild(frame);
+
+        const doc = frame.contentDocument;
+        doc.open();
+        doc.write(`<!doctype html><html lang="en" data-bs-theme="light"><head><meta charset="utf-8">
+<title>${escapeHtml(title)}</title><link rel="stylesheet" href="${css}">
+<style>
+/* Sin margen de hoja el navegador no tiene dónde dibujar su URL, fecha y título; el margen va como padding. */
+@page { size: A4 portrait; margin: 0; }
+html, body { background: #fff; color: #000; margin: 0; height: auto; overflow: visible; }
+body { padding: 12mm 12mm 20mm; }
+header { text-align: center; border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 6px; }
+h1 { font-size: 18px; font-weight: 700; margin: 0; text-transform: uppercase; }
+.subtitle { font-size: 12px; font-style: italic; margin: 2px 0 6px; }
+.generated { font-size: 11px; text-align: right; margin: 0; }
+table { width: 100%; font-size: 12px; } thead { display: table-header-group; } tr { break-inside: avoid; }
+footer { position: fixed; left: 12mm; right: 12mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 10px; border-top: 1px solid #999; padding-top: 3px; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+</style></head><body>
+<header><h1>${escapeHtml(title)}</h1><p class="subtitle">${escapeHtml(subtitle)}</p><p class="generated">Generated on: ${escapeHtml(generated)}</p></header>
+${table.getHtml('active', false)}
+<footer><span>${escapeHtml(systemName)}</span><span>Confidential</span></footer>
+</body></html>`);
+        doc.close();
+        // El control `+`/`−` de la fila responsiva viaja en la primera celda: su SVG no tiene tamaño y estira cada fila.
+        doc.querySelectorAll('.tabulator-responsive-collapse-toggle').forEach((toggle) => toggle.remove());
+        doc.querySelector('table')?.classList.add('table', 'table-striped', 'table-bordered', 'table-sm');
+
+        const link = doc.querySelector('link');
+        const ready = link?.sheet ? Promise.resolve() : new Promise((resolve) => { link.onload = link.onerror = resolve; });
+        ready.then(() => {
+            const done = () => frame.remove();
+            frame.contentWindow.addEventListener('afterprint', done, { once: true });
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+            setTimeout(done, 60000); // algunos navegadores no disparan afterprint
+        });
+    },
+
+    /** Título, mensaje superior y mensaje inferior de la hoja, como `title`/`messageTop`/`messageBottom` de DataTables. */
+    _decorateSheet(workbook, { title, subtitleText, closing }) {
+        const name = workbook.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1 });
+        const sheet = XLSX.utils.aoa_to_sheet([[title], [subtitleText], [], ...rows, [], [closing]]);
+        sheet['!cols'] = rows[0]?.map((_, col) => ({ wch: Math.min(60, Math.max(10, ...rows.map((row) => String(row[col] ?? '').length + 2))) }));
+        workbook.Sheets[name] = sheet;
+        return workbook;
+    },
+
+    /** Título en mayúsculas, subtítulo, fecha de generación y pie «sistema · página · confidencial». */
+    _decoratePdf(doc, { title, subtitleText, generated, systemName }) {
         const pages = doc.getNumberOfPages();
-        const { width, height } = doc.internal.pageSize;
-        const date = new Date().toLocaleDateString('es');
-        doc.setFontSize(8);
+        const width = doc.internal.pageSize.getWidth();
+        const height = doc.internal.pageSize.getHeight();
         for (let page = 1; page <= pages; page++) {
             doc.setPage(page);
-            doc.text(label, 40, height - 20);
-            doc.text(`Página ${page} de ${pages}`, width / 2, height - 20, { align: 'center' });
-            doc.text(date, width - 40, height - 20, { align: 'right' });
+            doc.setFontSize(8);
+            doc.text(systemName, 40, height - 20);
+            doc.text(`Page ${page} of ${pages}`, width / 2, height - 20, { align: 'center' });
+            doc.text('Confidential', width - 40, height - 20, { align: 'right' });
         }
+        doc.setPage(1);
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(16);
+        doc.text(doc.splitTextToSize(title.toUpperCase(), width - 80), width / 2, 34, { align: 'center' });
+        doc.setFont(undefined, 'italic');
+        doc.setFontSize(11);
+        doc.text(subtitleText, width / 2, 52, { align: 'center' });
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(9);
+        doc.text(`Generated on: ${generated}`, width - 40, 72, { align: 'right' });
     },
 
     /** Lee las filas del atributo `data-rows` (JSON) del contenedor. */
@@ -119,6 +203,7 @@ const TableUtils = {
         return {
             layout: 'fitColumns',
             responsiveLayoutCollapseStartOpen: false,
+            responsiveLayoutCollapseFormatter: this._collapseInColumnOrder,
             responsiveLayout: 'collapse', // lo que no cabe pasa a una fila desplegable (`responsive`: mayor número se oculta antes)
             pagination: true,
             paginationSize: pageSize,
@@ -129,13 +214,30 @@ const TableUtils = {
             clipboardCopyStyled: false, // texto plano tabulado, no HTML con estilos
             clipboardCopyRowRange: 'active', // todas las filas filtradas, no solo la página
             downloadRowRange: 'active',
-            printRowRange: 'active',
-            printAsHtml: true,
-            printStyled: true,
             locale: 'es',
             langs: this.langs,
             placeholder: 'No hay datos para mostrar',
         };
+    },
+
+    /**
+     * Detalle de la fila responsiva con las columnas ocultas en su orden original
+     * (DataTables Responsive), no en el orden en que Tabulator las fue ocultando.
+     * Tabulator lo enlaza a la tabla: `this` es la instancia de `Tabulator`.
+     */
+    _collapseInColumnOrder(data) {
+        const order = this.getColumns().map((column) => column.getField());
+        const list = document.createElement('table');
+        [...data].sort((a, b) => order.indexOf(a.field) - order.indexOf(b.field)).forEach(({ title, value }) => {
+            const row = list.insertRow();
+            const label = document.createElement('strong');
+            label.textContent = title;
+            row.insertCell().append(label);
+            const cell = row.insertCell();
+            if (value instanceof Node) cell.append(value);
+            else cell.innerHTML = value;
+        });
+        return data.length ? list : '';
     },
 
     SEARCH_DEBOUNCE_MS: 200,
@@ -157,14 +259,40 @@ const TableUtils = {
             clearTimeout(timer);
             timer = setTimeout(() => {
                 const term = this._normalize(element.value.trim());
-                if (term === '') {
-                    table.clearFilter();
-                    return;
-                }
                 const fields = table.getColumns().map((column) => column.getField()).filter(Boolean);
-                table.setFilter((row) => fields.some((field) => this._normalize(row[field]).includes(term)));
+                this._setFilter(table, 'search', term === '' ? null : (row) => fields.some((field) => this._normalize(row[field]).includes(term)));
             }, this.SEARCH_DEBOUNCE_MS);
         });
+    },
+
+    /**
+     * Filtra por el valor de un `<select>` contra un campo de la fila (la opción
+     * vacía quita el filtro). Convive con la búsqueda y con los demás filtros.
+     */
+    bindSelectFilter(table, selectElement, field) {
+        const element = typeof selectElement === 'string' ? document.querySelector(selectElement) : selectElement;
+        if (!table || !element) return;
+        element.addEventListener('change', () => {
+            const value = element.value;
+            this._setFilter(table, `select:${field}`, value === '' ? null : (row) => String(row[field]) === value);
+        });
+    },
+
+    /** Posición (desde 1) de la fila entre todas las filtradas y ordenadas, de cualquier página. */
+    _activePosition(row) {
+        return row.getTable().getRows('active').findIndex((candidate) => candidate.getElement() === row.getElement() || candidate === row) + 1;
+    },
+
+    /** Tabulator solo guarda un conjunto de filtros: se combinan aquí con AND. */
+    _setFilter(table, key, predicate) {
+        table._tblFilters ??= new Map();
+        predicate ? table._tblFilters.set(key, predicate) : table._tblFilters.delete(key);
+        if (table._tblFilters.size === 0) {
+            table.clearFilter();
+            return;
+        }
+        const predicates = [...table._tblFilters.values()];
+        table.setFilter((row) => predicates.every((test) => test(row)));
     },
 
     /**
@@ -329,6 +457,7 @@ const TableUtils = {
 
     /**
      * Crea la tabla. `options.data` por defecto sale de `data-rows` del contenedor.
+     * Una columna con `counter: true` muestra el número de fila (1, 2, 3…) en lugar de su valor, renumerado al ordenar y filtrar.
      * `searchInput`, `columnMenu`, `pageSizeSelect`, `info` y `pager` (selectores o elementos)
      * activan la búsqueda global, el selector de columnas, el tamaño de página y el pie propio; `pageSizes` (opciones del selector) y `pageSize` (el inicial) los fija cada módulo; `toolbar` (clase `tbl-toolbar`, oculta por
      * CSS) se muestra cuando la tabla está construida. El tamaño y los bordes se eligen con clases
@@ -341,9 +470,18 @@ const TableUtils = {
 
         // `columnToggle` no es una opción de Tabulator (avisa "Invalid column definition option"): se quita y se recuerda aparte.
         const hiddenFromToggle = new Set();
-        const columns = (options.columns ?? []).map(({ exportAs, columnToggle, ...column }) => {
+        let counterField = null;
+        const columns = (options.columns ?? []).map(({ exportAs, columnToggle, counter, ...column }) => {
             if (columnToggle === false && column.title) hiddenFromToggle.add(column.title);
+            if (counter) counterField = column.field;
             return {
+                ...(counter ? {
+                    formatter: (cell) => String(cell.getRow().getPosition(true)),
+                    // Copiar y exportar numeran por la posición en la tabla filtrada y ordenada, no por el id.
+                    // `getPosition(true)` solo conoce las filas de la página visible: con paginación daría `false`.
+                    accessorDownload: (_value, _data, _type, _params, _column, row) => this._activePosition(row),
+                    accessorClipboard: (_value, _data, _type, _params, _column, row) => this._activePosition(row),
+                } : {}),
                 formatter: this.formatters.text,
                 sorter: 'alphanum', // el sorter por defecto ('string') ordena 19 antes que 2
                 ...(exportAs ? { accessorDownload: exportAs, accessorClipboard: exportAs } : {}),
@@ -368,6 +506,15 @@ const TableUtils = {
             ...tabulatorOptions,
             columns,
         });
+
+        // Un contador se renumera al ordenar, filtrar o paginar: el formatter solo corre al crear la fila.
+        if (counterField) {
+            table.on('renderComplete', () => {
+                table.getRows('visible').forEach((row) => {
+                    row.getCell(counterField)?.getElement().replaceChildren(String(row.getPosition(true)));
+                });
+            });
+        }
 
         table.on('clipboardCopied', () => ToastUtils.success('Copied to clipboard', 'The table data is ready to paste.'));
 

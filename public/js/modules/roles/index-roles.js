@@ -21,12 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
         toolbar: '#rolesTop, #rolesBottom',
         initialSort: [{ column: 'id', dir: 'asc' }],
         columns: [
-            { title: 'ID', field: 'id', width: 80, hozAlign: 'center', responsive: 3 },
+            { title: '#', field: 'id', width: 60, hozAlign: 'center', responsive: 3, counter: true },
             { title: 'Name', field: 'name', minWidth: 100, responsive: 0 },
             {
                 title: 'Description',
                 field: 'description',
-                minWidth: 200,
+                minWidth: 140,
                 responsive: 5,
                 formatter: (cell) => escapeHtml(cell.getValue() || 'N/A'),
                 exportAs: (value) => value || 'N/A',
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 title: 'Users',
                 field: 'users',
-                width: 120,
+                width: 90,
                 responsive: 4,
                 hozAlign: 'center',
                 formatter: (cell) => {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 title: 'Status',
                 field: 'status',
-                width: 120,
+                width: 90,
                 responsive: 2,
                 hozAlign: 'center',
                 formatter: (cell) => {
@@ -68,10 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const role = cell.getRow().getData();
                     const id = Number(role.id);
                     const active = role.status === 1;
+                    // Solo un administrador toca un rol de sistema: el servidor lo rechaza, así que no se ofrece.
+                    const manage = role.manage !== false;
                     return `<div class="btn-group btn-group-sm">
                         <a href="${baseUrl}roles/${id}" class="btn btn-info" data-bs-toggle="tooltip" title="View permissions" aria-label="View permissions">
                             <i class="bi bi-key" aria-hidden="true"></i>
-                        </a>
+                        </a>${manage ? `
                         <button type="button" class="btn btn-warning btn-edit" data-id="${id}"
                             data-name="${escapeHtml(role.name)}" data-description="${escapeHtml(role.description ?? '')}"
                             data-system="${role.system ? 1 : 0}" data-permissions="${escapeHtml(JSON.stringify(role.permissions ?? []))}"
@@ -83,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             data-bs-toggle="tooltip" title="${active ? 'Deactivate' : 'Activate'}" aria-label="${active ? 'Deactivate' : 'Activate'}">
                             <i class="bi ${active ? 'bi-x-lg' : 'bi-check-lg'}" aria-hidden="true"></i>
                         </button>
+                        ` : ''}
                     </div>`;
                 },
             },
@@ -92,10 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#rolesTop [data-export]').forEach((button) => {
         button.addEventListener('click', () => {
             TableUtils.exportTable(table, button.dataset.export, {
-                filename: 'roles',
+                filename: 'roles_system',
                 title: 'Roles',
                 sheetName: 'Roles',
-                footerLabel: 'Roles',
             });
         });
     });

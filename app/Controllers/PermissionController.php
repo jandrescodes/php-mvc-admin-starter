@@ -23,10 +23,21 @@ class PermissionController extends Controller
         $permissions = $this->permissionModel->getAllWithUserCount();
         $statistics  = $this->permissionModel->getStatistics();
 
+        $permissionsJson = json_encode(
+            array_map(static fn (array $permission): array => [
+                'id'          => (int) $permission['id'],
+                'name'        => $permission['name'],
+                'description' => $permission['description'] ?? '',
+                'users'       => (int) ($permission['total_users'] ?? 0),
+                'status'      => (int) $permission['status'],
+            ], $permissions),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
+
         $this->render(
             'permissions/index',
-            compact('permissions', 'statistics'),
-            ['datatables', 'datatables-export', 'validate'],
+            compact('permissionsJson', 'statistics'),
+            ['tabulator', 'export'],
             ['permissions/modal-permission', 'permissions/index-permissions'],
             ['permissions/permissions']
         );
@@ -41,10 +52,21 @@ class PermissionController extends Controller
         $isInactive      = ((int) $permission['status']) === 0;
         $permissionId    = (int) $permission['id'];
 
+        $usersJson = json_encode(
+            array_map(static fn (array $user): array => [
+                'id'        => (int) $user['id'],
+                'name'      => trim($user['name'] . ' ' . $user['first_surname'] . ' ' . ($user['second_surname'] ?? '')),
+                'shortName' => trim($user['name'] . ' ' . $user['first_surname']),
+                'email'     => $user['email'],
+                'role'      => $user['role_name'] ?? '',
+            ], $users),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
+
         $this->render(
             'permissions/detail',
-            compact('permission', 'users', 'usersWithoutPerm', 'isInactive', 'permissionId'),
-            ['datatables', 'select2', 'validate'],
+            compact('permission', 'users', 'usersJson', 'usersWithoutPerm', 'isInactive', 'permissionId'),
+            ['tabulator', 'export', 'tom-select'],
             ['permissions/modal-permission', 'permissions/detail-permission'],
             ['permissions/permissions']
         );

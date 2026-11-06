@@ -114,6 +114,17 @@ class UserTest extends IntegrationTestCase
         $this->assertContains('Editor', $roleNames);
     }
 
+    public function test_getAll_exposes_role_is_system_so_row_actions_can_be_decided(): void
+    {
+        $all = $this->model->getAll();
+
+        $this->assertNotEmpty($all);
+        foreach ($all as $row) {
+            $this->assertArrayHasKey('role_is_system', $row);
+        }
+        $this->assertContains(1, array_map(static fn (array $row): int => (int) $row['role_is_system'], $all));
+    }
+
     public function test_create_persists_role_id(): void
     {
         // role_id is NOT NULL in the schema — every user must have a role assigned.

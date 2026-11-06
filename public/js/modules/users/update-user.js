@@ -1,179 +1,110 @@
 /**
- * update-user.js - User update page script
- *
- * Includes form validation, image preview, and usability
- * improvements for the user update form.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Users
- * @author jandrescodes
- * @version 1.0
+ * Edición de usuario: validación nativa con FormValidator (unicidad de correo
+ * y documento excluyendo a la propia persona), cambio de contraseña opcional,
+ * vista previa del perfil e imagen, y atajos de permisos. El envío es el POST
+ * normal del formulario.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formUser');
+    if (!form) return;
 
-$(document).ready(function () {
-    // ============= JQUERY VALIDATE =============
+    const field = (id) => document.getElementById(id);
+    const userId = form.elements.user_id.value;
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-    const userId = $('input[name="user_id"]').val() || '';
-
-    $('#formUser').validate({
-        rules: {
-            name: { required: true },
-            first_surname: { required: true },
-            document_type: { required: true },
+    FormValidator.init(form, {
+        loadingText: 'Saving...',
+        // La actualización es un POST normal con redirección y aviso por sesión: se muestra la carga hasta que el navegador navega.
+        submit: async (formEl) => {
+            ToastUtils.loadingWithMinTime('Updating user...', () => formEl.submit(), 800);
+            // Sin resolver: así el botón sigue en «Saving...» y no se puede reenviar mientras se navega.
+            await new Promise(() => {});
+        },
+        fields: {
+            name: { messages: { required: 'Name is required.' } },
+            first_surname: { messages: { required: 'First surname is required.' } },
+            document_type: { messages: { required: 'Select a document type.' } },
             document_number: {
-                required: true,
+                messages: {
+                    required: 'Document number is required.',
+                    pattern: 'The number does not match the document type.',
+                },
                 remote: {
-                    url: baseUrl + 'users/check-document',
-                    type: 'post',
-                    data: {
-                        document_type: function () { return $('#document_type').val(); },
-                        document_number: function () { return $('#document_number').val(); },
-                        user_id: function () { return userId; }
-                    }
-                }
+                    url: `${baseUrl}users/check-document`,
+                    data: () => ({ document_type: field('document_type').value, document_number: field('document_number').value, user_id: userId }),
+                },
             },
             email: {
-                required: true,
-                email: true,
+                messages: { required: 'Email is required.', email: 'Enter a valid email address.' },
                 remote: {
-                    url: baseUrl + 'users/check-email',
-                    type: 'post',
-                    data: {
-                        email: function () { return $('#email').val(); },
-                        user_id: function () { return userId; }
-                    }
-                }
+                    url: `${baseUrl}users/check-email`,
+                    data: () => ({ email: field('email').value, user_id: userId }),
+                },
             },
-            role_id: { required: true },
-            password: { minlength: 8 },
-            confirm_password: {
-                minlength: 8,
-                equalTo: {
-                    param: '#password',
-                    depends: function () { return $('#password').val().length > 0; }
-                }
-            },
-            image: { extension: 'jpg|jpeg|png|gif|webp' }
+            role_id: { messages: { required: 'Select a role.' } },
+            password: { messages: { minlength: 'Password must be at least 8 characters.' } },
+            confirm_password: { equalTo: '#password', messages: { equalTo: 'Passwords do not match.' } },
         },
-        messages: {
-            name: { required: 'Name is required.' },
-            first_surname: { required: 'First surname is required.' },
-            document_type: { required: 'Select a document type.' },
-            document_number: {
-                required: 'Document number is required.',
-                remote: 'This document is already registered.'
-            },
-            email: {
-                required: 'Email is required.',
-                email: 'Enter a valid email address.',
-                remote: 'This email is already in use.'
-            },
-            role_id: { required: 'Select a role.' },
-            password: {
-                minlength: 'Password must be at least 8 characters.'
-            },
-            confirm_password: {
-                minlength: 'Password must be at least 8 characters.',
-                equalTo: 'Passwords do not match.'
-            },
-            image: {
-                extension: 'Only images are allowed (jpg, png, gif, webp).'
-            }
-        },
-        submitHandler: function (form) {
-            const $btn = $(form).find('[type="submit"]');
-            $btn.prop('disabled', true)
-                .html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
-            ToastUtils.loadingWithMinTime('Updating user...', () => {
-                form.submit();
-            }, 800);
+    });
+
+    // ---- Formato del documento según el tipo; el tipo también cambia la unicidad.
+    // Sin tocar el tipo se conserva el maxlength de la vista, para no rechazar documentos ya guardados.
+    const DOCUMENT_RULES = {
+        DNI: { maxlength: 8, pattern: '[0-9]{8}', placeholder: 'Enter 8 digits' },
+        RUC: { maxlength: 11, pattern: '[0-9]{11}', placeholder: 'Enter 11 digits' },
+        Passport: { maxlength: 12, pattern: null, placeholder: 'Enter passport number' },
+    };
+    field('document_type').addEventListener('change', (event) => {
+        const rule = DOCUMENT_RULES[event.target.value] ?? { maxlength: null, pattern: null, placeholder: 'Enter document number' };
+        const number = field('document_number');
+        rule.maxlength ? number.setAttribute('maxlength', rule.maxlength) : number.removeAttribute('maxlength');
+        rule.pattern ? number.setAttribute('pattern', rule.pattern) : number.removeAttribute('pattern');
+        number.placeholder = rule.placeholder;
+        if (number.value !== '') number.dispatchEvent(new Event('focusout', { bubbles: true }));
+    });
+
+    // ---- Imagen
+    field('image').addEventListener('change', (event) => {
+        const input = event.target;
+        const file = input.files?.[0];
+        if (!file) return;
+        if (!IMAGE_TYPES.includes(file.type)) {
+            ToastUtils.error('Invalid image', 'Only images are allowed (jpg, png, gif, webp).');
+            input.value = '';
+            return;
         }
-    });
-
-    // Revalidate Select2 selects on change
-    $('#document_type, #role_id').on('change', function () {
-        $(this).valid();
-    });
-
-    $('#document_type').on('change', function () {
-        if ($('#document_number').val()) $('#document_number').valid();
-    });
-
-    // ============= FIELD VALIDATION =============
-
-    $('.custom-file-input').on('change', function () {
-        let fileName = $(this).val().split('\\').pop();
-        $(this).next('.custom-file-label').addClass("selected").text(fileName);
-
-        if (this.files && this.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                $('#preview-image').attr('src', e.target.result);
-                $('#preview-container').show();
-                $('#profile-preview-img').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(this.files[0]);
+        if (file.size > MAX_IMAGE_BYTES) {
+            ToastUtils.error('Image too large', 'The maximum size is 5 MB.');
+            input.value = '';
+            return;
         }
+        const reader = new FileReader();
+        reader.onload = (loaded) => {
+            field('preview-image').src = loaded.target.result;
+            field('preview-container').classList.remove('d-none');
+            field('profile-preview-img').src = loaded.target.result;
+        };
+        reader.readAsDataURL(file);
     });
 
-    // Document number validation based on type
-    $('#document_type').on('change', function () {
-        let type = $(this).val();
-        let docInput = $('#document_number');
-
-        switch (type) {
-            case 'DNI':
-                docInput.attr('maxlength', '8').attr('pattern', '[0-9]{8}').attr('placeholder', 'Enter 8 digits');
-                break;
-            case 'RUC':
-                docInput.attr('maxlength', '11').attr('pattern', '[0-9]{11}').attr('placeholder', 'Enter 11 digits');
-                break;
-            case 'Passport':
-                docInput.attr('maxlength', '12').removeAttr('pattern').attr('placeholder', 'Enter passport number');
-                break;
-            default:
-                docInput.removeAttr('maxlength').removeAttr('pattern').attr('placeholder', 'Enter document number');
-        }
+    // ---- Vista previa del nombre
+    ['name', 'first_surname', 'second_surname'].forEach((id) => {
+        field(id).addEventListener('input', () => {
+            const fullName = ['name', 'first_surname', 'second_surname'].map((part) => field(part).value.trim()).filter(Boolean).join(' ');
+            field('profile-preview-name').textContent = fullName || 'User';
+        });
     });
 
-    // ============= USABILITY IMPROVEMENTS =============
-
-    // Update profile preview when fields change
-    $('#name, #first_surname, #second_surname').on('input', function () {
-        const name = $('#name').val() || '';
-        const firstSurname = $('#first_surname').val() || '';
-        const secondSurname = $('#second_surname').val() || '';
-
-        let fullName = name;
-        if (firstSurname) fullName += ' ' + firstSurname;
-        if (secondSurname) fullName += ' ' + secondSurname;
-
-        $('#profile-preview-name').text(fullName || 'User');
-    });
-
-    $('#position').change(function () {
-        const position = $(this).val() || 'User position';
-        $('#profile-preview-role').text(position);
-    });
-
-    $('#status').change(function () {
-        const status = $(this).val();
-        if (status === '1') {
-            $('#profile-preview-badge').removeClass('badge-danger').addClass('badge-success').text('Active');
-        } else {
-            $('#profile-preview-badge').removeClass('badge-success').addClass('badge-danger').text('Inactive');
-        }
-    });
-
-    // Select/deselect all permissions buttons
-    $('#select-all').click(function () {
-        $('input[name="permissions[]"]').prop('checked', true);
+    // ---- Permisos. El campo oculto `permissions_submitted` viaja siempre: sin él, desmarcar todo
+    // enviaría una lista vacía indistinguible de un cliente que omitió el campo.
+    const setAllPermissions = (checked) => form.querySelectorAll('input[name="permissions[]"]').forEach((box) => { box.checked = checked; });
+    field('select-all').addEventListener('click', () => {
+        setAllPermissions(true);
         ToastUtils.success('All permissions selected');
     });
-
-    $('#deselect-all').click(function () {
-        $('input[name="permissions[]"]').prop('checked', false);
+    field('deselect-all').addEventListener('click', () => {
+        setAllPermissions(false);
         ToastUtils.info('All permissions deselected');
     });
-
 });

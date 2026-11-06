@@ -88,63 +88,13 @@
 }
 
 .tabulator.tbl-borderless,
-.tabulator.tbl-borderless .tabulator-header,
-.tabulator.tbl-borderless .tabulator-footer {
+.tabulator.tbl-borderless .tabulator-header {
     border-color: transparent;
 }
 
-/* Pie y paginador nativos con los colores de Bootstrap; la página activa en primary. */
-.tabulator .tabulator-footer {
-    color: var(--bs-body-color);
-    background-color: transparent;
-    border-top-color: var(--bs-border-color);
-    font-weight: normal;
-}
-
-/* Tabulator fija el alto del contenedor 1px por encima del de las filas: ese píxel dejaba una franja entre la última fila y el pie. */
-.tabulator:has(.tabulator-footer) .tabulator-tableholder {
-    margin-bottom: -1px;
-}
-
-/* Esa diferencia de 1px también dejaba un scroll vertical de un píxel; la tabla se pagina, así que no necesita scroll vertical propio. */
+/* Tabulator fija el alto del contenedor 1px por encima del de las filas y eso dejaba un scroll vertical de un píxel; la tabla se pagina, así que no necesita scroll vertical propio. */
 .tabulator .tabulator-tableholder {
     overflow-y: hidden;
-}
-
-.tabulator .tabulator-footer .tabulator-paginator {
-    color: inherit;
-}
-
-.tabulator .tabulator-footer .tabulator-page-size {
-    color: var(--bs-body-color);
-    background-color: var(--bs-body-bg);
-    border-color: var(--bs-border-color);
-    border-radius: var(--bs-border-radius-sm);
-}
-
-.tabulator .tabulator-footer .tabulator-page {
-    color: var(--bs-body-color);
-    background: var(--bs-tertiary-bg);
-    border-color: var(--bs-border-color);
-    border-radius: var(--bs-border-radius-sm);
-}
-
-.tabulator .tabulator-footer .tabulator-page.active {
-    color: var(--bs-white);
-    background: var(--bs-primary);
-    border-color: var(--bs-primary);
-}
-
-@media (hover: hover) and (pointer: fine) {
-    /* Los números no activos solo cambian el color del texto a primary; primera/anterior/siguiente/última se oscurecen. */
-    .tabulator .tabulator-footer .tabulator-pages .tabulator-page:not(:disabled):not(.active):hover {
-        color: var(--bs-primary);
-    }
-
-    .tabulator .tabulator-footer .tabulator-page:not(:disabled):not(.active):not(.tabulator-pages .tabulator-page):hover {
-        background: var(--bs-secondary-bg);
-        color: var(--bs-body-color);
-    }
 }
 
 /* Controles de la tabla (Show, Search, Showing) al tamaño de la tabla pequeña. */
@@ -159,39 +109,17 @@
     visibility: hidden;
 }
 
-/* Móvil: el pie se apila y el paginador salta de línea en vez de desbordar. */
-@media (max-width: 576px) {
-    .tabulator .tabulator-footer {
-        white-space: normal;
-    }
+/* Las filas caen en medios píxeles: sin esto el fondo blanco de la hoja de Tabulator asoma como una raya entre filas en el tema oscuro. */
+.tabulator .tabulator-tableholder,
+.tabulator .tabulator-tableholder .tabulator-table {
+    background-color: var(--bs-body-bg);
+}
 
-    .tabulator .tabulator-footer .tabulator-footer-contents {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-
-    .tabulator .tabulator-footer .tabulator-paginator {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 0.25rem 0.5rem;
-        text-align: center;
-    }
-
-    .tabulator .tabulator-footer .tabulator-page-counter {
-        flex: 1 0 100%;
-    }
-
-    .tabulator .tabulator-footer .tabulator-pages {
-        margin: 0;
-    }
-
-    .tabulator .tabulator-footer .tabulator-page[data-page="first"],
-    .tabulator .tabulator-footer .tabulator-page[data-page="last"] {
-        display: none;
-    }
+/* Como en DataTables, el texto largo salta de línea en vez de truncarse con «…»: así una columna ancha encoge antes de colapsar. */
+.tabulator-row .tabulator-cell {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
 }
 
 /* Control de fila responsiva como en DataTables: círculo verde con "+", rojo con "−" al abrir. */

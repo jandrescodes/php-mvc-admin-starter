@@ -67,9 +67,9 @@ abstract class Controller
             $isAjax = (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest');
 
             if ($isAjax) {
-                $this->jsonResponse(['success' => false, 'message' => 'Token inválido'], 403);
+                $this->jsonResponse(['success' => false, 'message' => 'Your session has expired. Reload the page and try again.'], 403);
             } else {
-                $_SESSION['message'] = 'Token de seguridad inválido. Por favor, intenta de nuevo.';
+                $_SESSION['message'] = 'Invalid security token. Please try again.';
                 $_SESSION['icon']    = 'error';
                 $referer = $_SERVER['HTTP_REFERER'] ?? '';
                 $safe    = (defined('URL') && strpos($referer, URL) === 0) ? $referer : URL;

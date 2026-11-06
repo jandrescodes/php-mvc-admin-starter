@@ -1,14 +1,14 @@
 <!-- Content Header -->
-<section class="content-header">
+<section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <h1 class="m-0">Dashboard</h1>
+                <h1 class="mb-0 fs-3">Dashboard</h1>
             </div>
             <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="bi bi-house-door" aria-hidden="true"></i> Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                 </ol>
             </div>
         </div>
@@ -16,72 +16,72 @@
 </section>
 
 <!-- Main content -->
-<section class="content">
+<section class="app-content">
     <div class="container-fluid">
 
         <!-- Stats widgets -->
         <div class="row">
             <div class="col-xl-3 col-lg-6 col-md-6">
-                <div class="small-box bg-primary">
+                <div class="small-box text-bg-primary">
                     <div class="inner">
                         <h3><?= $userStats['total'] ?></h3>
                         <p>Total Users</p>
                     </div>
-                    <div class="icon"><i class="fas fa-users" aria-hidden="true"></i></div>
+                    <i class="bi bi-people small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManageUsers): ?>
-                        <a href="<?= URL ?>users" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+                        <a href="<?= URL ?>users" class="small-box-footer link-light link-underline-opacity-0">
+                            Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer">&nbsp;</span>
+                        <span class="small-box-footer link-light link-underline-opacity-0">&nbsp;</span>
                     <?php endif; ?>
                 </div>
             </div>
 
             <div class="col-xl-3 col-lg-6 col-md-6">
-                <div class="small-box bg-warning">
+                <div class="small-box text-bg-warning">
                     <div class="inner">
                         <h3><?= $permStats['total'] ?></h3>
                         <p>Total Permissions</p>
                     </div>
-                    <div class="icon"><i class="fas fa-key" aria-hidden="true"></i></div>
+                    <i class="bi bi-key small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManagePermissions): ?>
-                        <a href="<?= URL ?>permissions" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+                        <a href="<?= URL ?>permissions" class="small-box-footer link-dark link-underline-opacity-0">
+                            Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer">&nbsp;</span>
+                        <span class="small-box-footer link-dark link-underline-opacity-0">&nbsp;</span>
                     <?php endif; ?>
                 </div>
             </div>
 
             <div class="col-xl-3 col-lg-6 col-md-6">
-                <div class="small-box bg-info">
+                <div class="small-box text-bg-info">
                     <div class="inner">
                         <h3><?= $roleStats['total'] ?></h3>
                         <p>Total Roles</p>
                     </div>
-                    <div class="icon"><i class="fas fa-user-tag" aria-hidden="true"></i></div>
+                    <i class="bi bi-person-badge small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManageRoles): ?>
-                        <a href="<?= URL ?>roles" class="small-box-footer">
-                            Manage <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+                        <a href="<?= URL ?>roles" class="small-box-footer link-dark link-underline-opacity-0">
+                            Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer"><?= $roleStats['active'] ?> active</span>
+                        <span class="small-box-footer link-dark link-underline-opacity-0"><?= $roleStats['active'] ?> active</span>
                     <?php endif; ?>
                 </div>
             </div>
 
             <?php if ($canViewAuditLog): ?>
                 <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="small-box bg-success">
+                    <div class="small-box text-bg-success">
                         <div class="inner">
                             <h3><?= $auditToday ?></h3>
                             <p>Events Today</p>
                         </div>
-                        <div class="icon"><i class="fas fa-history" aria-hidden="true"></i></div>
-                        <a href="<?= URL ?>audit-log" class="small-box-footer">
-                            View Log <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+                        <i class="bi bi-clock-history small-box-icon" aria-hidden="true"></i>
+                        <a href="<?= URL ?>audit-log" class="small-box-footer link-light link-underline-opacity-0">
+                            View Log <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -93,11 +93,11 @@
         <?php if ($canManageUsers): ?>
             <div class="row mb-3">
                 <div class="col-12">
-                    <button type="button" id="btnToggleAccessMetrics" class="btn btn-link text-secondary small p-0"
+                    <button type="button" id="btnToggleAccessMetrics" class="btn btn-link text-body-secondary small p-0"
                         aria-expanded="false" aria-controls="rowAccessMetrics">
-                        <i class="fas fa-sliders-h" aria-hidden="true" id="iconToggleAccessMetrics"></i>
+                        <i class="bi bi-sliders" aria-hidden="true" id="iconToggleAccessMetrics"></i>
                         <span id="labelToggleAccessMetrics">Show access metrics</span>
-                        <i class="fas fa-chevron-down" aria-hidden="true" id="arrowToggleAccessMetrics"></i>
+                        <i class="bi bi-chevron-down" aria-hidden="true" id="arrowToggleAccessMetrics"></i>
                     </button>
                 </div>
             </div>
@@ -106,27 +106,27 @@
             <div id="rowAccessMetrics" class="row">
                 <!-- Pending Invitations -->
                 <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="small-box bg-warning">
+                    <div class="small-box text-bg-warning">
                         <div class="inner">
                             <h3><?= (int) $pendingInvitations ?></h3>
                             <p>Pending Invitations</p>
                         </div>
-                        <div class="icon"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></div>
-                        <a href="<?= URL ?>users" class="small-box-footer">
-                            View Users <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
+                        <i class="bi bi-envelope-open small-box-icon" aria-hidden="true"></i>
+                        <a href="<?= URL ?>users" class="small-box-footer link-dark link-underline-opacity-0">
+                            View Users <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
 
                 <!-- Resets This Week -->
                 <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="small-box bg-secondary">
+                    <div class="small-box text-bg-secondary">
                         <div class="inner">
                             <h3><?= (int) $resetsThisWeek ?></h3>
                             <p>Password Resets This Week</p>
                         </div>
-                        <div class="icon"><i class="fas fa-lock-open" aria-hidden="true"></i></div>
-                        <span class="small-box-footer">&nbsp;</span>
+                        <i class="bi bi-unlock small-box-icon" aria-hidden="true"></i>
+                        <span class="small-box-footer link-light link-underline-opacity-0">&nbsp;</span>
                     </div>
                 </div>
             </div>
@@ -137,9 +137,9 @@
         <div class="row dashboard-charts">
             <!-- Donut: active vs inactive users -->
             <div class="col-xl-4 col-lg-6">
-                <div class="card card-outline card-primary">
+                <div class="card card-outline card-primary mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-circle-notch mr-1" aria-hidden="true"></i> Users by Status</h3>
+                        <h3 class="card-title"><i class="bi bi-pie-chart me-1" aria-hidden="true"></i> Users by Status</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -148,7 +148,7 @@
                                 data-inactive="<?= (int) $chartData['usersByStatus']['inactive'] ?>"
                                 data-pending="<?= (int) $chartData['usersByStatus']['pending'] ?>">
                             </canvas>
-                            <p id="chartUserStatusFallback" class="text-muted text-center pt-5" style="display:none;">
+                            <p id="chartUserStatusFallback" class="text-body-secondary text-center pt-5" style="display:none;">
                                 No data to display.
                             </p>
                         </div>
@@ -158,16 +158,16 @@
 
             <!-- Bar: top 5 permissions by assigned users -->
             <div class="col-xl-4 col-lg-6">
-                <div class="card card-outline card-info">
+                <div class="card card-outline card-info mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-key mr-1" aria-hidden="true"></i> Top Permissions</h3>
+                        <h3 class="card-title"><i class="bi bi-key me-1" aria-hidden="true"></i> Top Permissions</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
                             <canvas id="chartTopPermissions"
                                 data-chart="<?= htmlspecialchars(json_encode($chartData['topPerms'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
                             </canvas>
-                            <p id="chartTopPermissionsFallback" class="text-muted text-center pt-5" style="display:none;">
+                            <p id="chartTopPermissionsFallback" class="text-body-secondary text-center pt-5" style="display:none;">
                                 No permissions assigned yet.
                             </p>
                         </div>
@@ -177,16 +177,16 @@
 
             <!-- Line: user registrations per month -->
             <div class="col-xl-4 col-lg-12">
-                <div class="card card-outline card-success">
+                <div class="card card-outline card-success mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-line mr-1" aria-hidden="true"></i> Registrations (6 months)</h3>
+                        <h3 class="card-title"><i class="bi bi-graph-up me-1" aria-hidden="true"></i> Registrations (6 months)</h3>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
                             <canvas id="chartUsersByMonth"
                                 data-chart="<?= htmlspecialchars(json_encode($chartData['usersByMonth'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
                             </canvas>
-                            <p id="chartUsersByMonthFallback" class="text-muted text-center pt-5" style="display:none;">
+                            <p id="chartUsersByMonthFallback" class="text-body-secondary text-center pt-5" style="display:none;">
                                 No registrations in the last 6 months.
                             </p>
                         </div>
@@ -199,26 +199,26 @@
         <!-- Recent Users -->
         <div class="row dashboard-recent">
             <div class="col-12">
-                <div class="card card-outline card-primary">
+                <div class="card card-outline card-primary mb-4">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-clock mr-1" aria-hidden="true"></i> Recently Registered Users
+                            <i class="bi bi-clock me-1" aria-hidden="true"></i> Recently Registered Users
                         </h3>
                         <?php if ($canManageUsers): ?>
                             <div class="card-tools">
                                 <a href="<?= URL ?>users" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-users mr-1" aria-hidden="true"></i> View All
+                                    <i class="bi bi-people me-1" aria-hidden="true"></i> View All
                                 </a>
                             </div>
                         <?php endif; ?>
                     </div>
                     <div class="card-body p-0">
                         <?php if (empty($recentUsers)): ?>
-                            <p class="text-muted text-center py-4">No users registered yet.</p>
+                            <p class="text-body-secondary text-center py-4">No users registered yet.</p>
                         <?php else: ?>
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
-                                    <thead class="thead-light">
+                                    <thead>
                                         <tr>
                                             <th>Name</th>
                                             <th class="d-none d-sm-table-cell">Email</th>
@@ -233,11 +233,11 @@
                                                 <td class="d-none d-sm-table-cell"><?= htmlspecialchars($user['email']) ?></td>
                                                 <td>
                                                     <?php if ((int) $user['status'] === 1): ?>
-                                                        <span class="badge badge-success badge-pill p-2">Active</span>
+                                                        <span class="badge rounded-pill text-bg-success">Active</span>
                                                     <?php elseif ((int) $user['status'] === 2): ?>
-                                                        <span class="badge badge-warning badge-pill p-2">Pending</span>
+                                                        <span class="badge rounded-pill text-bg-warning">Pending</span>
                                                     <?php else: ?>
-                                                        <span class="badge badge-danger badge-pill p-2">Inactive</span>
+                                                        <span class="badge rounded-pill text-bg-danger">Inactive</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="d-none d-md-table-cell">

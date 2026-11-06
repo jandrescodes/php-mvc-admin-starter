@@ -42,10 +42,28 @@ class AuditLogController extends Controller
         $actors  = $this->logModel->getActorsWithLogs();
         $filters = $this->rawFilters();
 
+        // Cada fila lleva todo lo que necesita el detalle: la tabla no pide nada más al servidor.
+        $logsJson = json_encode(
+            array_map(static fn (array $log): array => [
+                'id'          => (int) $log['id'],
+                'created_at'  => $log['created_at'],
+                'actor_id'    => $log['actor_id'] !== null ? (int) $log['actor_id'] : null,
+                'actor_label' => $log['actor_label'] ?? '',
+                'module'      => $log['module'],
+                'action'      => $log['action'],
+                'description' => $log['description'] ?? '',
+                'ip'          => $log['ip_address'] ?? '',
+                'user_agent'  => $log['user_agent'] ?? '',
+                'details'     => $log['details'] ? json_decode($log['details'], true) : null,
+            ], $logs),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
+        $logCount = count($logs);
+
         $this->render(
             'audit-log/index',
-            compact('logs', 'modules', 'actions', 'actors', 'filters', 'activeFilters'),
-            ['datatables', 'datatables-export', 'select2'],
+            compact('logsJson', 'logCount', 'modules', 'actions', 'actors', 'filters', 'activeFilters'),
+            ['tabulator', 'export', 'tom-select'],
             ['audit-log/index-audit'],
             ['audit-log/audit-log']
         );

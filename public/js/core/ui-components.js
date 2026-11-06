@@ -41,6 +41,9 @@ const ComponentUtils = {
             const config = { ...this.selectBaseConfig, ...customConfig };
             if (select.multiple) {
                 config.plugins = ['remove_button', ...(customConfig.plugins ?? [])];
+                // Un `<select multiple data-max-items="2">` limita cuántas opciones se pueden elegir (sin el atributo, todas).
+                const maxItems = Number.parseInt(select.dataset.maxItems, 10);
+                if (maxItems > 0 && !('maxItems' in customConfig)) config.maxItems = maxItems;
             } else if (select.options.length <= this.SEARCH_MIN_OPTIONS && !('controlInput' in customConfig)) {
                 config.controlInput = null;
             }

@@ -11,73 +11,88 @@
  * @version 1.1
  */
 
+/**
+ * index-dashboard.js - Dashboard metrics charts
+ *
+ * Renders Chart.js 4 visualizations reading data from data-* attributes
+ * set by PHP on each canvas element. No HTML is generated here.
+ * Colors come from Bootstrap's CSS variables, and charts re-render when the
+ * theme switch changes `data-bs-theme` on <html>.
+ *
+ * @package ProyectoBase
+ * @subpackage JavaScript\Modules\Dashboard
+ * @author jandrescodes
+ * @version 2.0
+ */
+
 /** References to active Chart instances for destroy-on-theme-change. */
 const _charts = {};
 
 document.addEventListener('DOMContentLoaded', function () {
+    initAccessMetricsToggle();
+
     if (typeof Chart === 'undefined') return;
 
     renderAllCharts();
     watchThemeChanges();
-    initAccessMetricsToggle();
 });
 
 /**
- * Returns true if dark mode is currently active.
- * @returns {boolean}
+ * Reads a Bootstrap CSS variable (e.g. '--bs-success') as resolved for the active theme.
+ * @param {string} name  variable name including the leading '--'
+ * @returns {string}
  */
-function isDarkMode() {
-    return document.documentElement.classList.contains('dark-mode');
+function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 /**
- * Applies Chart.js v2 global defaults based on the active theme.
+ * Applies Chart.js 4 global defaults from the theme's own variables, so text
+ * and grid lines keep their contrast in light and dark.
  * Must be called before rendering any chart.
  */
 function applyChartTheme() {
-    const dark = isDarkMode();
-    const textColor = dark ? '#e9ecef' : '#666';
-    const gridColor = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-
-    // Chart.js v2 global defaults
-    Chart.defaults.global.defaultFontColor = textColor;
-    Chart.defaults.global.legend.labels.fontColor = textColor;
-    Chart.defaults.scale.gridLines = Chart.defaults.scale.gridLines || {};
-    Chart.defaults.scale.gridLines.color = gridColor;
-    Chart.defaults.scale.ticks = Chart.defaults.scale.ticks || {};
-    Chart.defaults.scale.ticks.fontColor = textColor;
+    Chart.defaults.color = cssVar('--bs-body-color');
+    Chart.defaults.borderColor = cssVar('--bs-border-color');
 }
 
 /**
- * Reads a --dm-* semantic token from html.dark-mode (public/css/core/dark-mode.css).
- * @param {string} name  token name without the leading '--'
- * @returns {string}      resolved color value
+ * Normalizes any CSS color (hex, rgb(), percentages…) to '#rrggbb' through a canvas:
+ * Bootstrap exposes some variables in forms that are not plain hex.
+ * @returns {string}
  */
-function dmToken(name) {
-    return getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim();
+function toHex(color) {
+    const context = document.createElement('canvas').getContext('2d');
+    context.fillStyle = color;
+    return context.fillStyle;
 }
 
 /**
- * Semantic chart colors sourced from the active theme.
- * Dark mode reads the --dm-* tokens from dark-mode.css; light mode uses
- * the equivalent Bootstrap 4 palette already relied on across the admin UI.
+ * Mixes two CSS colors; `amount` is the share (0-1) taken from `b`.
+ * @returns {string} '#rrggbb'
+ */
+function mixColors(a, b, amount) {
+    const [ha, hb] = [toHex(a), toHex(b)];
+    const channel = (hex, i) => parseInt(hex.replace('#', '').substring(i * 2, i * 2 + 2), 16);
+    const mixed = [0, 1, 2].map((i) => Math.round(channel(ha, i) * (1 - amount) + channel(hb, i) * amount));
+    return '#' + mixed.map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Semantic chart colors from Bootstrap's variables for the active theme.
+ * El amarillo de Bootstrap sobre fondo claro da ~1.6:1; en tema claro se
+ * mezcla con su color de énfasis (marrón) para pasar de 3:1 sin perder el tono.
  * @returns {{success:string, danger:string, warning:string, primary:string}}
  */
 function getChartColors() {
-    if (isDarkMode()) {
-        return {
-            success: dmToken('dm-success'),
-            danger:  dmToken('dm-danger'),
-            warning: dmToken('dm-warning'),
-            primary: dmToken('dm-primary'),
-        };
-    }
+    const light = document.documentElement.getAttribute('data-bs-theme') !== 'dark';
+    const warning = cssVar('--bs-warning');
 
     return {
-        success: '#28a745',
-        danger:  '#dc3545',
-        warning: '#ffc107',
-        primary: '#007bff',
+        success: cssVar('--bs-success'),
+        danger: cssVar('--bs-danger'),
+        warning: light ? mixColors(warning, cssVar('--bs-warning-text-emphasis'), 0.5) : warning,
+        primary: cssVar('--bs-primary'),
     };
 }
 
@@ -100,19 +115,15 @@ function renderAllCharts() {
 }
 
 /**
- * Observes class changes on <html> and re-renders charts
- * when the dark-mode class is added or removed.
+ * Observes `data-bs-theme` on <html> and re-renders the charts when the
+ * theme switch flips it.
  */
 function watchThemeChanges() {
-    const observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            if (mutation.attributeName === 'class') {
-                renderAllCharts();
-            }
-        });
+    const observer = new MutationObserver(function () {
+        renderAllCharts();
     });
 
-    observer.observe(document.documentElement, { attributes: true });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
 }
 
 /**
@@ -144,6 +155,7 @@ function initUserStatusChart() {
             datasets: [{
                 data: [active, inactive, pending],
                 backgroundColor: [colors.success, colors.danger, colors.warning],
+                borderColor: cssVar('--bs-body-bg'), // separa los sectores con el fondo del tema, no con blanco fijo
                 borderWidth: 2,
             }],
         },
@@ -295,11 +307,15 @@ function initAccessMetricsToggle() {
         }
     }
 
-    applyState(localStorage.getItem(LS_KEY) === '1', false);
+    // localStorage puede no estar disponible (ventana privada, datos bloqueados): la preferencia es solo una comodidad.
+    const readVisible = () => { try { return localStorage.getItem(LS_KEY) === '1'; } catch { return false; } };
+    const saveVisible = (visible) => { try { localStorage.setItem(LS_KEY, visible ? '1' : '0'); } catch { /* sin almacenamiento */ } };
+
+    applyState(readVisible(), false);
 
     btn.addEventListener('click', function () {
         const nowVisible = !row.classList.contains('metrics-visible');
-        localStorage.setItem(LS_KEY, nowVisible ? '1' : '0');
+        saveVisible(nowVisible);
         applyState(nowVisible, true);
     });
 }

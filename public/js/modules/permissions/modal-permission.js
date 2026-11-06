@@ -1,139 +1,82 @@
 /**
- * modal-permission.js - Shared permission modal logic
- *
- * Handles opening in edit mode, jQuery Validate with remote name check,
- * form submission via AJAX, isSubmitting guard, and reset on close.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Permissions
- * @author jandrescodes
- * @version 1.1
+ * Modal de permiso (crear/editar), compartido por el listado y el detalle:
+ * abre en modo crear o editar, valida con FormValidator (unicidad del nombre
+ * en el servidor) y envía por AJAX.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    const modalEl = document.getElementById('modalPermission');
+    const form = document.getElementById('formPermission');
+    if (!modalEl || !form) return;
 
-/** @type {boolean} Prevents double submission while a request is in flight. */
-let isSubmitting = false;
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const header = document.getElementById('modalPermissionHeader');
+    const title = document.getElementById('modalPermissionLabel');
+    const saveBtn = document.getElementById('btnSavePermission');
+    const field = (id) => document.getElementById(id);
 
-$(document).ready(function () {
+    const MODES = {
+        create: { title: 'Create New Permission', header: 'text-bg-primary', button: 'btn-primary', label: 'Save' },
+        edit: { title: 'Edit Permission', header: 'text-bg-warning', button: 'btn-warning', label: 'Update' },
+    };
 
-    // -------------------------------------------------------------------------
-    // jQuery Validate
-    // -------------------------------------------------------------------------
-    $('#formPermission').validate({
-        rules: {
+    const setMode = (mode, permission = {}) => {
+        const cfg = MODES[mode];
+        field('permissionAction').value = mode;
+        field('permissionId').value = permission.id ?? '';
+        field('permissionName').value = permission.name ?? '';
+        field('permissionDescription').value = permission.description ?? '';
+        title.textContent = cfg.title;
+        header.className = `modal-header ${cfg.header}`;
+        saveBtn.className = `btn ${cfg.button}`;
+        saveBtn.innerHTML = `<i class="bi bi-floppy" aria-hidden="true"></i> ${cfg.label}`;
+        // El texto original que FormValidator restaura tras el envío.
+        delete saveBtn.dataset.originalHtml;
+    };
+
+    FormValidator.init(form, {
+        loadingText: 'Processing...',
+        fields: {
             name: {
-                required: true,
-                maxlength: 60,
+                messages: { required: 'Permission name is required.', maxlength: 'Permission name cannot exceed 60 characters.' },
                 remote: {
                     url: `${baseUrl}permissions/check-name`,
-                    type: 'POST',
-                    data: {
-                        name:          () => $('#name').val(),
-                        permission_id: () => $('#permissionId').val() || null,
-                        csrf_token:    () => csrfToken
-                    }
-                }
-            },
-            description: {
-                maxlength: 255
-            }
-        },
-        messages: {
-            name: {
-                required:  'Permission name is required.',
-                maxlength: 'Permission name cannot exceed 60 characters.',
-                remote:    'This permission name already exists.'
-            },
-            description: {
-                maxlength: 'Description cannot exceed 255 characters.'
-            }
-        },
-        submitHandler: function () {
-            submitPermission();
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // Open modal in edit mode
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-edit', function () {
-        const id          = $(this).data('id');
-        const name        = $(this).data('name');
-        const description = $(this).data('description') || '';
-
-        $('#permissionAction').val('edit');
-        $('#permissionId').val(id);
-        $('#name').val(name);
-        $('#description').val(description);
-
-        $('#modalPermissionHeader').removeClass('bg-warning').addClass('bg-warning');
-        $('#modalPermissionLabel').text('Edit Permission');
-        $('#btnSavePermission').removeClass('btn-primary').addClass('btn-warning')
-            .html('<i class="fas fa-save"></i> Update');
-
-        $('#modalPermission').modal('show');
-    });
-
-    // -------------------------------------------------------------------------
-    // AJAX submission (triggered by validate submitHandler)
-    // -------------------------------------------------------------------------
-    /**
-     * @returns {void}
-     */
-    function submitPermission() {
-        if (isSubmitting) return;
-
-        const action   = $('#permissionAction').val();
-        const formData = $('#formPermission').serialize();
-        const url      = action === 'create'
-            ? `${baseUrl}permissions/create`
-            : `${baseUrl}permissions/update`;
-        const toastMsg = action === 'create' ? 'Creating permission...' : 'Updating permission...';
-        const $btn     = $('#btnSavePermission');
-        const origHtml = $btn.html();
-
-        isSubmitting = true;
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
-
-        $('#modalPermission').modal('hide');
-
-        ToastUtils.loadingWithMinTime(toastMsg, () => {
-            $.ajax({
-                url,
-                type: 'POST',
-                dataType: 'json',
-                data: formData,
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        Swal.close();
-                        isSubmitting = false;
-                        $btn.prop('disabled', false).html(origHtml);
-                        ToastUtils.error('Error', response.message);
-                    }
+                    data: () => ({ name: field('permissionName').value, permission_id: field('permissionId').value }),
                 },
-                error: function () {
-                    Swal.close();
-                    isSubmitting = false;
-                    $btn.prop('disabled', false).html(origHtml);
-                    ToastUtils.error('Error', 'A communication error occurred with the server.');
-                }
+            },
+            description: { messages: { maxlength: 'Description cannot exceed 255 characters.' } },
+        },
+        submit: async (formEl, formData) => {
+            // Se lee antes de cerrar: al ocultarse el modal se limpia el formulario.
+            const isCreate = field('permissionAction').value === 'create';
+            modal.hide();
+            const response = await new Promise((resolve) => {
+                ToastUtils.loadingWithMinTime(isCreate ? 'Creating permission...' : 'Updating permission...', async () => {
+                    resolve(await Http.post(`${baseUrl}permissions/${isCreate ? 'create' : 'update'}`, formData));
+                }, 800);
             });
-        }, 800);
-    }
+            if (response.ok && response.data?.success) {
+                location.reload();
+                return;
+            }
+            Swal.close();
+            ToastUtils.error('Error', response.data?.message ?? 'A communication error occurred with the server.');
+        },
+    });
 
-    // -------------------------------------------------------------------------
-    // Reset on modal close
-    // -------------------------------------------------------------------------
-    $('#modalPermission').on('hidden.bs.modal', function () {
-        isSubmitting = false;
-        $('#formPermission')[0].reset();
-        $('#formPermission').validate().resetForm();
-        $('#formPermission').find('.is-invalid').removeClass('is-invalid');
-        $('#permissionAction').val('create');
-        $('#modalPermissionHeader').removeClass('bg-warning').addClass('bg-primary');
-        $('#modalPermissionLabel').text('New Permission');
-        $('#btnSavePermission').removeClass('btn-warning').addClass('btn-primary')
-            .html('<i class="fas fa-save"></i> Save');
+    document.getElementById('btnNewPermission')?.addEventListener('click', () => {
+        setMode('create');
+        modal.show();
+    });
+
+    document.addEventListener('click', (event) => {
+        const btn = event.target.closest('.btn-edit');
+        if (!btn) return;
+        setMode('edit', { id: btn.dataset.id, name: btn.dataset.name, description: btn.dataset.description });
+        modal.show();
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        form.reset();
+        FormValidator.reset(form);
     });
 });
