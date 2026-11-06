@@ -87,35 +87,35 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
       Done when: verificado; el Tom Select abre dentro del modal y la unicidad del nombre se valida.
 - [x] T31. `views/roles/detail.php` + `detail-role.js`. (FR-11, FR-13)
       Done when: verificado; el detalle muestra los permisos del rol.
-- [ ] T32. `views/permissions/index.php` + `index-permissions.js`. (FR-11, FR-12, FR-26)
+- [x] T32. `views/permissions/index.php` + `index-permissions.js`. (FR-11, FR-12, FR-26)
       Done when: verificado; la tabla de permisos pagina, ordena, busca y exporta.
-- [ ] T33. `views/permissions/_modal_permission.php` + `modal-permission.js`. (FR-12, FR-14, FR-25, FR-27, FR-32)
+- [x] T33. `views/permissions/_modal_permission.php` + `modal-permission.js`. (FR-12, FR-14, FR-25, FR-27, FR-32)
       Done when: verificado; la unicidad del nombre se valida en el modal.
-- [ ] T34. `views/permissions/detail.php` + `detail-permission.js`: asignar y revocar a usuarios. (FR-13, FR-15, FR-16)
+- [x] T34. `views/permissions/detail.php` + `detail-permission.js`: asignar y revocar a usuarios. (FR-13, FR-15, FR-16)
       Done when: verificado; asignar y revocar piden confirmación y notifican.
-- [ ] T35a. `views/users/index.php` + `index-users.js`: tabla con Tabulator y filtros. (FR-11, FR-26, FR-32)
+- [x] T35a. `views/users/index.php` + `index-users.js`: tabla con Tabulator y filtros. (FR-11, FR-26, FR-32)
       Done when: verificado; la tabla pagina, ordena, busca, exporta y los filtros funcionan.
-- [ ] T35b. `index-users.js`: cambio de estado con confirmación y acciones por permiso de fila. (FR-12, FR-16)
+- [x] T35b. `index-users.js`: cambio de estado con confirmación y acciones por permiso de fila. (FR-12, FR-16)
       Done when: verificado; la desactivación pide confirmación y las acciones respetan permisos por fila.
-- [ ] T36a. `views/users/create.php` + `create-user.js`: formulario, validación nativa y unicidad de correo y documento, badges sin clases de Bootstrap 4. (FR-12, FR-14, FR-27, FR-32)
+- [x] T36a. `views/users/create.php` + `create-user.js`: formulario, validación nativa y unicidad de correo y documento, badges sin clases de Bootstrap 4. (FR-12, FR-14, FR-27, FR-32)
       Done when: verificado; crear usuario valida la unicidad de correo y documento.
-- [ ] T36b. `create-user.js`: selectores Tom Select, invitación, indicador de carga y notificación. (FR-25, FR-28, FR-29)
+- [x] T36b. `create-user.js`: selectores Tom Select, invitación, indicador de carga y notificación. (FR-25, FR-28, FR-29)
       Done when: verificado; crear con y sin invitación notifica y muestra el indicador de carga.
-- [ ] T37. `views/users/update.php` + `update-user.js`: formulario y lista de permisos con casillas. (FR-12, FR-13, FR-15, FR-27, FR-34)
+- [x] T37. `views/users/update.php` + `update-user.js`: formulario y lista de permisos con casillas. (FR-12, FR-13, FR-15, FR-27, FR-34)
       Done when: verificado; se conservan los valores al desmarcar permisos.
-- [ ] T38. `views/users/show.php` + `show-user.js`: detalle, pestañas y desbloqueo. (FR-11, FR-12, FR-32)
+- [x] T38. `views/users/show.php` + `show-user.js`: detalle, pestañas y desbloqueo. (FR-11, FR-12, FR-32)
       Done when: verificado; las pestañas cambian y desbloquear funciona.
-- [ ] T39. `views/users/profile.php` + `profile-user.js`: perfil, cambio de contraseña y pestañas, con `http.js`. (FR-12, FR-27, FR-32)
+- [x] T39. `views/users/profile.php` + `profile-user.js`: perfil, cambio de contraseña y pestañas, con `http.js`. (FR-12, FR-27, FR-32)
       Done when: verificado; la contraseña se actualiza sin cerrar sesión y la petición lleva `X-Requested-With`.
-- [ ] T40a. `views/audit-log/index.php` + `index-audit.js`: tabla de auditoría con Tabulator; medir el tamaño del HTML con la tabla `activity_logs` de pruebas y anotarlo (riesgo aceptado de la spec). (FR-18, FR-11)
+- [x] T40a. `views/audit-log/index.php` + `index-audit.js`: tabla de auditoría con Tabulator; medir el tamaño del HTML con la tabla `activity_logs` de pruebas y anotarlo (riesgo aceptado de la spec). (FR-18, FR-11)
       Done when: verificado; la tabla pagina, ordena y busca, y el tamaño medido queda anotado en `AGENTS.md`.
-- [ ] T40b. `_modal-detail.php` + `index-audit.js`: filtro de fechas nativo, detalle y enlace de exportación del servidor. (FR-19, FR-32, FR-36)
+- [x] T40b. `_modal-detail.php` + `index-audit.js`: filtro de fechas nativo, detalle y enlace de exportación del servidor. (FR-19, FR-32, FR-36)
       Done when: verificado; el filtro por fechas funciona con teclado, el PDF del servidor se descarga y el detalle escapa valores de usuario.
-- [ ] T41. `views/dashboard/index.php` + `index-dashboard.js`: cajas de métricas, gráficos con la API de Chart.js 4 y `MutationObserver` (líneas 30 y 107) sobre `data-bs-theme` en lugar de la clase `dark-mode`. (FR-17, FR-23)
+- [x] T41. `views/dashboard/index.php` + `index-dashboard.js`: cajas de métricas, gráficos con la API de Chart.js 4 y `MutationObserver` (líneas 30 y 107) sobre `data-bs-theme` en lugar de la clase `dark-mode`. (FR-17, FR-23)
       Done when: verificado; los gráficos se leen bien en ambos temas y cambian de color al alternar el tema sin recargar.
-- [ ] T42. `views/auth/login.php` + `login.js`: «Recordarme» con `.form-check`, validación nativa y sin iCheck. (FR-8, FR-27, FR-34)
+- [x] T42. `views/auth/login.php` + `login.js`: «Recordarme» con `.form-check`, validación nativa y sin iCheck. (FR-8, FR-27, FR-34)
       Done when: verificado; iniciar sesión con y sin «Recordarme» funciona.
-- [ ] T43. `views/auth/{forgot_password,reset_password,accept_invitation}.php` + sus JS. (FR-8, FR-10, FR-27)
+- [x] T43. `views/auth/{forgot_password,reset_password,accept_invitation}.php` + sus JS. (FR-8, FR-10, FR-27)
       Done when: verificado; los tres flujos validan y envían, y la bienvenida aparece al primer inicio.
 
 ## Fase F — Estilos

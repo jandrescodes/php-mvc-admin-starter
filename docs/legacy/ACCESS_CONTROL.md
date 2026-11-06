@@ -20,44 +20,44 @@ Middleware is declared per route in `routes/web.php`:
 
 All authentication, session, and remember-me concerns are centralised in the static class `App\Core\Auth`. No instantiation needed.
 
-| Method                                       | Description                                                                                                 |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `Auth::check()`                              | Returns `true` if a valid authenticated session exists                                                      |
-| `Auth::id()`                                 | Returns the current user's ID or `null`                                                                     |
-| `Auth::user()`                               | Returns current user array (`id`, `name`, `email`, `role`, `image`) or `null`                               |
-| `Auth::isAdmin()`                            | Returns `true` if `$_SESSION['user_is_admin']` is `true` (set from `roles.is_system`)                       |
-| `Auth::hasPermission(string $name)`          | Checks session cache; `'*'` grants all (admins)                                                             |
-| `Auth::permissions()`                        | Returns the full permission name array from session                                                         |
-| `Auth::login(array $user, array $permNames)` | Regenerates session ID, writes all session keys, caches permissions                                         |
-| `Auth::logout()`                             | Reads user ID from session, clears remember-me cookie, destroys the session                                 |
-| `Auth::checkTimeout()`                       | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing |
-| `Auth::checkSecurity()`                      | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing               |
-| `Auth::checkAccountState()`                  | Destroys session and returns `false` if the account is no longer active or its password hash changed (`pw_fp`) |
-| `Auth::syncPasswordFingerprint()`            | Re-syncs `pw_fp` after a password change made from the current session (keeps it alive)                     |
-| `Auth::canGrantPermissionIds(array $ids)`    | `true` for admins; for everyone else only if they hold every permission in `$ids`                           |
+| Method                                       | Description                                                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `Auth::check()`                              | Returns `true` if a valid authenticated session exists                                                              |
+| `Auth::id()`                                 | Returns the current user's ID or `null`                                                                             |
+| `Auth::user()`                               | Returns current user array (`id`, `name`, `email`, `role`, `image`) or `null`                                       |
+| `Auth::isAdmin()`                            | Returns `true` if `$_SESSION['user_is_admin']` is `true` (set from `roles.is_system`)                               |
+| `Auth::hasPermission(string $name)`          | Checks session cache; `'*'` grants all (admins)                                                                     |
+| `Auth::permissions()`                        | Returns the full permission name array from session                                                                 |
+| `Auth::login(array $user, array $permNames)` | Regenerates session ID, writes all session keys, caches permissions                                                 |
+| `Auth::logout()`                             | Reads user ID from session, clears remember-me cookie, destroys the session                                         |
+| `Auth::checkTimeout()`                       | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing         |
+| `Auth::checkSecurity()`                      | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing                       |
+| `Auth::checkAccountState()`                  | Destroys session and returns `false` if the account is no longer active or its password hash changed (`pw_fp`)      |
+| `Auth::syncPasswordFingerprint()`            | Re-syncs `pw_fp` after a password change made from the current session (keeps it alive)                             |
+| `Auth::canGrantPermissionIds(array $ids)`    | `true` for admins; for everyone else only if they hold every permission in `$ids`                                   |
 | `Auth::canManageUser(array $target)`         | `true` for admins; otherwise only if the target's effective permissions (role + direct) are a subset of the actor's |
-| `Auth::reloadPermissions()`                  | Rebuilds the session permission cache from the DB (role + direct) — used after a self-edit                   |
-| `Auth::refreshPermissionsIfStale()`          | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp                |
-| `Auth::issueRememberCookie(int $userId)`     | Generates token, stores SHA-256 hash in DB, sets cookie                                                     |
-| `Auth::attemptRememberLogin()`               | Validates cookie token, auto-logs in, rotates token                                                         |
-| `Auth::clearRememberCookie(int $userId)`     | NULLs DB token, expires cookie                                                                              |
+| `Auth::reloadPermissions()`                  | Rebuilds the session permission cache from the DB (role + direct) — used after a self-edit                          |
+| `Auth::refreshPermissionsIfStale()`          | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp                        |
+| `Auth::issueRememberCookie(int $userId)`     | Generates token, stores SHA-256 hash in DB, sets cookie                                                             |
+| `Auth::attemptRememberLogin()`               | Validates cookie token, auto-logs in, rotates token                                                                 |
+| `Auth::clearRememberCookie(int $userId)`     | NULLs DB token, expires cookie                                                                                      |
 
 ## Session keys written at login
 
-| Key                | Value                                                               |
-| ------------------ | ------------------------------------------------------------------- |
-| `user_id`          | `int` — primary key                                                 |
-| `user_name`        | `string` — first name                                               |
-| `user_email`       | `string`                                                            |
-| `user_role`        | `string` — role display name (from `roles.name`)                    |
-| `user_is_admin`    | `bool` — derived from `roles.is_system`                             |
-| `user_image`       | `string` — avatar path                                              |
-| `user_permissions` | `string[]` — union of direct + role permissions; `['*']` for admins |
-| `permissions_ts`   | `string` — `Y-m-d H:i:s` timestamp used for stale-check             |
+| Key                | Value                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| `user_id`          | `int` — primary key                                                                       |
+| `user_name`        | `string` — first name                                                                     |
+| `user_email`       | `string`                                                                                  |
+| `user_role`        | `string` — role display name (from `roles.name`)                                          |
+| `user_is_admin`    | `bool` — derived from `roles.is_system`                                                   |
+| `user_image`       | `string` — avatar path                                                                    |
+| `user_permissions` | `string[]` — union of direct + role permissions; `['*']` for admins                       |
+| `permissions_ts`   | `string` — `Y-m-d H:i:s` timestamp used for stale-check                                   |
 | `pw_fp`            | `string` — SHA-256 of the password hash at login; detects password changes made elsewhere |
-| `last_access`      | `int` — Unix timestamp for inactivity timeout                       |
-| `ip`               | `string` — client IP for anti-hijacking                             |
-| `user_agent`       | `string` — User-Agent for anti-hijacking                            |
+| `last_access`      | `int` — Unix timestamp for inactivity timeout                                             |
+| `ip`               | `string` — client IP for anti-hijacking                                                   |
+| `user_agent`       | `string` — User-Agent for anti-hijacking                                                  |
 
 ## Session security controls
 
@@ -86,9 +86,9 @@ Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 1. User checks "Remember me" on login → `AuthController` calls `Auth::issueRememberCookie($userId)`.
 2. A 64-char hex token is generated with `random_bytes(32)`; its SHA-256 hash is stored in `users.remember_token` with an expiry in `users.remember_token_expires`. The plain token goes into the cookie.
 3. On every request without an active session, `AuthMiddleware` calls `Auth::attemptRememberLogin()`:
-   - Reads the cookie, hashes it, looks up `users` where `remember_token = hash AND expires > NOW() AND status = 1`.
-   - On match: calls `Auth::login()` to rebuild the session (including the permission UNION), then **rotates** the token to mitigate cookie theft. Also calls `Auth::refreshPermissionsIfStale()` before returning.
-   - On no match: clears the stale cookie and returns `false`.
+    - Reads the cookie, hashes it, looks up `users` where `remember_token = hash AND expires > NOW() AND status = 1`.
+    - On match: calls `Auth::login()` to rebuild the session (including the permission UNION), then **rotates** the token to mitigate cookie theft. Also calls `Auth::refreshPermissionsIfStale()` before returning.
+    - On no match: clears the stale cookie and returns `false`.
 4. On logout: `Auth::logout()` reads the user ID from session internally, NULLs the DB columns, expires the cookie, then destroys the session.
 
 **Security properties:**
@@ -177,15 +177,16 @@ users ──┼── user_permissions ──► permissions   ← "this USER sp
 
 Holding `users`, `roles` or `permissions` does not make someone an administrator, so the controllers prevent those modules from becoming an escalation path:
 
-| Action                                                              | Rule                                                                                      | Where                                                          |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Edit / change status / unlock / resend invitation for a user        | Target's effective permissions must be a subset of the actor's (`Auth::canManageUser()`)   | `UserController`                                               |
-| Assign a role (create or change) or direct permissions to a user    | Actor must hold every permission granted (`Auth::canGrantPermissionIds()`)                | `UserController::save()/update()`                              |
-| Assign a system role                                                | Admin only                                                                                | `UserController`                                               |
-| Add permissions to a role                                           | Actor must hold the added permissions; system roles are admin-only                        | `RoleController::syncPermissions()`                            |
-| Assign / revoke a permission to a user                              | Target must not be an admin; actor must hold the permission when assigning                | `PermissionController::assignUser()/revokeUser()`              |
-| Rename a permission                                                 | Admin only (the name is the key checked by `perm:NAME`)                                    | `PermissionController::update()`                               |
-| Toggle a user's status                                              | Current status is read from the DB (never from POST); pending users and oneself are rejected | `UserController::toggleUserStatus()`                          |
+| Action                                                           | Rule                                                                                         | Where                                                          |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Edit / change status / unlock / resend invitation for a user     | Target's effective permissions must be a subset of the actor's (`Auth::canManageUser()`)     | `UserController`                                               |
+| Assign a role (create or change) or direct permissions to a user | Actor must hold every permission granted (`Auth::canGrantPermissionIds()`)                   | `UserController::save()/update()`                              |
+| Assign a system role                                             | Admin only                                                                                   | `UserController`                                               |
+| Add permissions to a role                                        | Actor must hold the added permissions; system roles are admin-only                           | `RoleController::syncPermissions()`                            |
+| Remove permissions from a role                                   | Actor must hold the removed active permissions; inactive assignments are kept                | `RoleController::syncPermissions()`, `Role::syncPermissions()` |
+| Assign / revoke a permission to a user                           | Target must not be an admin; actor must hold the permission when assigning                   | `PermissionController::assignUser()/revokeUser()`              |
+| Rename a permission                                              | Admin only (the name is the key checked by `perm:NAME`)                                      | `PermissionController::update()`                               |
+| Toggle a user's status                                           | Current status is read from the DB (never from POST); pending users and oneself are rejected | `UserController::toggleUserStatus()`                           |
 
 `POST /users/update` replaces the user's direct permissions only when the request carries `permissions[]` or the `permissions_submitted=1` marker the edit form adds (an all-unchecked form posts neither list nor values, so the marker is what distinguishes "clear all" from "field omitted").
 
@@ -219,15 +220,15 @@ Pending users are created via the invitation flow. `AuthController::login()` blo
 
 ## Application permissions reference
 
-| Permission name | Module      | Description                                                     |
-| --------------- | ----------- | --------------------------------------------------------------- |
-| `profile`       | Profile     | Access to own profile and password changes                      |
-| `admin`         | Global      | General administration — granted to all system-role users (`*`) |
-| `users`         | Users       | Full user management (CRUD, activation, unlock)                 |
-| `permissions`   | Permissions | Create, edit, and assign/revoke permissions                     |
-| `roles`         | Roles       | Create, edit, and manage role↔permission assignments            |
-| `audit_log`     | Audit Log   | Read-only access to the activity/audit log                      |
-| `audit_log_export` | Audit Log | Download the audit log as a server-generated PDF (`GET /audit-log/export`) |
+| Permission name    | Module      | Description                                                                |
+| ------------------ | ----------- | -------------------------------------------------------------------------- |
+| `profile`          | Profile     | Access to own profile and password changes                                 |
+| `admin`            | Global      | General administration — granted to all system-role users (`*`)            |
+| `users`            | Users       | Full user management (CRUD, activation, unlock)                            |
+| `permissions`      | Permissions | Create, edit, and assign/revoke permissions                                |
+| `roles`            | Roles       | Create, edit, and manage role↔permission assignments                       |
+| `audit_log`        | Audit Log   | Read-only access to the activity/audit log                                 |
+| `audit_log_export` | Audit Log   | Download the audit log as a server-generated PDF (`GET /audit-log/export`) |
 
 > Administrators (role with `is_system = 1`) receive `['*']` in session — `hasPermission()` returns `true` for **any** permission name without requiring explicit assignment.
 

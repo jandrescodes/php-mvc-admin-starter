@@ -79,7 +79,7 @@ Feature scripts live in:
 Pass them to `Controller::render()` as the fourth argument:
 
 ```php
-$this->render('users/index', $data, ['datatables', 'datatables-export'], ['users/index-users']);
+$this->render('users/index', $data, ['tabulator', 'export', 'tom-select'], ['users/index-users']);
 ```
 
 ## Plugin loading
@@ -87,7 +87,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 Pass only required plugins as the third argument to `render()`:
 
 ```php
-$this->render('permissions/index', $data, ['datatables', 'select2'], ['permissions/index-permissions']);
+$this->render('permissions/index', $data, ['tabulator', 'export', 'tom-select'], ['permissions/index-permissions']);
 ```
 
 Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts/header.php` / `layouts/footer.php`.
@@ -96,12 +96,13 @@ Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts
 
 `footer.php` loads:
 
-1. Bootstrap + AdminLTE
-2. Conditional plugin JS
-3. `public/js/core/ui-components.js`
-4. `public/js/core/sweetalert-utils.js` — `ToastUtils` and `AlertUtils` available globally from here
-5. `public/js/modules/profile/theme-toggle.js` — dark mode toggle, available globally from here
-6. Module scripts (`$module_scripts`)
+1. Bootstrap + AdminLTE + OverlayScrollbars
+2. SweetAlert2
+3. `public/js/core/http.js` (`Http`), `common-utils.js`, `form-validator.js` (`FormValidator`)
+4. Conditional plugin JS (`tabulator`, `tom-select`, `export`, `chart`)
+5. `public/js/core/ui-components.js` (`ComponentUtils`), `table-utils.js` (`TableUtils`), `sweetalert-utils.js` — `ToastUtils`, `AlertUtils` and `SwalTheme` available globally from here
+6. `public/js/modules/profile/theme-toggle.js` — dark mode toggle
+7. Module scripts (`$module_scripts`)
 
 Do not place page inline scripts that depend on Bootstrap plugins before `footer.php`.
 
@@ -130,7 +131,7 @@ All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Neve
 
 > **Escaping:** SweetAlert2 renders `title` and `options.html` as HTML. `ToastUtils` / `AlertUtils` already pass every `title` through the global `escapeHtml()` (defined in `sweetalert-utils.js`); anything user-controlled that you put into `options.html` or into `.html()` must be wrapped in `escapeHtml(value)` yourself (or use `.text()`). Same for the audit-log detail modal, whose values can come from unauthenticated requests.
 
-> **Business rejections:** answer HTTP 200 with `{success:false, message}`; reserve 403 for CSRF/middleware. jQuery routes a 403 to `.fail`, which can only show a generic error.
+> **Business rejections:** answer HTTP 200 with `{success:false, message}`; reserve 403 for CSRF/middleware. `Http` returns `{ok, status, data}` and a 403 arrives with `ok: false`, so the reason in `data.message` would be lost.
 
 ### ToastUtils
 
@@ -157,37 +158,38 @@ All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Neve
 Use this for every CRUD action (create, update, delete, toggle-status, assign, revoke):
 
 ```js
-ToastUtils.loadingWithMinTime('Creating user...', () => {
-    $.ajax({
-        ...
-        success: function (response) {
-            if (response.success) {
-                location.reload();          // Swal closes naturally with the page reload
-            } else {
-                Swal.close();
-                ToastUtils.error('Error', response.message);
-            }
-        },
-        error: function () {
-            Swal.close();
-            ToastUtils.error('Error', 'A communication error occurred with the server.');
+ToastUtils.loadingWithMinTime(
+    "Creating user...",
+    async () => {
+        const { ok, data } = await Http.post(`${baseUrl}users`, formData);
+        if (ok && data.success) {
+            location.reload(); // Swal closes naturally with the page reload
+            return;
         }
-    });
-}, 800);
+        Swal.close();
+        ToastUtils.error(
+            "Error",
+            data?.message ?? "A communication error occurred with the server.",
+        );
+    },
+    800,
+);
 ```
+
+`Http.post/get` (`core/http.js`) sends `X-Requested-With` and the current CSRF token. A POST that does not reload the page must return `csrf_token` so the next POST can use it.
 
 ### Modal-first pattern
 
 When an AJAX action is triggered from inside a Bootstrap modal, close the modal **before** showing the loading toast to avoid z-index/backdrop conflicts:
 
 ```js
-$("#myModal").modal("hide");
+bootstrap.Modal.getInstance(document.getElementById("myModal")).hide();
 ToastUtils.loadingWithMinTime(
-  "Saving...",
-  () => {
-    /* ajax */
-  },
-  800,
+    "Saving...",
+    async () => {
+        /* Http.post */
+    },
+    800,
 );
 ```
 
@@ -208,17 +210,16 @@ When a page needs PHP data in JS without a fetch/AJAX call, embed it as `data-*`
 ```js
 // module JS reads it — no HTML generated here
 const dataset = JSON.parse(
-  document.getElementById("myChart").dataset.chart || "[]",
+    document.getElementById("myChart").dataset.chart || "[]",
 );
 const userId = parseInt(document.getElementById("myWidget").dataset.userId, 10);
 ```
 
 This pattern is used in `public/js/modules/dashboard/index-dashboard.js`.
 
-## Select2 and validation conventions
+## Tom Select and validation conventions
 
-- `ComponentUtils.initAll()` auto-initializes `.select2` and tooltips.
-- For Select2 inside Bootstrap modals, initialize explicitly with `dropdownParent`.
-- Forms that use jQuery Validate should load plugin `validate`.
-- Global validate config lives in `public/js/core/common-validate.js`.
-- For remote uniqueness validation, point `remote` rules at the clean routes above (e.g., `/users/check-email`).
+- `ComponentUtils.initAll()` initializes every `.tom-select` and the delegated tooltips; it does not use `dropdownParent`, so a select inside a Bootstrap modal needs no extra setup.
+- `FormValidator.init(form, options)` validates with native attributes (`required`, `minlength`, `pattern`) plus `equalTo` and `remote`; it is loaded by `footer.php` and `auth.php`, no plugin to request.
+- For remote uniqueness validation, point `remote` at the clean routes above (e.g., `/users/check-email`, `/roles/check-name`).
+- Tables: `TableUtils.create(selector, options)` (plugin `tabulator`); conventions in `AGENTS.md` ("JS helpers sin jQuery").

@@ -23,6 +23,18 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - `common-utils.js`: the password toggle is a delegated vanilla listener (accepts `fa-` and `bi-` icons); `ajaxRequest`, `initializeSelect2` and the duplicated `showToast` are gone (T23, T25, T28).
 - `ui-components.js` rewritten without jQuery: Tom Select (`maxOptions: null`, `allowEmptyOption`, no `dropdownParent`) and one delegated Bootstrap 5 tooltip on `<body>` (T25).
 - `sweetalert-utils.js` passes `theme: 'dark'|'light'` from `data-bs-theme` on every call (`SwalTheme`) and uses button colours with ≥ 4.5:1 contrast (`#0a58ca`, `#b02a37`) (T28).
+- Every screen migrated to AdminLTE 4 / Bootstrap 5 without jQuery (T29–T43): roles, permissions (with assign/revoke), users (list, create, edit, detail, profile), audit log, dashboard and the four auth pages. Tables use Tabulator with DataTables-style controls (Show N entries, Search, Reports/Columns, Showing…, Bootstrap paginator), a `#` row counter instead of ids, and a responsive `+`/`−` collapse control; every `<select>` uses Tom Select; validation is native through `FormValidator`; AJAX goes through `Http`.
+- Row actions follow the viewer's permissions: the server sends `manage` per row (users; roles: `admin || !is_system`) and the table only draws the allowed buttons.
+- Dashboard charts use the Chart.js 4 API and rebuild when `data-bs-theme` changes; the audit log filters by date with native inputs and its PDF export is the server-side one.
+- Cards stacked in one column take `mb-4` (Bootstrap 5 dropped the card margin) and tabbed cards use `card-outline-tabs` painted from `--lte-card-variant-bg` in `ui-components.css`.
+- `AuditLogController::index` still sends every row as JSON; measured 600 B/row (30 B gzip): 20 043 rows = 12.1 MB (603 KB gzip). Accepted risk, documented in `AGENTS.md`.
+
+### Fixed
+
+- Role permission sync no longer deletes the inactive permissions assigned to a role: the form only lists active ones, so `Role::syncPermissions` now replaces only the active ones (`INSERT IGNORE`) and inactive assignments come back when the permission is reactivated.
+- A non-admin can no longer remove permissions they do not hold from a role: `RoleController::syncPermissions` applies the same "nobody grants what they do not hold" rule when removing as when assigning (`You cannot remove permissions you do not hold.`).
+- The roles list no longer runs one query per role to read its permissions (`Role::getAssignedPermissionIdsByRole`), and `toggleStatus` / `syncPermissions` answer `Role not found.` for a missing role.
+- Removed the unused native Tabulator footer rules from `table.css` (every table draws its own `info` / `pager`).
 
 ### Added
 
