@@ -53,6 +53,7 @@ composer check                 # lint + stan + all suites — the CI gate; run b
   `composer install` (dev, all 3 CI jobs, prod) since `vendor/` is not committed. A `new TCPDF()`
   throws in the constructor under 7.x. 6.11.4 bundles 165 font files (full `dejavusans`) and works.
   Close any Dependabot PR that raises this constraint.
+- **`phpunit/phpunit` (`^11`) y `laravel/pint` (1.30.x) se quedan en su versión mientras el proyecto soporte PHP 8.2.** phpunit 13 exige PHP ≥ 8.4 y pint ≥ 1.31 exige PHP ≥ 8.3, así que `composer install` falla en el CI (PHP 8.2) y en local. Cierra sus PR de Dependabot con `@dependabot ignore` hasta subir el mínimo de PHP en `composer.json` y en `tests.yml`.
 
 ### Dependencias frontend
 
