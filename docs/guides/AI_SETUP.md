@@ -8,7 +8,7 @@ Aquí se explica la arquitectura de nuestra configuración de IA y cómo puedes 
 
 ### 1. `.claude/skills/`
 
-- **¿Qué es?** Habilidades e instrucciones específicas hechas a medida para interactuar con la consola interactiva de [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview). Por ejemplo, flujos definidos de code-review o git-commit.
+- **¿Qué es?** Habilidades e instrucciones específicas hechas a medida para interactuar con la consola interactiva de [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview). Hoy contiene `code-review` (revisión de código PHP MVC antes de fusionar una rama). Las fases de SDD (`/sdd:*`) y `design-review` vienen de plugins, no de esta carpeta.
 - **¿Se sube a Git?** **SÍ**. Está configurado en el `.gitignore` para compartir _sólo_ la subcarpeta de `/skills`, omitiendo tu historial o configuraciones personales de esa herramienta.
 
 ### 2. Servidores MCP (`.mcp.json` y `.mcp.example.json`)

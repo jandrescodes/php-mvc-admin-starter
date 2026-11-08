@@ -188,6 +188,8 @@ Holding `users`, `roles` or `permissions` does not make someone an administrator
 | Rename a permission                                              | Admin only (the name is the key checked by `perm:NAME`)                                      | `PermissionController::update()`                               |
 | Toggle a user's status                                           | Current status is read from the DB (never from POST); pending users and oneself are rejected | `UserController::toggleUserStatus()`                           |
 
+The user and role lists also tell the client what each row allows: `manage` per row (users: derived from `Auth::canManageUser()`; roles: `admin || !is_system`, built in `RoleController` from `role.is_system`). The tables draw only the permitted buttons; the server-side rules above stay the real barrier. Updating, toggling or syncing a role that does not exist answers `Role not found.`
+
 `POST /users/update` replaces the user's direct permissions only when the request carries `permissions[]` or the `permissions_submitted=1` marker the edit form adds (an all-unchecked form posts neither list nor values, so the marker is what distinguishes "clear all" from "field omitted").
 
 Validation always runs **before** any write (DB or image upload), so a rejected request changes nothing. An invitation token only works while the account is still `STATUS_PENDING`: a deactivated account is not reactivated by accepting it.

@@ -16,13 +16,12 @@ Each Done / Next entry links the feature's **folder**
 4. **Dashboard and audit log** — metrics, read-only log, PDF export → legacy (pre-SDD)
 5. **Dark mode and image uploads** — theme toggle, ImageService → legacy (pre-SDD)
 6. **Testing and CI** — PHPUnit unit + integration, GitHub Actions, Pint, PHPStan → legacy (pre-SDD)
+7. **AdminLTE 3.2.0 → 4.x migration** — frontend re-presentation to AdminLTE 4 + Bootstrap 5, without jQuery → `specs/001-adminlte-migration/`
 
 _Features predating SDD adoption: one line each, without retroactively
 writing `spec/plan/tasks`; the detail lives in `CHANGELOG.md`._
 
 ## Next 🔜
-
-- **AdminLTE 3.2.0 → 4.x migration** — frontend re-presentation to AdminLTE 4 + Bootstrap 5 → `specs/001-adminlte-migration/` (análisis y decisiones: `docs/analisis-migracion-adminlte4.md`)
 
 ## Backlog · ideas 💡
 

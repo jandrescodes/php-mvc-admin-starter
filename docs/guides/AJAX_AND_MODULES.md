@@ -43,7 +43,7 @@ public function logout(): void
 <!-- view -->
 <form method="POST" action="<?= URL ?>logout" class="d-inline">
     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
-    <button type="submit" class="btn btn-default btn-flat">Log Out</button>
+    <button type="submit" class="btn btn-outline-secondary">Log Out</button>
 </form>
 ```
 
@@ -100,30 +100,37 @@ Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts
 2. SweetAlert2
 3. `public/js/core/http.js` (`Http`), `common-utils.js`, `form-validator.js` (`FormValidator`)
 4. Conditional plugin JS (`tabulator`, `tom-select`, `export`, `chart`)
-5. `public/js/core/ui-components.js` (`ComponentUtils`), `table-utils.js` (`TableUtils`), `sweetalert-utils.js` — `ToastUtils`, `AlertUtils` and `SwalTheme` available globally from here
-6. `public/js/modules/profile/theme-toggle.js` — dark mode toggle
+5. `public/js/core/ui-components.js` (`ComponentUtils`), `sweetalert-utils.js` — `ToastUtils`, `AlertUtils` and `SwalTheme` available globally from here — and `table-utils.js` (`TableUtils`)
+6. `public/js/modules/profile/theme-toggle.js` — theme toggle (writes `data-bs-theme` and `localStorage['theme']`)
 7. Module scripts (`$module_scripts`)
 
 Do not place page inline scripts that depend on Bootstrap plugins before `footer.php`.
 
-Auth views (`views/auth/*.php`) do not use `footer.php`. They are pure card markup rendered via `Controller::renderStandalone($view, $data, $title, $module_scripts)`, which requires the shared `views/layouts/auth.php` — that layout owns `sweetalert-utils.js`, `dark-mode.css`, `login-dark.css`, `common-utils.js` (password toggle), and `theme-toggle.js`. Register a new auth page's module script via the `$module_scripts` argument, not by editing the layout.
+Auth views (`views/auth/*.php`) do not use `footer.php`. They are pure card markup rendered via `Controller::renderStandalone($view, $data, $title, $module_scripts)`, which requires the shared `views/layouts/auth.php` — that layout owns `sweetalert-utils.js`, `http.js`, `form-validator.js`, `common-utils.js` (password toggle), `theme-toggle.js`, `dark-mode.css` and `login-dark.css`. Register a new auth page's module script via the `$module_scripts` argument, not by editing the layout.
 
 ## AJAX URL targets
 
-JS modules should call the clean routes registered in `routes/web.php`:
+JS modules call the clean routes registered in `routes/web.php` (all `POST` unless noted; every one is behind `auth` and its module permission):
 
-| Action                    | Old path (removed)                                                  | New route                            |
-| ------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| Check email uniqueness    | `app/controllers/users/check_email.php`                             | `POST /users/check-email`            |
-| Check document uniqueness | `app/controllers/users/check_document.php`                          | `POST /users/check-document`         |
-| Toggle user status        | `app/controllers/users/toggle_user_status.php`                      | `POST /users/toggle-status`          |
-| Change password (AJAX)    | `app/controllers/users/ajax_change_password.php`                    | `POST /users/change-password`        |
-| Create permission         | `app/controllers/permissions/create_permission_ajax.php`            | `POST /permissions/create`           |
-| Update permission         | `app/controllers/permissions/update_permission_ajax.php`            | `POST /permissions/update`           |
-| Toggle permission status  | `app/controllers/permissions/toggle_permission_status_ajax.php`     | `POST /permissions/toggle-status`    |
-| Assign user to permission | `app/controllers/permissions/assign_user_permission_ajax.php`       | `POST /permissions/assign-user`      |
-| Revoke user permission    | `app/controllers/permissions/revoke_user_permission_ajax.php`       | `POST /permissions/revoke-user`      |
-| Get users without perm    | `app/controllers/permissions/get_users_without_permission_ajax.php` | `GET /permissions/get-users-without` |
+| Action                              | Route                                                       |
+| ----------------------------------- | ----------------------------------------------------------- |
+| Check email uniqueness              | `POST /users/check-email`                                   |
+| Check document uniqueness           | `POST /users/check-document`                                |
+| Toggle user status                  | `POST /users/toggle-status`                                 |
+| Change password (AJAX, own account) | `POST /users/change-password`                               |
+| Unlock a login                      | `POST /users/{id}/unlock-login`                             |
+| Resend an invitation                | `POST /users/{id}/resend-invitation`                        |
+| Create / update permission          | `POST /permissions/create`, `/permissions/update`           |
+| Toggle permission status            | `POST /permissions/toggle-status`                           |
+| Assign / revoke a user permission   | `POST /permissions/assign-user`, `/permissions/revoke-user` |
+| Users without a permission          | `GET /permissions/get-users-without`                        |
+| Check permission name uniqueness    | `POST /permissions/check-name`                              |
+| Create / update role                | `POST /roles/create`, `/roles/update`                       |
+| Toggle role status                  | `POST /roles/toggle-status`                                 |
+| Sync a role's permissions           | `POST /roles/sync-permissions`                              |
+| Check role name uniqueness          | `POST /roles/check-name`                                    |
+
+Create and update role return `csrf_token` in the JSON: the role modal chains a second POST (permission sync) without reloading the page.
 
 ## SweetAlert2 utilities
 
@@ -137,7 +144,7 @@ All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Neve
 
 | Method                                                  | Purpose                                                           |
 | ------------------------------------------------------- | ----------------------------------------------------------------- |
-| `ToastUtils.success(title, text?)`                      | Green toast                                                       |
+| `ToastUtils.success(title, text?, timer?)`              | Green toast                                                       |
 | `ToastUtils.error(title, text?)`                        | Red toast                                                         |
 | `ToastUtils.warning(title, text?, duration?)`           | Orange toast                                                      |
 | `ToastUtils.info(title, text?)`                         | Blue toast                                                        |
@@ -146,12 +153,12 @@ All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Neve
 
 ### AlertUtils
 
-| Method                                                 | Purpose                                                |
-| ------------------------------------------------------ | ------------------------------------------------------ |
-| `AlertUtils.confirm(title, text, onConfirm, options?)` | Confirmation dialog; `options.html` for rich body text |
-| `AlertUtils.confirmDelete(title, text, onConfirm)`     | Red confirm pre-configured for destructive actions     |
-| `AlertUtils.welcome(name)`                             | Animated welcome popup (used at login)                 |
-| `AlertUtils.image(src, alt?, confirmButtonText?)`      | Lightbox image viewer                                  |
+| Method                                                 | Purpose                                                                                                                                                                                      |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AlertUtils.confirm(title, text, onConfirm, options?)` | Confirmation dialog; `options.html` for rich body text                                                                                                                                       |
+| `AlertUtils.confirmDelete(url, title?, text?)`         | Red confirm that navigates to `url` (a GET) once accepted. No screen uses it: destructive actions are `POST` routes with CSRF, confirmed with `AlertUtils.confirm` and sent with `Http.post` |
+| `AlertUtils.welcome(name)`                             | Animated welcome popup (used at login)                                                                                                                                                       |
+| `AlertUtils.image(src, alt?, confirmButtonText?)`      | Lightbox image viewer                                                                                                                                                                        |
 
 ### loadingWithMinTime pattern
 
@@ -215,7 +222,7 @@ const dataset = JSON.parse(
 const userId = parseInt(document.getElementById("myWidget").dataset.userId, 10);
 ```
 
-This pattern is used in `public/js/modules/dashboard/index-dashboard.js`.
+This pattern is used in `public/js/modules/dashboard/index-dashboard.js`. Table data travels the same way: the controller builds the JSON (`$rolesJson`, `UserController`, `AuditLogController`) and the view prints it in `data-rows` on the table's `<div>`; `TableUtils.create` reads it, so no endpoint feeds the tables.
 
 ## Tom Select and validation conventions
 
