@@ -26,7 +26,6 @@
     <link rel="stylesheet" href="<?= URL ?>css/lib/bootstrap-icons/bootstrap-icons.min.css">
     <!-- AdminLTE 4 (incluye Bootstrap 5) -->
     <link rel="stylesheet" href="<?= URL ?>css/lib/adminlte/adminlte.min.css">
-    <!-- Dark mode tokens -->
     <link rel="stylesheet" href="<?= URL ?>css/core/dark-mode.css">
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login.css">
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login-dark.css">
@@ -34,7 +33,6 @@
 </head>
 
 <body class="login-page bg-body-secondary">
-    <!-- Theme toggle -->
     <a href="#" id="theme-toggle" class="auth-theme-toggle" role="button" title="Toggle dark mode"
         aria-label="Toggle dark mode" aria-pressed="false">
         <i class="bi bi-moon-fill theme-icon-to-dark"></i>
@@ -48,11 +46,6 @@
     <script src="<?= URL ?>js/lib/adminlte/adminlte.min.js"></script>
     <script src="<?= URL ?>js/plugins/sweetalert2/sweetalert2.min.js"></script>
     <script src="<?= URL ?>js/core/sweetalert-utils.js"></script>
-    <!-- jQuery y validación: se eliminan en la fase E -->
-    <script src="<?= URL ?>js/lib/jquery/jquery.min.js"></script>
-    <script src="<?= URL ?>js/plugins/validations/jquery.validate.min.js"></script>
-    <script src="<?= URL ?>js/plugins/validations/additional-methods.min.js"></script>
-    <script src="<?= URL ?>js/core/common-validate.js"></script>
     <script src="<?= URL ?>js/core/http.js"></script>
     <script src="<?= URL ?>js/core/form-validator.js"></script>
     <script src="<?= URL ?>js/core/common-utils.js"></script>

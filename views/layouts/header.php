@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="<?= URL; ?>/css/lib/adminlte/adminlte.min.css">
     <!-- UI Components custom styles -->
     <link rel="stylesheet" href="<?= URL; ?>/css/core/ui-components.css">
-    <!-- Dark mode overrides -->
     <link rel="stylesheet" href="<?= URL; ?>/css/core/dark-mode.css">
     <!-- Conditional plugin CSS -->
     <?php
@@ -41,8 +40,6 @@
     <?php endforeach; ?>
     <!-- Sweetalert2 -->
     <link rel="stylesheet" href="<?= URL; ?>/css/plugins/sweetalert2/sweetalert2.min.css">
-    <!-- jQuery (se elimina en la fase E) -->
-    <script src="<?= URL; ?>/js/lib/jquery/jquery.min.js"></script>
 
     <!-- Module-specific styles -->
     <?php if (isset($module_styles) && is_array($module_styles)): ?>
@@ -65,7 +62,6 @@
                         </a>
                     </li>
 
-                    <!-- Logo visible only on mobile -->
                     <li class="nav-item d-sm-none">
                         <a href="<?= URL; ?>" class="nav-link d-flex align-items-center">
                             <img src="<?= URL; ?>/img/e-commerce_logo.png" alt="Logo" width="25" height="25"

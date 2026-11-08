@@ -1,4 +1,4 @@
-// Lee las metas del layout; los módulos usan estos globales hasta que http.js los reemplace.
+// Los layouts publican base-url y csrf-token en <meta> porque no se permite <script> en línea; http.js lee el token vigente de esa meta.
 const baseUrl = document.querySelector('meta[name="base-url"]')?.content ?? '';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
@@ -11,17 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/**
- * common-utils.js - Basic JavaScript utilities for the system
- *
- * Contains helper functions for initializing common components
- * in the project.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Core
- * @author jandrescodes
- * @version 1.0
- */
+/** Helpers globales sin jQuery que cargan los layouts de administración y de autenticación. */
 
 /**
  * Formats a date into a readable string (MM/DD/YYYY)
@@ -54,12 +44,10 @@ document.addEventListener('click', (event) => {
     const reveal = field.type === 'password';
     field.type = reveal ? 'text' : 'password';
 
-    // Las vistas aún mezclan Font Awesome y Bootstrap Icons hasta la fase de iconos.
     const icon = btn.querySelector('i');
     if (icon) {
-        const prefix = icon.className.includes('bi-eye') ? 'bi-' : 'fa-';
-        icon.classList.toggle(`${prefix}eye`, reveal);
-        icon.classList.toggle(`${prefix}eye-slash`, !reveal);
+        icon.classList.toggle('bi-eye', reveal);
+        icon.classList.toggle('bi-eye-slash', !reveal);
     }
     btn.setAttribute('aria-pressed', String(reveal));
     btn.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
