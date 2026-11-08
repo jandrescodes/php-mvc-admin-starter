@@ -144,18 +144,11 @@
     animation: db-card-in 500ms cubic-bezier(0.4, 0, 0.2, 1) 520ms both;
 }
 
-/* ─── Table row subtle highlight ─────────────────────────────────────────── */
+/* ─── Small-box ──────────────────────────────────────────────────────────── */
 
-.dashboard-recent tbody tr {
-    transition: background-color 200ms ease;
-}
-
-.dashboard-recent tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.06);
-}
-
-[data-bs-theme="dark"] .dashboard-recent tbody tr:hover {
-    background-color: rgba(77, 171, 247, 0.10);
+/* El h1–h6 de Bootstrap 5 usa --bs-heading-color (casi negro) y pierde contraste sobre el fondo de color; hereda el del small-box. */
+.small-box .inner h3 {
+    color: inherit;
 }
 
 /* ─── Reduced motion ──────────────────────────────────────────────────────── */
@@ -168,8 +161,7 @@
     .app-content .row:first-of-type > [class*="col"],
     .dashboard-charts > [class*="col"],
     .dashboard-charts .card,
-    .dashboard-recent,
-    .dashboard-recent tbody tr {
+    .dashboard-recent {
         animation: none !important;
         transition: none !important;
     }
