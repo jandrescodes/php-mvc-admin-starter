@@ -120,15 +120,15 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase F — Estilos
 
-- [ ] T44. `dark-mode.css`: pasar los selectores `html.dark-mode` a `[data-bs-theme="dark"]` y retirar parches de utilidades Bootstrap ya cubiertos. (FR-20, FR-23)
+- [x] T44. `dark-mode.css`: pasar los selectores `html.dark-mode` a `[data-bs-theme="dark"]` y retirar parches de utilidades Bootstrap ya cubiertos. (FR-20, FR-23)
       Done when: `grep -r 'dark-mode' public views` solo encuentra el nombre del archivo `dark-mode.css` y su enlace; claro/oscuro verificados en una pantalla.
-- [ ] T45. Eliminar los parches de `.dataTables_*`, `.select2*` y `.swal2-*`; añadir el ajuste del borde del desplegable de Tom Select. (FR-23)
+- [x] T45. Eliminar los parches de `.dataTables_*`, `.select2*` y `.swal2-*`; añadir el ajuste del borde del desplegable de Tom Select. (FR-23)
       Done when: tabla, selector y diálogo se ven bien en oscuro.
-- [ ] T46. `public/css/modules/login/*` y `errors/*` (claro y oscuro) sin clases eliminadas. (FR-8, FR-23, FR-31)
+- [x] T46. `public/css/modules/login/*` y `errors/*` (claro y oscuro) sin clases eliminadas. (FR-8, FR-23, FR-31)
       Done when: login y errores verificados en ambos temas.
-- [ ] T47. `public/css/modules/dashboard/*` y `audit-log/*`. (FR-17, FR-18, FR-23)
+- [x] T47. `public/css/modules/dashboard/*` y `audit-log/*`. (FR-17, FR-18, FR-23)
       Done when: dashboard y auditoría verificados en ambos temas.
-- [ ] T48. `public/css/modules/users|roles|permissions/*` y `public/css/core/ui-components.css`. (FR-23, FR-32)
+- [x] T48. `public/css/modules/users|roles|permissions/*` y `public/css/core/ui-components.css`. (FR-23, FR-32)
       Done when: ninguna referencia a clases eliminadas en v4 (barrido con el inventario T1 y la sección de clases generadas en JS de T1b).
 
 ## Fase G — Limpieza y verificación

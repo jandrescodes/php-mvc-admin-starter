@@ -1,6 +1,6 @@
 <?php
 
-// Falla si algún asset de AssetRegistry no existe en public/ (CI: NFR-9).
+// Falla si algún asset de AssetRegistry no existe en public/ (se ejecuta en CI).
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\AssetRegistry;

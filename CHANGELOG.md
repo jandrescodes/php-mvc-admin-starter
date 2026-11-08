@@ -11,26 +11,30 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 
 ### Changed
 
-- Spec 001 adjusted after the project audit (CHG-1: CI check for `public/`, transition strategy, Tabulator decision, accepted audit-log risk; CHG-2: adoption rule — replace what AdminLTE 4 covers, keep and adapt what it does not).
+- Migration scope adjusted after the project audit: CI check for `public/`, Tabulator instead of DataTables, accepted audit-log risk, and the adoption rule — replace what AdminLTE 4 covers, keep and adapt what it does not.
 - `AssetRegistry` maps rewritten for the new stack (`tabulator`, `tom-select`, `export`, `chart`); the `datatables`, `select2` and `validate` keys are gone and their controllers move in the module phase.
 - CI: the `quality` job installs Node 22, runs `npm ci && npm run assets`, fails if `public/` differs from the lockfile (`git diff --exit-code -- public/`) and runs `scripts/check-asset-paths.php`; css/js changes no longer skip CI.
 - Dependabot now covers npm, with the AdminLTE-aligned libraries grouped and held until AdminLTE itself is bumped.
 
-- Layouts rewritten for AdminLTE 4 (T14–T20): `header.php` (`app-header`, user menu, `data-lte-color-mode="off"`), `sidebar.php` (`app-sidebar`, treeview, Bootstrap Icons), `footer.php` (`app-footer`, script order Bootstrap → AdminLTE → OverlayScrollbars → SweetAlert2), `auth.php` and `error.php` as standalone pages. Bootstrap 4 and Font Awesome are no longer loaded by any layout.
+- Layouts rewritten for AdminLTE 4: `header.php` (`app-header`, user menu, `data-lte-color-mode="off"`), `sidebar.php` (`app-sidebar`, treeview, Bootstrap Icons), `footer.php` (`app-footer`, script order Bootstrap → AdminLTE → OverlayScrollbars → SweetAlert2), `auth.php` and `error.php` as standalone pages. Bootstrap 4 and Font Awesome are no longer loaded by any layout.
 - Theme switch writes `data-bs-theme` (anti-FOUC is the only inline script of each layout); the toggle icon is chosen by CSS, which removes the moon→sun flicker on every page load.
 - `baseUrl` / `csrfToken` now come from `<meta>` tags instead of inline scripts; flash messages and the welcome popup go through a hidden `#flash-data` element handled in `sweetalert-utils.js`, with the `<noscript>` alert kept.
-- `errors.css` reduced to the `[data-tone]` colours for both themes; `errors-dark.css` is no longer loaded.
-- `common-utils.js`: the password toggle is a delegated vanilla listener (accepts `fa-` and `bi-` icons); `ajaxRequest`, `initializeSelect2` and the duplicated `showToast` are gone (T23, T25, T28).
-- `ui-components.js` rewritten without jQuery: Tom Select (`maxOptions: null`, `allowEmptyOption`, no `dropdownParent`) and one delegated Bootstrap 5 tooltip on `<body>` (T25).
-- `sweetalert-utils.js` passes `theme: 'dark'|'light'` from `data-bs-theme` on every call (`SwalTheme`) and uses button colours with ≥ 4.5:1 contrast (`#0a58ca`, `#b02a37`) (T28).
-- Every screen migrated to AdminLTE 4 / Bootstrap 5 without jQuery (T29–T43): roles, permissions (with assign/revoke), users (list, create, edit, detail, profile), audit log, dashboard and the four auth pages. Tables use Tabulator with DataTables-style controls (Show N entries, Search, Reports/Columns, Showing…, Bootstrap paginator), a `#` row counter instead of ids, and a responsive `+`/`−` collapse control; every `<select>` uses Tom Select; validation is native through `FormValidator`; AJAX goes through `Http`.
+- `errors.css` reduced to the `[data-tone]` colours for both themes; `errors-dark.css` is deleted.
+- `common-utils.js`: the password toggle is a delegated vanilla listener (accepts `fa-` and `bi-` icons); `ajaxRequest`, `initializeSelect2` and the duplicated `showToast` are gone.
+- `ui-components.js` rewritten without jQuery: Tom Select (`maxOptions: null`, `allowEmptyOption`, no `dropdownParent`) and one delegated Bootstrap 5 tooltip on `<body>`.
+- `sweetalert-utils.js` passes `theme: 'dark'|'light'` from `data-bs-theme` on every call (`SwalTheme`) and uses button colours with ≥ 4.5:1 contrast (`#0a58ca`, `#b02a37`).
+- Every screen migrated to AdminLTE 4 / Bootstrap 5 without jQuery: roles, permissions (with assign/revoke), users (list, create, edit, detail, profile), audit log, dashboard and the four auth pages. Tables use Tabulator with DataTables-style controls (Show N entries, Search, Reports/Columns, Showing…, Bootstrap paginator), a `#` row counter instead of ids, and a responsive `+`/`−` collapse control; every `<select>` uses Tom Select; validation is native through `FormValidator`; AJAX goes through `Http`.
 - Row actions follow the viewer's permissions: the server sends `manage` per row (users; roles: `admin || !is_system`) and the table only draws the allowed buttons.
 - Dashboard charts use the Chart.js 4 API and rebuild when `data-bs-theme` changes; the audit log filters by date with native inputs and its PDF export is the server-side one.
 - Cards stacked in one column take `mb-4` (Bootstrap 5 dropped the card margin) and tabbed cards use `card-outline-tabs` painted from `--lte-card-variant-bg` in `ui-components.css`.
+- Styles on the new stack: `dark-mode.css` keys on `[data-bs-theme="dark"]` and keeps only the shared `--dm-*` tokens, the tuned accent colours (small-box, modal headers, buttons through `--bs-btn-*`), autofill and `.bg-light`; the DataTables, Select2 and SweetAlert2 patches and everything AdminLTE 4 already themes (navbar, sidebar, pagination, tabs, links, `img-thumbnail`, list groups) are gone.
+- `--dm-success` is now `#008060` and `--dm-danger` `#c0392b` so white text on them reaches 4.5:1 (it was 2.45:1 and 3.82:1); the login primary is `#0069d9` (white text 5.22:1, it was 3.98:1) and the login button paints through `--bs-btn-*` so the dark-theme tone applies.
+- `ui-components.css` reduced to what Bootstrap 5 / AdminLTE 4 do not cover: tooltips are coloured through `--bs-tooltip-bg` (arrow included; lighter in dark so it does not blend with the page), Tom Select takes its text, chips and dropdown border from the theme, and the Select2, Bootstrap 4 tooltip-arrow, `input-group-append`, `fa-spinner`, `.main-footer` and unused `border-md-*` rules were removed. Dashboard: small-box numbers inherit the card colour (Bootstrap 5 headings are near-black) and the redundant row-hover rule is gone.
 - `AuditLogController::index` still sends every row as JSON; measured 600 B/row (30 B gzip): 20 043 rows = 12.1 MB (603 KB gzip). Accepted risk, documented in `AGENTS.md`.
 
 ### Fixed
 
+- Dark theme: Tom Select text and selected chips were unreadable (`#343a40` on a dark control), modal headers ignored the tuned accent colours (the rules targeted `.modal-header.bg-*` but the views use `text-bg-*`), and the dashboard small-box numbers had poor contrast.
 - Role permission sync no longer deletes the inactive permissions assigned to a role: the form only lists active ones, so `Role::syncPermissions` now replaces only the active ones (`INSERT IGNORE`) and inactive assignments come back when the permission is reactivated.
 - A non-admin can no longer remove permissions they do not hold from a role: `RoleController::syncPermissions` applies the same "nobody grants what they do not hold" rule when removing as when assigning (`You cannot remove permissions you do not hold.`).
 - The roles list no longer runs one query per role to read its permissions (`Role::getAssignedPermissionIdsByRole`), and `toggleStatus` / `syncPermissions` answer `Role not found.` for a missing role.
@@ -42,9 +46,9 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - Bootstrap 5.3.8, Bootstrap Icons 1.13.1, OverlayScrollbars 2.16.0, Tabulator 6.6.1, Tom Select 2.6.2, Chart.js 4.5.1, SweetAlert2 11.26.25, jsPDF 4.2.1, jspdf-autotable 5.0.9 and SheetJS 0.20.3 (from `cdn.sheetjs.com`; the npm package has two CVEs) in `public/`.
 - `.gitattributes` with `export-ignore` for `package*.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` and `tests/`.
 - `scripts/check-asset-paths.php` and the inventories `docs/data-api-inventory.md` and the JS-generated classes section of `docs/adminlte3-class-inventory.md`.
-- `public/js/core/http.js` (`Http.get/post/request`): `fetch` with `X-Requested-With`, `URLSearchParams`, the current CSRF token and JSON/error handling; it updates the `csrf-token` meta and hidden inputs when a response carries `csrf_token` (T22). Loaded by `footer.php` and `auth.php`.
-- `public/js/core/form-validator.js` (`FormValidator.init/reset`): native validation with Bootstrap 5 `.is-invalid` / `.invalid-feedback`, `equalTo`, `remote` uniqueness (`fetch` + debounce + `AbortController`) and AJAX submit with a spinner; no duplicate AdminLTE `<id>-error` (T24).
-- `public/js/core/table-utils.js` (`TableUtils`): Tabulator defaults (pagination, natural sort, Spanish texts), escaped formatters, global search, column-visibility dropdown and Copy / CSV / Print / Excel / PDF export with page-numbered footer (T26a–T27b).
+- `public/js/core/http.js` (`Http.get/post/request`): `fetch` with `X-Requested-With`, `URLSearchParams`, the current CSRF token and JSON/error handling; it updates the `csrf-token` meta and hidden inputs when a response carries `csrf_token`. Loaded by `footer.php` and `auth.php`.
+- `public/js/core/form-validator.js` (`FormValidator.init/reset`): native validation with Bootstrap 5 `.is-invalid` / `.invalid-feedback`, `equalTo`, `remote` uniqueness (`fetch` + debounce + `AbortController`) and AJAX submit with a spinner; no duplicate AdminLTE `<id>-error`.
+- `public/js/core/table-utils.js` (`TableUtils`): Tabulator defaults (pagination, natural sort, Spanish texts), escaped formatters, global search, column-visibility dropdown and Copy / CSV / Print / Excel / PDF export with page-numbered footer.
 - `docs/icon-map.md`: Font Awesome → Bootstrap Icons map (62 icons, `fa-spin` and `fa-stack` redesigns).
 
 ## [3.18.1] - 2026-10-27
