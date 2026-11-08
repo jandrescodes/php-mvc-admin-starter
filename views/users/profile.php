@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -30,9 +29,9 @@
                                 src="<?= $imageSrc; ?>"
                                 alt="Profile photo">
                         </div>
-                        <h3 class="fs-4 text-center mt-2">
+                        <h2 class="fs-4 text-center mt-2">
                             <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
-                        </h3>
+                        </h2>
                         <p class="text-body-secondary text-center"><?= htmlspecialchars($user['role_name'] ?? 'No role assigned'); ?></p>
 
                         <ul class="list-group list-group-flush mb-0">
@@ -89,7 +88,7 @@
                                     <!-- Profile photo -->
                                     <div class="card card-outline card-success mb-4">
                                         <div class="card-header">
-                                            <h3 class="card-title"><i class="bi bi-camera me-2" aria-hidden="true"></i>Profile photo</h3>
+                                            <h2 class="card-title"><i class="bi bi-camera me-2" aria-hidden="true"></i>Profile photo</h2>
                                         </div>
                                         <div class="card-body">
                                             <div class="row align-items-center g-3">
@@ -111,7 +110,7 @@
                                     <!-- Contact -->
                                     <div class="card card-outline card-info mb-0">
                                         <div class="card-header">
-                                            <h3 class="card-title"><i class="bi bi-person-lines-fill me-2" aria-hidden="true"></i>Contact</h3>
+                                            <h2 class="card-title"><i class="bi bi-person-lines-fill me-2" aria-hidden="true"></i>Contact</h2>
                                         </div>
                                         <div class="card-body">
                                             <div class="mb-3">

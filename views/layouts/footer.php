@@ -13,7 +13,6 @@
 </div>
 <!-- ./app-wrapper -->
 
-<!-- Bootstrap 5 -->
 <script src="<?= URL; ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
@@ -22,7 +21,6 @@
 <!-- OverlayScrollbars (scroll del menú lateral) -->
 <script src="<?= URL; ?>/js/lib/overlayscrollbars/overlayscrollbars.browser.es6.min.js"></script>
 
-<!-- SweetAlert2 -->
 <script src="<?= URL; ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
 
 <!-- Main application scripts -->
@@ -38,10 +36,9 @@ foreach ($pluginJsFiles as $js): ?>
     <script src="<?= URL; ?>/js/<?= $js; ?>"></script>
 <?php endforeach; ?>
 
-<!-- UI Components utilities (after plugins) -->
+<!-- ui-components.js va después de los plugins: inicializa Tom Select y los tooltips sobre ellos -->
 <script src="<?= URL; ?>/js/core/ui-components.js"></script>
 
-<!-- SweetAlert2 utilities -->
 <script src="<?= URL; ?>/js/core/sweetalert-utils.js"></script>
 
 <!-- Tablas (Tabulator); solo actúa si la vista carga el plugin -->

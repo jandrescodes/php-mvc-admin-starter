@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -41,9 +40,9 @@
                             </button>
                         </div>
 
-                        <h3 class="fs-4 text-center mt-3">
+                        <h2 class="fs-4 text-center mt-3">
                             <?= htmlspecialchars(trim($user['name'] . ' ' . $user['first_surname'] . ' ' . ($user['second_surname'] ?? ''))); ?>
-                        </h3>
+                        </h2>
 
                         <p class="text-body-secondary text-center"><?= htmlspecialchars($user['role_name'] ?? 'No role assigned'); ?></p>
 
@@ -209,7 +208,7 @@
                                     </div>
                                 <?php else: ?>
                                     <div class="alert alert-info mb-0">
-                                        <h5><i class="bi bi-info-circle me-1" aria-hidden="true"></i> No address information</h5>
+                                        <p class="h5"><i class="bi bi-info-circle me-1" aria-hidden="true"></i> No address information</p>
                                         <p class="mb-0">This user has no address information registered.</p>
                                     </div>
                                 <?php endif; ?>
@@ -220,7 +219,7 @@
                             <div class="tab-pane fade" id="tab-permissions" role="tabpanel" aria-labelledby="tab-permissions-tab" tabindex="0">
                                 <?php if ($isAdminUser): ?>
                                     <div class="alert alert-success">
-                                        <h5><i class="bi bi-check-circle me-1" aria-hidden="true"></i> Administrator User</h5>
+                                        <p class="h5"><i class="bi bi-check-circle me-1" aria-hidden="true"></i> Administrator User</p>
                                         <p class="mb-0">This user has an Administrator role and therefore has access to all system permissions.</p>
                                     </div>
                                 <?php endif; ?>
@@ -240,7 +239,7 @@
                                     <?php elseif (!$isAdminUser): ?>
                                         <div class="col-12">
                                             <div class="alert alert-warning mb-0">
-                                                <h5><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i> No specific permissions</h5>
+                                                <p class="h5"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i> No specific permissions</p>
                                                 <p class="mb-0">This user has no specific permissions assigned.</p>
                                             </div>
                                         </div>

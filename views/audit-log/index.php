@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -24,7 +23,7 @@
             <div class="col-12">
                 <div class="card card-outline card-secondary collapsed-card mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-funnel me-1" aria-hidden="true"></i> Filters</h3>
+                        <h2 class="card-title"><i class="bi bi-funnel me-1" aria-hidden="true"></i> Filters</h2>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                 <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -117,10 +116,10 @@
                 <div class="card card-outline card-primary">
                     <div class="card-header">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <h3 class="card-title">
+                            <h2 class="card-title">
                                 <i class="bi bi-clock-history me-1" aria-hidden="true"></i> Activity Log
                                 <span class="badge rounded-pill text-bg-secondary ms-2"><?= (int) $logCount ?> records</span>
-                            </h3>
+                            </h2>
                             <div class="card-tools">
                                 <?php if (\App\Core\Auth::hasPermission('audit_log_export')): ?>
                                     <a href="<?= URL ?>audit-log/export?<?= htmlspecialchars(http_build_query($activeFilters)) ?>"

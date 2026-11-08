@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -28,7 +27,7 @@
 
                     <div class="card card-outline card-primary mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-person-vcard me-2" aria-hidden="true"></i>Personal Information</h3>
+                            <h2 class="card-title"><i class="bi bi-person-vcard me-2" aria-hidden="true"></i>Personal Information</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -81,7 +80,7 @@
 
                     <div class="card card-outline card-info mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-envelope me-2" aria-hidden="true"></i>Contact Information</h3>
+                            <h2 class="card-title"><i class="bi bi-envelope me-2" aria-hidden="true"></i>Contact Information</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -118,7 +117,7 @@
 
                     <div class="card card-outline card-warning mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-person-lock me-2" aria-hidden="true"></i>Account Information</h3>
+                            <h2 class="card-title"><i class="bi bi-person-lock me-2" aria-hidden="true"></i>Account Information</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -145,7 +144,7 @@
 
                     <div class="card card-outline card-danger mb-4 collapsed-card">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-key me-2" aria-hidden="true"></i>Change Password (optional)</h3>
+                            <h2 class="card-title"><i class="bi bi-key me-2" aria-hidden="true"></i>Change Password (optional)</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -183,7 +182,7 @@
 
                     <div class="card card-outline card-success mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-image me-2" aria-hidden="true"></i>Profile Image</h3>
+                            <h2 class="card-title"><i class="bi bi-image me-2" aria-hidden="true"></i>Profile Image</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -213,7 +212,7 @@
 
                     <div class="card card-outline card-secondary mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-shield-check me-2" aria-hidden="true"></i>Permission Assignment</h3>
+                            <h2 class="card-title"><i class="bi bi-shield-check me-2" aria-hidden="true"></i>Permission Assignment</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -255,7 +254,7 @@
 
                     <div class="card card-outline card-secondary mb-4">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="bi bi-clock-history me-2" aria-hidden="true"></i>System Information</h3>
+                            <h2 class="card-title"><i class="bi bi-clock-history me-2" aria-hidden="true"></i>System Information</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                     <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -302,7 +301,7 @@
             <div class="col-md-4">
                 <div class="card card-outline card-info mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-question-circle me-1" aria-hidden="true"></i> Guide for updating users</h3>
+                        <h2 class="card-title"><i class="bi bi-question-circle me-1" aria-hidden="true"></i> Guide for updating users</h2>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                 <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -313,11 +312,11 @@
                     <div class="card-body p-0">
                         <div class="accordion accordion-flush" id="accordionGuide">
                             <div class="accordion-item border-0">
-                                <h2 class="accordion-header" id="headingOne">
+                                <h3 class="accordion-header" id="headingOne">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                         <i class="bi bi-person-vcard me-2" aria-hidden="true"></i> Personal Information
                                     </button>
-                                </h2>
+                                </h3>
                                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionGuide">
                                     <div class="accordion-body">
                                         <div class="callout callout-info">
@@ -331,11 +330,11 @@
                                 </div>
                             </div>
                             <div class="accordion-item border-0">
-                                <h2 class="accordion-header" id="headingTwo">
+                                <h3 class="accordion-header" id="headingTwo">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                         <i class="bi bi-key me-2" aria-hidden="true"></i> Password Change
                                     </button>
-                                </h2>
+                                </h3>
                                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionGuide">
                                     <div class="accordion-body">
                                         <div class="callout callout-warning">
@@ -350,11 +349,11 @@
                                 </div>
                             </div>
                             <div class="accordion-item border-0">
-                                <h2 class="accordion-header" id="headingThree">
+                                <h3 class="accordion-header" id="headingThree">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                         <i class="bi bi-shield-check me-2" aria-hidden="true"></i> Permissions
                                     </button>
-                                </h2>
+                                </h3>
                                 <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionGuide">
                                     <div class="accordion-body">
                                         <div class="callout callout-info">
@@ -368,11 +367,11 @@
                                 </div>
                             </div>
                             <div class="accordion-item border-0">
-                                <h2 class="accordion-header" id="headingFour">
+                                <h3 class="accordion-header" id="headingFour">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                                         <i class="bi bi-image me-2" aria-hidden="true"></i> Profile Image
                                     </button>
-                                </h2>
+                                </h3>
                                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionGuide">
                                     <div class="accordion-body">
                                         <div class="callout callout-success">
@@ -393,7 +392,7 @@
                 <!-- Profile preview card -->
                 <div class="card card-outline card-warning mb-4 sticky-top">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-person-badge me-1" aria-hidden="true"></i> Profile preview</h3>
+                        <h2 class="card-title"><i class="bi bi-person-badge me-1" aria-hidden="true"></i> Profile preview</h2>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
                                 <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
@@ -404,7 +403,7 @@
                     <div class="card-body text-center">
                         <div class="profile-preview">
                             <img id="profile-preview-img" src="<?= URL ?>uploads/users/<?= htmlspecialchars(!empty($user['image']) ? $user['image'] : 'user_default.jpg'); ?>" alt="" class="rounded-circle img-thumbnail user-avatar-circle-lg">
-                            <h5 id="profile-preview-name" class="mt-3"><?= htmlspecialchars(trim($user['name'] . ' ' . $user['first_surname'] . ' ' . ($user['second_surname'] ?? ''))); ?></h5>
+                            <h3 id="profile-preview-name" class="h5 mt-3"><?= htmlspecialchars(trim($user['name'] . ' ' . $user['first_surname'] . ' ' . ($user['second_surname'] ?? ''))); ?></h3>
                             <p id="profile-preview-role" class="text-body-secondary"><?= htmlspecialchars($user['role_name'] ?? ''); ?></p>
                             <?php if ($user['status'] == 1): ?>
                                 <span class="badge rounded-pill text-bg-success">Active</span>

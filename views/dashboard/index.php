@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -24,16 +23,16 @@
             <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box text-bg-primary">
                     <div class="inner">
-                        <h3><?= $userStats['total'] ?></h3>
+                        <p class="h3"><?= $userStats['total'] ?></p>
                         <p>Total Users</p>
                     </div>
                     <i class="bi bi-people small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManageUsers): ?>
-                        <a href="<?= URL ?>users" class="small-box-footer link-light link-underline-opacity-0">
+                        <a href="<?= URL ?>users" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
                             Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer link-light link-underline-opacity-0">&nbsp;</span>
+                        <span class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">&nbsp;</span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -41,16 +40,16 @@
             <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box text-bg-warning">
                     <div class="inner">
-                        <h3><?= $permStats['total'] ?></h3>
+                        <p class="h3"><?= $permStats['total'] ?></p>
                         <p>Total Permissions</p>
                     </div>
                     <i class="bi bi-key small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManagePermissions): ?>
-                        <a href="<?= URL ?>permissions" class="small-box-footer link-dark link-underline-opacity-0">
+                        <a href="<?= URL ?>permissions" class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover">
                             Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer link-dark link-underline-opacity-0">&nbsp;</span>
+                        <span class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover">&nbsp;</span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -58,16 +57,16 @@
             <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box text-bg-info">
                     <div class="inner">
-                        <h3><?= $roleStats['total'] ?></h3>
+                        <p class="h3"><?= $roleStats['total'] ?></p>
                         <p>Total Roles</p>
                     </div>
                     <i class="bi bi-person-badge small-box-icon" aria-hidden="true"></i>
                     <?php if ($canManageRoles): ?>
-                        <a href="<?= URL ?>roles" class="small-box-footer link-dark link-underline-opacity-0">
+                        <a href="<?= URL ?>roles" class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover">
                             Manage <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     <?php else: ?>
-                        <span class="small-box-footer link-dark link-underline-opacity-0"><?= $roleStats['active'] ?> active</span>
+                        <span class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover"><?= $roleStats['active'] ?> active</span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -76,11 +75,11 @@
                 <div class="col-xl-3 col-lg-6 col-md-6">
                     <div class="small-box text-bg-success">
                         <div class="inner">
-                            <h3><?= $auditToday ?></h3>
+                            <p class="h3"><?= $auditToday ?></p>
                             <p>Events Today</p>
                         </div>
                         <i class="bi bi-clock-history small-box-icon" aria-hidden="true"></i>
-                        <a href="<?= URL ?>audit-log" class="small-box-footer link-light link-underline-opacity-0">
+                        <a href="<?= URL ?>audit-log" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
                             View Log <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -108,11 +107,11 @@
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="small-box text-bg-warning">
                         <div class="inner">
-                            <h3><?= (int) $pendingInvitations ?></h3>
+                            <p class="h3"><?= (int) $pendingInvitations ?></p>
                             <p>Pending Invitations</p>
                         </div>
                         <i class="bi bi-envelope-open small-box-icon" aria-hidden="true"></i>
-                        <a href="<?= URL ?>users" class="small-box-footer link-dark link-underline-opacity-0">
+                        <a href="<?= URL ?>users" class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover">
                             View Users <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -122,11 +121,11 @@
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="small-box text-bg-secondary">
                         <div class="inner">
-                            <h3><?= (int) $resetsThisWeek ?></h3>
+                            <p class="h3"><?= (int) $resetsThisWeek ?></p>
                             <p>Password Resets This Week</p>
                         </div>
                         <i class="bi bi-unlock small-box-icon" aria-hidden="true"></i>
-                        <span class="small-box-footer link-light link-underline-opacity-0">&nbsp;</span>
+                        <span class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">&nbsp;</span>
                     </div>
                 </div>
             </div>
@@ -139,7 +138,7 @@
             <div class="col-xl-4 col-lg-6">
                 <div class="card card-outline card-primary mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-pie-chart me-1" aria-hidden="true"></i> Users by Status</h3>
+                        <h2 class="card-title"><i class="bi bi-pie-chart me-1" aria-hidden="true"></i> Users by Status</h2>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -160,7 +159,7 @@
             <div class="col-xl-4 col-lg-6">
                 <div class="card card-outline card-info mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-key me-1" aria-hidden="true"></i> Top Permissions</h3>
+                        <h2 class="card-title"><i class="bi bi-key me-1" aria-hidden="true"></i> Top Permissions</h2>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -179,7 +178,7 @@
             <div class="col-xl-4 col-lg-12">
                 <div class="card card-outline card-success mb-4">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-graph-up me-1" aria-hidden="true"></i> Registrations (6 months)</h3>
+                        <h2 class="card-title"><i class="bi bi-graph-up me-1" aria-hidden="true"></i> Registrations (6 months)</h2>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -201,9 +200,9 @@
             <div class="col-12">
                 <div class="card card-outline card-primary mb-4">
                     <div class="card-header">
-                        <h3 class="card-title">
+                        <h2 class="card-title">
                             <i class="bi bi-clock me-1" aria-hidden="true"></i> Recently Registered Users
-                        </h3>
+                        </h2>
                         <?php if ($canManageUsers): ?>
                             <div class="card-tools">
                                 <a href="<?= URL ?>users" class="btn btn-sm btn-primary">

@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -54,7 +53,7 @@
                 <div class="card card-primary card-outline">
                     <div class="card-header">
                         <div class="d-flex flex-wrap justify-content-between align-items-center">
-                            <h3 class="card-title">System Permissions</h3>
+                            <h2 class="card-title">System Permissions</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-primary btn-sm" id="btnNewPermission">
                                     <i class="bi bi-plus-lg" aria-hidden="true"></i> New Permission

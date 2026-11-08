@@ -41,21 +41,11 @@
     opacity: 0.8;
 }
 
-/* Touch target: same 44px minimum applied to [data-password-toggle] in login.css.
-   .small-box-footer defaults to ~27px (AdminLTE's 3px 0 padding) — only used
-   on this dashboard, so the fix is scoped here rather than in the shared lib. */
+/* Área táctil mínima de 44px, igual que [data-password-toggle] en login.css. */
 @media (max-width: 576px) {
     #btnToggleAccessMetrics {
         min-height: 44px;
         padding: 8px 0 !important;
-    }
-
-    .small-box-footer {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3px 0;
     }
 }
 
@@ -146,8 +136,13 @@
 
 /* ─── Small-box ──────────────────────────────────────────────────────────── */
 
-/* El h1–h6 de Bootstrap 5 usa --bs-heading-color (casi negro) y pierde contraste sobre el fondo de color; hereda el del small-box. */
-.small-box .inner h3 {
+/* La cifra es un párrafo, no un encabezado: replica el `h3` de AdminLTE (que solo estiliza la etiqueta) y hereda el color del small-box en vez de --bs-heading-color. El tamaño responsivo lo da `.col-* .small-box .h3` de AdminLTE. */
+.small-box p.h3 {
+    margin: 0 0 10px;
+    padding: 0;
+    font-size: calc(1.345rem + 1.14vw);
+    font-weight: 700;
+    white-space: nowrap;
     color: inherit;
 }
 

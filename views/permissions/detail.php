@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <div class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -28,7 +27,7 @@
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-primary fs-2" style="width: 4rem; height: 4rem;" aria-hidden="true">
                                 <i class="bi bi-key"></i>
                             </span>
-                            <h4 class="mt-2 mb-0"><?= htmlspecialchars($permission['name']); ?></h4>
+                            <h2 class="h4 mt-2 mb-0"><?= htmlspecialchars($permission['name']); ?></h2>
                             <p class="text-body-secondary">#<?= $permission['id']; ?></p>
                         </div>
 
@@ -71,7 +70,7 @@
                 <div class="card card-info card-outline">
                     <div class="card-header">
                         <div class="d-flex flex-wrap justify-content-between align-items-center">
-                            <h3 class="card-title"><i class="bi bi-people me-1" aria-hidden="true"></i> Users with this Permission</h3>
+                            <h2 class="card-title"><i class="bi bi-people me-1" aria-hidden="true"></i> Users with this Permission</h2>
                             <div class="card-tools">
                                 <?php if (!$isInactive): ?>
                                     <button type="button" class="btn btn-success btn-sm" id="btnAssignUser">

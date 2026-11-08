@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <section class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -23,7 +22,7 @@
                 <div class="card card-primary card-outline">
                     <div class="card-header">
                         <div class="d-flex flex-wrap justify-content-between align-items-center">
-                            <h3 class="card-title">User List</h3>
+                            <h2 class="card-title">User List</h2>
                             <div class="card-tools">
                                 <a href="<?= URL ?>users/create" class="btn btn-primary btn-sm">
                                     <i class="bi bi-person-plus" aria-hidden="true"></i> New User

@@ -1,4 +1,3 @@
-<!-- Content Header -->
 <div class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -29,7 +28,7 @@
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-primary fs-2" style="width: 4rem; height: 4rem;" aria-hidden="true">
                                 <i class="bi bi-person-badge"></i>
                             </span>
-                            <h4 class="mt-2 mb-0"><?= htmlspecialchars($role['name']) ?></h4>
+                            <h2 class="h4 mt-2 mb-0"><?= htmlspecialchars($role['name']) ?></h2>
                             <p class="text-body-secondary">#<?= $role['id'] ?></p>
                         </div>
 
@@ -77,7 +76,7 @@
             <div class="col-md-8">
                 <div class="card card-info card-outline">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="bi bi-key me-1" aria-hidden="true"></i> Permission Assignment</h3>
+                        <h2 class="card-title"><i class="bi bi-key me-1" aria-hidden="true"></i> Permission Assignment</h2>
                     </div>
 
                     <?php if (!empty($role['is_system'])): ?>
