@@ -313,7 +313,7 @@ class Permission extends Model
     }
 
     /**
-     * Returns users without this permission formatted for Select2 (id + text).
+     * Usuarios sin este permiso, en formato {id, text} para el selector de asignación.
      *
      * @param int $permissionId
      * @return array  [['id' => int, 'text' => string], ...]

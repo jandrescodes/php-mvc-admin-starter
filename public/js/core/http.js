@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP sin jQuery para las acciones AJAX.
+ * Cliente HTTP nativo (fetch) para las acciones AJAX.
  *
  * Envía siempre X-Requested-With: csrfCheck() y ErrorHandler lo usan para
  * responder JSON en vez de HTML. El token CSRF vigente vive en la meta

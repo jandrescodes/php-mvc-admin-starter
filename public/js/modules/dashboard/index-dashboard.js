@@ -1,28 +1,9 @@
 /**
- * index-dashboard.js - Dashboard metrics charts
+ * index-dashboard.js - Gráficos de métricas del dashboard
  *
- * Renders Chart.js visualizations reading data from data-* attributes
- * set by PHP on each canvas element. No HTML is generated here.
- * Re-renders automatically when the dark/light theme changes.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Dashboard
- * @author jandrescodes
- * @version 1.1
- */
-
-/**
- * index-dashboard.js - Dashboard metrics charts
- *
- * Renders Chart.js 4 visualizations reading data from data-* attributes
- * set by PHP on each canvas element. No HTML is generated here.
- * Colors come from Bootstrap's CSS variables, and charts re-render when the
- * theme switch changes `data-bs-theme` on <html>.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Dashboard
- * @author jandrescodes
- * @version 2.0
+ * Chart.js 4 lee los datos de los atributos data-* que PHP deja en cada canvas;
+ * aquí no se genera HTML. Los colores salen de las variables CSS de Bootstrap y
+ * los gráficos se redibujan cuando el interruptor cambia `data-bs-theme` en <html>.
  */
 
 /** References to active Chart instances for destroy-on-theme-change. */

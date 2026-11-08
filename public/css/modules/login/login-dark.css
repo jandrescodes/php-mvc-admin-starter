@@ -2,7 +2,7 @@
  * login-dark.css
  * Tema oscuro de las páginas standalone de auth (login, olvido, restablecimiento,
  * invitación). Se activa con `data-bs-theme="dark"` en <html> y toma los colores
- * de las variables de Bootstrap, así que sigue al tema sin tokens propios.
+ * de las variables de Bootstrap; solo el degradado del fondo y el color del autofill usan tokens --login-* propios.
  */
 
 /* ─── Fondo de la página ──────────────────────────────────────────────────── */
@@ -90,7 +90,6 @@
     /* evita el flash amarillo */
 }
 
-/* Tema claro — fondo blanco/casi-blanco consistente con el diseño */
 .login-page .form-control:-webkit-autofill,
 .login-page .form-control:-webkit-autofill:hover,
 .login-page .form-control:-webkit-autofill:focus {

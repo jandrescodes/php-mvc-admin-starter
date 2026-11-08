@@ -2,25 +2,24 @@
 
 :root {
     --login-gradient-start: #f5f7fa;
-    --login-gradient-end:   #c3cfe2;
-    --login-heading:        #2c3e50;
-    --login-muted:          #6c757d;
-    --login-border-light:   #ced4da;
-    --login-surface-alt:    #f8f9fa;
-    --login-primary:        #0069d9;
-    --login-primary-hover:  #0062cc;
+    --login-gradient-end: #c3cfe2;
+    --login-heading: #2c3e50;
+    --login-muted: #6c757d;
+    --login-border-light: #ced4da;
+    --login-surface-alt: #f8f9fa;
+    --login-primary: #0069d9;
+    --login-primary-hover: #0062cc;
     --login-primary-active: #005cbf;
-    --login-danger:         #dc3545;
-    --login-success:        #28a745;
-    --login-warning:        #ffc107;
-    --login-info:           #17a2b8;
-    --login-ink:            #495057;
-    --login-focus-border:   #80bdff;
-    --login-focus-shadow:        rgba(0, 123, 255, 0.25);
+    --login-danger: #dc3545;
+    --login-success: #28a745;
+    --login-warning: #ffc107;
+    --login-info: #17a2b8;
+    --login-ink: #495057;
+    --login-focus-border: #80bdff;
+    --login-focus-shadow: rgba(0, 123, 255, 0.25);
     --login-focus-shadow-strong: rgba(0, 123, 255, 0.5);
 }
 
-/* Fondo con gradiente */
 .login-page {
     height: 100vh;
     overflow: hidden;

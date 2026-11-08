@@ -5,9 +5,9 @@ on:
   # push too would double the CI spend for any branch with an open PR. Direct
   # pushes still run on main and on release tags.
   #
-  # Skip runs when a change cannot affect test outcomes (docs, images).
-  # Any change to PHP, composer.*, package*.json, scripts/ or public/ css/js still
-  # triggers: the quality job checks that public/ matches what `npm run assets` produces.
+  # Se omite si el cambio no puede afectar a las pruebas (docs, imágenes). Los cambios
+  # en PHP, composer.*, package*.json, scripts/ o css/js de public/ sí corren: el job
+  # quality comprueba que public/ coincide con lo que produce `npm run assets`.
   push:
     branches: [main]
     tags: ["*"]

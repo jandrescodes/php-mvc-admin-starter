@@ -274,7 +274,7 @@ class Role extends Model
     }
 
     /**
-     * Returns the assigned permission IDs of every role in one query (avoids one query per role).
+     * IDs de permisos asignados a cada rol en una sola consulta (evita una consulta por rol en el listado).
      *
      * @return array<int, int[]>  role_id => permission_id[]
      */
@@ -319,10 +319,10 @@ class Role extends Model
     }
 
     /**
-     * Replaces the active permissions of a role in a single transaction (DELETE + INSERT).
-     * Los inactivos asignados se conservan: la UI solo lista activos, así que un guardado
-     * no debe borrarlos en silencio (reaparecen al reactivar el permiso).
-     * Invalidates the permission cache for every user of the role.
+     * Reemplaza los permisos activos de un rol en una sola transacción. Los inactivos
+     * asignados se conservan: la UI solo lista activos, así que un guardado no debe
+     * borrarlos en silencio (reaparecen al reactivar el permiso).
+     * Invalida la caché de permisos de cada usuario del rol.
      *
      * @param int   $roleId
      * @param array $permissionIds
