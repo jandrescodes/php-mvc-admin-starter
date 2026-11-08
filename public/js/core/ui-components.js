@@ -1,5 +1,5 @@
 /**
- * Componentes de UI sin jQuery: selectores con búsqueda (Tom Select) y
+ * Componentes de UI nativos: selectores con búsqueda (Tom Select) y
  * tooltips de Bootstrap 5.
  */
 
@@ -7,8 +7,7 @@ const ComponentUtils = {
     // Con pocas opciones el buscador estorba; equivale al minimumResultsForSearch de Select2.
     SEARCH_MIN_OPTIONS: 7,
 
-    // `.select2` sigue en las vistas sin migrar; las nuevas usan `.tom-select`.
-    selectSelector: 'select.tom-select, select.select2',
+    selectSelector: 'select.tom-select',
 
     selectBaseConfig: {
         maxOptions: null, // por defecto Tom Select oculta todo lo que pase de 50 opciones
@@ -47,9 +46,28 @@ const ComponentUtils = {
             } else if (select.options.length <= this.SEARCH_MIN_OPTIONS && !('controlInput' in customConfig)) {
                 config.controlInput = null;
             }
-            created.push(new TomSelect(select, config));
+            const instance = new TomSelect(select, config);
+            this._exposeAccessibleName(select, instance);
+            created.push(instance);
         });
         return created;
+    },
+
+    /**
+     * Tom Select deja el <select> original fuera de la pantalla pero dentro del árbol
+     * de accesibilidad (sin etiqueta, porque reasigna el `for` del <label> a su control).
+     * Se oculta ese duplicado y se da nombre al control visible, también cuando el
+     * <label> envuelve al <select> (filtros de las tablas).
+     */
+    _exposeAccessibleName(select, instance) {
+        select.setAttribute('aria-hidden', 'true');
+        const control = instance.focus_node;
+        if (!control || control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')) return;
+        const wrapping = select.closest('label');
+        const text = select.getAttribute('aria-label')
+            ?? (wrapping ? [...wrapping.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join(' ') : '');
+        const name = text.replace(/[\s:]+$/, '').trim();
+        if (name) control.setAttribute('aria-label', name);
     },
 
     destroySelects(target = this.selectSelector) {

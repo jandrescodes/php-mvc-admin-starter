@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const permission = cell.getRow().getData();
                     const id = Number(permission.id);
                     const active = permission.status === 1;
-                    return `<div class="btn-group btn-group-sm">
+                    return `<div class="btn-group btn-group-sm" role="group" aria-label="Actions for permission ${escapeHtml(permission.name)}">
                         <a href="${baseUrl}permissions/${id}" class="btn btn-info" data-bs-toggle="tooltip" title="View details" aria-label="View details">
                             <i class="bi bi-eye" aria-hidden="true"></i>
                         </a>

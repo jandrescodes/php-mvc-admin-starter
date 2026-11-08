@@ -519,6 +519,21 @@ ${table.getHtml('active', false)}
         table.on('clipboardCopied', () => ToastUtils.success('Copied to clipboard', 'The table data is ready to paste.'));
 
         table.on('tableBuilt', () => {
+            // Tabulator pone el cuerpo (`tabindex=0`) sin rol dentro del `role=grid`; el cuerpo es el grupo de filas.
+            element.querySelector('.tabulator-tableholder')?.setAttribute('role', 'rowgroup');
+            element.querySelector('.tabulator-table')?.setAttribute('role', 'presentation');
+            // Los encabezados ordenables son `div`s sin foco: sin esto el orden solo se cambia con ratón.
+            const focusSortable = () => element.querySelectorAll('.tabulator-col.tabulator-sortable:not([tabindex])')
+                .forEach((col) => col.setAttribute('tabindex', '0'));
+            focusSortable();
+            table.on('renderComplete', focusSortable);
+            element.addEventListener('keydown', (event) => {
+                const col = event.target.closest?.('.tabulator-col.tabulator-sortable');
+                if (col && event.target === col && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    col.click();
+                }
+            });
             if (searchInput) this.bindSearch(table, searchInput);
             if (columnMenu) this.bindColumnToggle(table, columnMenu, hiddenFromToggle);
             if (pageSizeSelect) this.bindPageSize(table, pageSizeSelect, pageSizes);

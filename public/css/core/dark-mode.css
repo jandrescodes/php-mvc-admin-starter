@@ -13,38 +13,58 @@
 *::after {
     transition:
         background-color 0.3s ease,
-        color            0.2s ease,
-        border-color     0.3s ease,
-        box-shadow       0.3s ease;
+        color 0.2s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 /* ─── Variables de paleta ──────────────────────────────────────────────── */
 [data-bs-theme="dark"] {
-    --dm-bg:        #343a40;
-    --dm-bg-alt:    #3d4349;
-    --dm-bg-hover:  #454d55;
-    --dm-border:    #6c757d;
-    --dm-text:      #dee2e6;
-    --dm-text-muted:#adb5bd;
+    --dm-bg: #343a40;
+    --dm-bg-alt: #3d4349;
+    --dm-bg-hover: #454d55;
+    --dm-border: #6c757d;
+    --dm-text: #dee2e6;
+    --dm-text-muted: #adb5bd;
 
-    --dm-primary:   #3f6791;
-    --dm-success:   #008060;
-    --dm-info:      #3498db;
-    --dm-warning:   #f39c12;
-    --dm-danger:    #c0392b;
+    --dm-primary: #3f6791;
+    --dm-success: #008060;
+    --dm-info: #3498db;
+    --dm-warning: #f39c12;
+    --dm-danger: #c0392b;
 }
 
 /* ─── Small-box (dashboard) y encabezados de modal con color ──────────── */
 [data-bs-theme="dark"] .small-box.text-bg-primary,
-[data-bs-theme="dark"] .modal-header.text-bg-primary { background-color: var(--dm-primary) !important; }
+[data-bs-theme="dark"] .modal-header.text-bg-primary {
+    background-color: var(--dm-primary) !important;
+}
+
 [data-bs-theme="dark"] .small-box.text-bg-success,
-[data-bs-theme="dark"] .modal-header.text-bg-success { background-color: var(--dm-success) !important; }
+[data-bs-theme="dark"] .modal-header.text-bg-success {
+    background-color: var(--dm-success) !important;
+}
+
 [data-bs-theme="dark"] .small-box.text-bg-warning,
-[data-bs-theme="dark"] .modal-header.text-bg-warning { background-color: var(--dm-warning) !important; }
+[data-bs-theme="dark"] .modal-header.text-bg-warning {
+    background-color: var(--dm-warning) !important;
+}
+
 [data-bs-theme="dark"] .small-box.text-bg-info,
-[data-bs-theme="dark"] .modal-header.text-bg-info    { background-color: var(--dm-info)    !important; }
+[data-bs-theme="dark"] .modal-header.text-bg-info {
+    background-color: var(--dm-info) !important;
+}
+
 [data-bs-theme="dark"] .small-box.text-bg-danger,
-[data-bs-theme="dark"] .modal-header.text-bg-danger  { background-color: var(--dm-danger)  !important; }
+[data-bs-theme="dark"] .modal-header.text-bg-danger {
+    background-color: var(--dm-danger) !important;
+}
+
+/* El pie con texto oscuro (info, warning) pierde contraste sobre el velo negro del pie: se aclara. */
+[data-bs-theme="dark"] .small-box.text-bg-info .small-box-footer,
+[data-bs-theme="dark"] .small-box.text-bg-warning .small-box-footer {
+    background-color: rgba(255, 255, 255, 0.12);
+}
 
 /* ─── Botones de acento (Bootstrap 5 los colorea con variables --bs-btn-*) ─ */
 [data-bs-theme="dark"] .btn-primary {
@@ -55,18 +75,22 @@
     --bs-btn-active-bg: #2e5070;
     --bs-btn-active-border-color: #2e5070;
 }
+
 [data-bs-theme="dark"] .btn-success {
     --bs-btn-bg: var(--dm-success);
     --bs-btn-border-color: var(--dm-success);
 }
+
 [data-bs-theme="dark"] .btn-danger {
     --bs-btn-bg: var(--dm-danger);
     --bs-btn-border-color: var(--dm-danger);
 }
+
 [data-bs-theme="dark"] .btn-warning {
     --bs-btn-bg: var(--dm-warning);
     --bs-btn-border-color: var(--dm-warning);
 }
+
 [data-bs-theme="dark"] .btn-info {
     --bs-btn-bg: var(--dm-info);
     --bs-btn-border-color: var(--dm-info);

@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>`;
                         }
                     }
-                    return `<div class="btn-group btn-group-sm">
+                    return `<div class="btn-group btn-group-sm" role="group" aria-label="Actions for user ${name}">
                         <a href="${baseUrl}users/${id}" class="btn btn-info" data-bs-toggle="tooltip" title="View user" aria-label="View user ${name}">
                             <i class="bi bi-eye" aria-hidden="true"></i>
                         </a>

@@ -172,3 +172,8 @@
 .tabulator-row .tabulator-responsive-collapse td:first-child {
     white-space: nowrap;
 }
+
+/* `code` de Bootstrap (#d63384) no llega a 4.5:1 sobre las filas rayadas o con hover; en oscuro ya cumple. */
+:root:not([data-bs-theme="dark"]) .tabulator .tabulator-cell code {
+    color: #a81f64;
+}

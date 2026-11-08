@@ -1,8 +1,6 @@
 /**
- * UI Components Custom Styles
- * 
- * Estilos personalizados para mejorar los componentes UI
- * como Tom Select, Tooltips, y otros elementos.
+ * Lo que Bootstrap 5 / AdminLTE 4 no cubren: colores de tema para Tom Select y
+ * tooltips, y las pestañas de las cards con outline.
  */
 
 /* ============================================
@@ -30,13 +28,13 @@
     color: var(--bs-body-color);
 }
 
-.ts-wrapper.multi .ts-control > div.item {
+.ts-wrapper.multi .ts-control>div.item {
     background: var(--bs-tertiary-bg);
     border-color: var(--bs-border-color);
     color: var(--bs-body-color);
 }
 
-.ts-wrapper.multi .ts-control > div.item.active {
+.ts-wrapper.multi .ts-control>div.item.active {
     background: var(--bs-primary);
     color: #fff;
 }
@@ -136,7 +134,8 @@
  * Bootstrap 5 son `<button class="nav-link">`, así que se cubren aquí.
  */
 .card-outline-tabs .nav-tabs .nav-link {
-    border-top: 3px solid transparent; /* reserva el alto del acento para que la pestaña activa no empuje al resto */
+    border-top: 3px solid transparent;
+    /* reserva el alto del acento para que la pestaña activa no empuje al resto */
     color: color-mix(in srgb, var(--lte-card-variant-bg) 55%, var(--bs-body-color));
 }
 
@@ -149,4 +148,41 @@
 .card-outline-tabs .nav-tabs .nav-link.active {
     border-top-color: var(--lte-card-variant-bg);
     color: var(--bs-body-color);
+}
+
+/* El submenú del sidebar claro (#777) queda en 4.47:1 sobre blanco; el oscuro ya cumple. */
+:root:not([data-bs-theme="dark"]) .app-sidebar {
+    --lte-sidebar-submenu-color: #6c6c6c;
+}
+
+/* El botón «Sign out» del menú de usuario: #6c757d sobre #f8f9fa queda en 4.44:1; en oscuro ya cumple. */
+:root:not([data-bs-theme="dark"]) .user-footer .btn-outline-secondary {
+    --bs-btn-color: #5c636a;
+}
+
+/* Un `code` dentro de un encabezado de modal con color hereda el texto del encabezado (el rosa de `code` no contrasta con ese fondo). */
+.modal-header code {
+    color: inherit;
+}
+
+/* Área táctil mínima de 44px (WCAG 2.5.5/2.5.8) en móvil: AdminLTE deja los .btn-sm y los
+   .btn-group-sm en ~31px y los .btn normales en ~38px. Los .small-box-footer no son .btn y conservan el estilo de AdminLTE. */
+@media (max-width: 576px) {
+    .btn,
+    .btn-tool,
+    .page-link,
+    .app-header .nav-link,
+    .app-sidebar .nav-link {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-control,
+    .form-select,
+    .ts-wrapper .ts-control {
+        min-height: 44px;
+    }
 }

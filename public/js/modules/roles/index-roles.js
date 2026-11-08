@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const active = role.status === 1;
                     // Solo un administrador toca un rol de sistema: el servidor lo rechaza, así que no se ofrece.
                     const manage = role.manage !== false;
-                    return `<div class="btn-group btn-group-sm">
+                    return `<div class="btn-group btn-group-sm" role="group" aria-label="Actions for role ${escapeHtml(role.name)}">
                         <a href="${baseUrl}roles/${id}" class="btn btn-info" data-bs-toggle="tooltip" title="View permissions" aria-label="View permissions">
                             <i class="bi bi-key" aria-hidden="true"></i>
                         </a>${manage ? `
