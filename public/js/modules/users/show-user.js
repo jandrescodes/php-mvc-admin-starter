@@ -1,87 +1,58 @@
 /**
- * show-user.js - User detail page module
+ * Detalle de usuario: recuerda la última pestaña, amplía la imagen de perfil
+ * y ofrece reenviar la invitación y desbloquear el acceso con confirmación.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    const TAB_KEY = 'lastUserDetailTab';
+    const FAIL = 'A communication error occurred with the server.';
 
-// Restore last active tab
-var lastTab = localStorage.getItem('lastUserDetailTab');
-if (lastTab && $('a[href="' + lastTab + '"]').length) {
-    $('a[href="' + lastTab + '"]').tab('show');
-}
+    // localStorage puede no estar disponible (ventana privada, datos bloqueados): la pestaña recordada es solo una comodidad.
+    const readTab = () => { try { return localStorage.getItem(TAB_KEY); } catch { return null; } };
+    const saveTab = (target) => { try { localStorage.setItem(TAB_KEY, target); } catch { /* sin almacenamiento */ } };
 
-// Save active tab on change
-$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
-    localStorage.setItem('lastUserDetailTab', $(e.target).attr('href'));
-});
+    const triggers = [...document.querySelectorAll('#user-tabs [data-bs-toggle="tab"]')];
+    const last = readTab();
+    const lastTrigger = triggers.find((trigger) => trigger.dataset.bsTarget === last);
+    if (lastTrigger) bootstrap.Tab.getOrCreateInstance(lastTrigger).show();
 
-// Show enlarged image on click
-$('.profile-user-img').on('click', function () {
-    AlertUtils.image($(this).attr('src'), 'Profile image');
-});
+    triggers.forEach((trigger) => {
+        trigger.addEventListener('shown.bs.tab', (event) => saveTab(event.target.dataset.bsTarget));
+    });
 
-// Resend invitation — pending users only
-$('#btn-resend-invitation').on('click', function () {
-    const userId   = $(this).data('user-id');
-    const userName = $(this).data('name');
+    document.getElementById('btn-profile-image')?.addEventListener('click', (event) => {
+        AlertUtils.image(event.currentTarget.dataset.src, 'Profile image');
+    });
 
-    AlertUtils.confirm(
-        `Resend invitation to ${userName}?`,
-        'The previous invitation link will be invalidated.',
-        function () {
-            ToastUtils.loadingWithMinTime('Sending invitation...', () => {
-                $.ajax({
-                    url: `${baseUrl}users/${userId}/resend-invitation`,
-                    method: 'POST',
-                    data: { csrf_token: csrfToken },
-                    dataType: 'json',
-                    success: function (res) {
-                        if (res.success) {
-                            location.reload();
-                        } else {
-                            Swal.close();
-                            ToastUtils.error(res.message);
-                        }
-                    },
-                    error: function () {
-                        Swal.close();
-                        ToastUtils.error('A communication error occurred with the server.');
-                    }
-                });
-            }, 800);
-        },
-        { confirmText: 'Yes, resend', confirmColor: '#6c757d', cancelText: 'Cancel', cancelColor: '#adb5bd' }
-    );
-});
+    /** POST con carga mínima de 800 ms; recarga si el servidor acepta, avisa si no. */
+    const run = (loadingText, path) => {
+        ToastUtils.loadingWithMinTime(loadingText, async () => {
+            const { data } = await Http.post(`${baseUrl}${path}`, {});
+            if (data?.success) {
+                location.reload();
+                return;
+            }
+            Swal.close();
+            ToastUtils.error('Error', data?.message ?? FAIL);
+        }, 800);
+    };
 
-// Unlock login — manual admin action
-$('#btn-unlock-login').on('click', function () {
-    const $btn = $(this);
-    const url = $btn.data('url');
-    const csrf = $btn.data('csrf');
+    document.getElementById('btn-resend-invitation')?.addEventListener('click', (event) => {
+        const { userId, name } = event.currentTarget.dataset;
+        AlertUtils.confirm(
+            `Resend invitation to ${name}?`,
+            'The previous invitation link will be invalidated.',
+            () => run('Sending invitation...', `users/${Number(userId)}/resend-invitation`),
+            { confirmText: 'Yes, resend', confirmColor: '#5c636a', cancelText: 'Cancel', cancelColor: '#6c757d' }
+        );
+    });
 
-    AlertUtils.confirm(
-        '¿Desbloquear acceso?',
-        'El usuario podrá iniciar sesión inmediatamente.',
-        function () {
-            ToastUtils.loadingWithMinTime('Desbloqueando usuario...', () => {
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: { csrf_token: csrf },
-                    dataType: 'json',
-                    success: function (res) {
-                        if (res.success) {
-                            location.reload();
-                        } else {
-                            Swal.close();
-                            ToastUtils.error(res.message);
-                        }
-                    },
-                    error: function () {
-                        Swal.close();
-                        ToastUtils.error('Error al comunicarse con el servidor.');
-                    }
-                });
-            });
-        }
-    );
+    document.getElementById('btn-unlock-login')?.addEventListener('click', (event) => {
+        const { userId } = event.currentTarget.dataset;
+        AlertUtils.confirm(
+            'Unlock login?',
+            'The user will be able to log in immediately.',
+            () => run('Unlocking user...', `users/${Number(userId)}/unlock-login`),
+            { confirmText: 'Yes, unlock', confirmColor: SwalTheme.DANGER, cancelText: 'Cancel', cancelColor: '#6c757d' }
+        );
+    });
 });

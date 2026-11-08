@@ -14,18 +14,32 @@ function escapeHtml(value) {
     });
 }
 
+// Tema de SweetAlert2 según el interruptor propio (`data-bs-theme` en <html>); nunca 'auto', que sigue al sistema.
+const SwalTheme = {
+    current: () => (document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'),
+
+    // Contraste ≥ 4.5:1 con texto blanco (#d33 y #3085d6 de SweetAlert2 no llegan).
+    DANGER: '#b02a37',
+    PRIMARY: '#0a58ca',
+
+    fire: (config) => Swal.fire({ theme: SwalTheme.current(), ...config }),
+    mixin: (config) => Swal.mixin({ theme: SwalTheme.current(), ...config }),
+};
+
 const ToastUtils = {
-    // Configuración base del toast
-    baseConfig: {
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
+    // Se evalúa en cada llamada para tomar el tema vigente.
+    get baseConfig() {
+        return {
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        };
     },
 
     /**
@@ -36,7 +50,7 @@ const ToastUtils = {
      * @returns {Promise}
      */
     success: function (title, text = '', timer = 3000) {
-        const Toast = Swal.mixin(this.baseConfig);
+        const Toast = SwalTheme.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'success',
             title: escapeHtml(title),
@@ -53,7 +67,7 @@ const ToastUtils = {
      * @returns {Promise}
      */
     error: function (title, text = '', timer = 4000) {
-        const Toast = Swal.mixin(this.baseConfig);
+        const Toast = SwalTheme.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'error',
             title: escapeHtml(title),
@@ -70,7 +84,7 @@ const ToastUtils = {
      * @returns {Promise}
      */
     warning: function (title, text = '', timer = 4000) {
-        const Toast = Swal.mixin(this.baseConfig);
+        const Toast = SwalTheme.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'warning',
             title: escapeHtml(title),
@@ -87,7 +101,7 @@ const ToastUtils = {
      * @returns {Promise}
      */
     info: function (title, text = '', timer = 3000) {
-        const Toast = Swal.mixin(this.baseConfig);
+        const Toast = SwalTheme.mixin(this.baseConfig);
         return Toast.fire({
             icon: 'info',
             title: escapeHtml(title),
@@ -102,7 +116,7 @@ const ToastUtils = {
      * @returns {Promise}
      */
     loading: function (title = 'Cargando...') {
-        return Swal.mixin({
+        return SwalTheme.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -152,7 +166,7 @@ const AlertUtils = {
     baseConfig: {
         showConfirmButton: true,
         confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#3085d6'
+        confirmButtonColor: SwalTheme.PRIMARY
     },
 
     /**
@@ -201,13 +215,13 @@ const AlertUtils = {
      * @returns {Promise}
      */
     confirm: function (title, text, onConfirm, options = {}) {
-        return Swal.fire({
+        return SwalTheme.fire({
             title: escapeHtml(title),
             ...(options.html ? { html: options.html } : { text: text }),
             icon: options.icon || 'warning',
             showCancelButton: true,
-            confirmButtonColor: options.confirmColor || '#d33',
-            cancelButtonColor: options.cancelColor || '#3085d6',
+            confirmButtonColor: options.confirmColor || SwalTheme.DANGER,
+            cancelButtonColor: options.cancelColor || SwalTheme.PRIMARY,
             confirmButtonText: options.confirmText || 'Sí, continuar',
             cancelButtonText: options.cancelText || 'Cancelar',
             reverseButtons: true
@@ -227,13 +241,13 @@ const AlertUtils = {
      * @returns {boolean}
      */
     confirmDelete: function (url, title = '¿Está seguro de eliminar este registro?', text = 'Esta acción no se puede deshacer') {
-        Swal.fire({
+        SwalTheme.fire({
             title: escapeHtml(title),
             text: text,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            confirmButtonColor: SwalTheme.DANGER,
+            cancelButtonColor: SwalTheme.PRIMARY,
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar',
             reverseButtons: true
@@ -255,7 +269,7 @@ const AlertUtils = {
         const greeting = this._getGreeting();
         const safeName = escapeHtml(userName);
 
-        Swal.fire({
+        SwalTheme.fire({
             title: `${greeting}, ${safeName}!`,
             html: `<p>Es un placer verte de nuevo</p>
                    <p class="text-muted mb-0"><small>${new Date().toLocaleDateString('es-ES', {
@@ -284,7 +298,7 @@ const AlertUtils = {
      * @returns {Promise}
      */
     image: function (src, alt = '', confirmButtonText = 'Close') {
-        return Swal.fire({
+        return SwalTheme.fire({
             imageUrl: src,
             imageAlt: alt,
             confirmButtonText: confirmButtonText,
@@ -318,7 +332,7 @@ const AlertUtils = {
  * @deprecated Usar ToastUtils.success() en su lugar
  */
 function showToast(icon, title) {
-    const Toast = Swal.mixin(ToastUtils.baseConfig);
+    const Toast = SwalTheme.mixin(ToastUtils.baseConfig);
     Toast.fire({ icon: icon, title: escapeHtml(title) });
 }
 
@@ -363,3 +377,32 @@ function showInfo(message) {
 function showWelcomeMessage(userName) {
     AlertUtils.welcome(userName);
 }
+
+/**
+ * Muestra los mensajes flash y la bienvenida que messages.php deja en #flash-data.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    const flash = document.getElementById('flash-data');
+    if (!flash) return;
+
+    const { welcome, message, icon } = flash.dataset;
+
+    if (welcome !== undefined && typeof Swal !== 'undefined') {
+        AlertUtils.welcome(welcome);
+    }
+
+    if (message === undefined) return;
+
+    if (typeof Swal !== 'undefined' && typeof ToastUtils[icon] === 'function') {
+        ToastUtils[icon](message);
+        return;
+    }
+
+    // SweetAlert2 no cargó: alerta Bootstrap simple.
+    const bsClass = { success: 'success', error: 'danger', warning: 'warning', info: 'info' }[icon] || 'info';
+    const alertEl = document.createElement('div');
+    alertEl.className = 'alert alert-' + bsClass + ' text-center m-3';
+    alertEl.setAttribute('role', 'alert');
+    alertEl.textContent = message;
+    document.body.insertBefore(alertEl, document.body.firstChild);
+});

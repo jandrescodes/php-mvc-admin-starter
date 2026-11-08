@@ -36,12 +36,31 @@ class RoleController extends Controller
     {
         $roles      = $this->roleModel->getAllWithUserCount();
         $statistics = $this->roleModel->getStatistics();
+        $permissions = (new Permission())->getAllActive();
+
+        $assignedByRole = $this->roleModel->getAssignedPermissionIdsByRole();
+
+        $isAdmin = Auth::isAdmin();
+
+        $rolesJson = json_encode(
+            array_map(static fn (array $role): array => [
+                'id'          => (int) $role['id'],
+                'system'      => !empty($role['is_system']),
+                'manage'      => $isAdmin || empty($role['is_system']),
+                'permissions' => $assignedByRole[(int) $role['id']] ?? [],
+                'name'        => $role['name'],
+                'description' => $role['description'] ?? '',
+                'users'       => (int) ($role['total_users'] ?? 0),
+                'status'      => (int) $role['status'],
+            ], $roles),
+            JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+        );
 
         $this->render(
             'roles/index',
-            compact('roles', 'statistics'),
-            ['datatables', 'datatables-export', 'validate'],
-            ['roles/modal-role', 'roles/index-roles'],
+            compact('statistics', 'permissions', 'rolesJson'),
+            ['tabulator', 'export', 'tom-select'],
+            ['roles/index-roles', 'roles/modal-role'],
             ['roles/roles']
         );
     }
@@ -74,8 +93,9 @@ class RoleController extends Controller
             $_SESSION['message'] = 'Role created successfully.';
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
-                'success' => true,
-                'message' => 'Role created successfully.',
+                'success'    => true,
+                'message'    => 'Role created successfully.',
+                'csrf_token' => generateCSRFToken(),
                 'role'    => [
                     'id'          => $newRoleId,
                     'name'        => $data['name'],
@@ -130,8 +150,9 @@ class RoleController extends Controller
             $_SESSION['message'] = 'Role updated successfully.';
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
-                'success' => true,
-                'message' => 'Role updated successfully.',
+                'success'    => true,
+                'message'    => 'Role updated successfully.',
+                'csrf_token' => generateCSRFToken(),
                 'role'    => [
                     'id'          => $id,
                     'name'        => $data['name'],
@@ -160,7 +181,10 @@ class RoleController extends Controller
         }
 
         $role = $this->roleModel->getById($id);
-        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+        if (!$role) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role not found.']);
+        }
+        if (!empty($role['is_system']) && !Auth::isAdmin()) {
             $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 
@@ -211,8 +235,9 @@ class RoleController extends Controller
         $this->render(
             'roles/detail',
             compact('role', 'allPermissions', 'assignedIds'),
-            ['validate'],
-            ['roles/detail-role']
+            [],
+            ['roles/detail-role'],
+            ['roles/roles']
         );
     }
 
@@ -231,13 +256,24 @@ class RoleController extends Controller
         }
 
         $role = $this->roleModel->getById($roleId);
-        if ($role && !empty($role['is_system']) && !Auth::isAdmin()) {
+        if (!$role) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role not found.']);
+        }
+        if (!empty($role['is_system']) && !Auth::isAdmin()) {
             $this->jsonResponse(['success' => false, 'message' => 'Only administrators can modify a system role.']);
         }
 
-        $newPerms = array_diff($permissions, array_map('intval', $this->roleModel->getAssignedPermissionIds($roleId)));
+        $assigned = array_map('intval', $this->roleModel->getAssignedPermissionIds($roleId));
+        $newPerms = array_diff($permissions, $assigned);
         if (!Auth::canGrantPermissionIds($newPerms)) {
             $this->jsonResponse(['success' => false, 'message' => 'You cannot grant permissions you do not hold.']);
+        }
+
+        // Solo cuentan los activos: son los únicos que el formulario muestra y el modelo reemplaza.
+        $activeIds    = array_map('intval', array_column((new Permission())->getAllActive(), 'id'));
+        $removedPerms = array_intersect(array_diff($assigned, $permissions), $activeIds);
+        if (!Auth::canGrantPermissionIds($removedPerms)) {
+            $this->jsonResponse(['success' => false, 'message' => 'You cannot remove permissions you do not hold.']);
         }
 
         if ($this->roleModel->syncPermissions($roleId, $permissions)) {
@@ -248,8 +284,11 @@ class RoleController extends Controller
                 ['role_id' => $roleId, 'permission_ids' => $permissions, 'total' => count($permissions)]
             );
             regenerateCSRFToken();
-            $_SESSION['message'] = 'Permissions updated successfully.';
-            $_SESSION['icon']    = 'success';
+            // Al crear/editar el rol desde el modal, el mensaje del rol (primer POST) manda sobre el de permisos.
+            if (empty($_SESSION['message'])) {
+                $_SESSION['message'] = 'Permissions updated successfully.';
+                $_SESSION['icon']    = 'success';
+            }
             $this->jsonResponse(['success' => true, 'message' => 'Permissions updated successfully.']);
         }
 

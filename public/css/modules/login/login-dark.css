@@ -1,87 +1,95 @@
 /*
  * login-dark.css
- * Dark mode overrides para páginas standalone de auth (login, forgot-password, reset-password).
- * Complementa dark-mode.css (DataTables, Select2, SweetAlert2) con los
- * elementos específicos del layout de auth: fondo, card, inputs y toggle.
+ * Tema oscuro de las páginas standalone de auth (login, olvido, restablecimiento,
+ * invitación). Se activa con `data-bs-theme="dark"` en <html> y toma los colores
+ * de las variables de Bootstrap; solo el degradado del fondo y el color del autofill usan tokens --login-* propios.
  */
 
-/* ─── Tokens específicos de auth (complementan --dm-* de dark-mode.css) ──── */
-html.dark-mode {
+/* ─── Fondo de la página ──────────────────────────────────────────────────── */
+[data-bs-theme="dark"] {
     --login-dark-gradient-start: #1a1d21;
-    --login-dark-gradient-end:   #2c3038;
-    --login-dark-card-border:    #4b545c;
+    --login-dark-gradient-end: #2c3038;
 }
 
-/* ─── Fondo de la página ──────────────────────────────────────────────────── */
-html.dark-mode .login-page {
+[data-bs-theme="dark"] .login-page {
     background: linear-gradient(135deg, var(--login-dark-gradient-start) 0%, var(--login-dark-gradient-end) 100%);
 }
 
 /* ─── Card ────────────────────────────────────────────────────────────────── */
-html.dark-mode .login-page .card {
-    background-color: var(--dm-bg);
-    border-color: var(--login-dark-card-border);
+[data-bs-theme="dark"] .login-page .card {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
 }
 
-html.dark-mode .login-page .card-header {
-    background-color: var(--login-dark-gradient-end);
-    border-bottom-color: var(--login-dark-card-border);
+/* El borde de color de arriba (`card-outline`) sobrevive al `border-color` de la regla anterior. */
+[data-bs-theme="dark"] .login-page .card-outline {
+    border-top-color: var(--lte-card-variant-bg, var(--bs-primary));
 }
 
-html.dark-mode .login-page .card-header h1 {
-    color: var(--dm-text);
+[data-bs-theme="dark"] .login-page .card-header {
+    background-color: var(--bs-tertiary-bg);
+    border-bottom-color: var(--bs-border-color);
 }
 
-html.dark-mode .login-page .login-card-body {
-    background-color: var(--dm-bg);
+[data-bs-theme="dark"] .login-page .card-header h1 {
+    color: var(--bs-emphasis-color);
 }
 
-html.dark-mode .login-page .login-box-msg {
-    color: var(--dm-text-muted);
+[data-bs-theme="dark"] .login-page .login-card-body {
+    background-color: var(--bs-body-bg);
 }
 
-/* ─── Inputs ──────────────────────────────────────────────────────────────── */
-html.dark-mode .login-page .form-control {
-    background-color: var(--dm-bg-alt);
-    border-color: var(--dm-border);
-    color: var(--dm-text);
+[data-bs-theme="dark"] .login-page .login-box-msg {
+    color: var(--bs-secondary-color);
 }
 
-html.dark-mode .login-page .form-control::placeholder {
-    color: var(--dm-text-muted);
+/* ─── Campos ──────────────────────────────────────────────────────────────── */
+[data-bs-theme="dark"] .login-page .form-control {
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
 }
 
-html.dark-mode .login-page .form-control:focus {
-    background-color: var(--dm-bg-hover);
-    border-color: var(--dm-primary);
-    color: var(--dm-text);
-    box-shadow: 0 0 0 0.2rem rgba(63, 103, 145, 0.35);
+[data-bs-theme="dark"] .login-page .form-control::placeholder {
+    color: var(--bs-secondary-color);
 }
 
-html.dark-mode .login-page .input-group-text,
-html.dark-mode .login-page [data-password-toggle] {
-    background-color: var(--dm-bg-alt);
-    border-color: var(--dm-border);
-    color: var(--dm-text-muted);
+[data-bs-theme="dark"] .login-page .form-control:focus {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-primary);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.35);
 }
 
-html.dark-mode .login-page [data-password-toggle]:hover {
-    background-color: var(--dm-bg-hover);
+[data-bs-theme="dark"] .login-page .input-group-text,
+[data-bs-theme="dark"] .login-page [data-password-toggle] {
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+
+[data-bs-theme="dark"] .login-page [data-password-toggle]:hover {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .login-page .form-check-label {
+    color: var(--bs-body-color);
 }
 
 /* ─── Autofill del navegador (webkit) ─────────────────────────────────────── */
 /* background-color no se puede sobreescribir; se usa box-shadow inset para taparlo */
-html.dark-mode .login-page .form-control:-webkit-autofill,
-html.dark-mode .login-page .form-control:-webkit-autofill:hover,
-html.dark-mode .login-page .form-control:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px var(--dm-bg-alt) inset;
-    -webkit-text-fill-color: var(--dm-text);
-    caret-color: var(--dm-text);
-    border-color: var(--dm-border);
-    transition: background-color 9999s ease-in-out 0s; /* evita el flash amarillo */
+[data-bs-theme="dark"] .login-page .form-control:-webkit-autofill,
+[data-bs-theme="dark"] .login-page .form-control:-webkit-autofill:hover,
+[data-bs-theme="dark"] .login-page .form-control:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--bs-secondary-bg) inset;
+    -webkit-text-fill-color: var(--bs-body-color);
+    caret-color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+    transition: background-color 9999s ease-in-out 0s;
+    /* evita el flash amarillo */
 }
 
-/* Light mode — fondo blanco/casi-blanco consistente con el diseño */
 .login-page .form-control:-webkit-autofill,
 .login-page .form-control:-webkit-autofill:hover,
 .login-page .form-control:-webkit-autofill:focus {
@@ -91,19 +99,14 @@ html.dark-mode .login-page .form-control:-webkit-autofill:focus {
     transition: background-color 9999s ease-in-out 0s;
 }
 
-/* ─── iCheck (remember me) ────────────────────────────────────────────────── */
-html.dark-mode .login-page .icheck-primary label {
-    color: var(--dm-text);
-}
-
-/* ─── Links ───────────────────────────────────────────────────────────────── */
-html.dark-mode .login-page a:not(.btn) {
-    color: var(--dm-info);
+/* ─── Enlaces ─────────────────────────────────────────────────────────────── */
+[data-bs-theme="dark"] .login-page a:not(.btn):not(.auth-theme-toggle) {
+    color: var(--bs-link-color);
 }
 
 /* ─── Footer copyright ────────────────────────────────────────────────────── */
-html.dark-mode .login-footer p {
-    color: var(--dm-text-muted);
+[data-bs-theme="dark"] .login-footer p {
+    color: var(--bs-secondary-color);
     text-shadow: none;
 }
 
@@ -126,10 +129,16 @@ html.dark-mode .login-footer p {
     text-decoration: none;
 }
 
-html.dark-mode .auth-theme-toggle {
-    color: var(--dm-text-muted);
+[data-bs-theme="dark"] .auth-theme-toggle {
+    color: var(--bs-secondary-color);
 }
 
-html.dark-mode .auth-theme-toggle:hover {
-    color: var(--dm-text);
+[data-bs-theme="dark"] .auth-theme-toggle:hover {
+    color: var(--bs-body-color);
+}
+
+/* Icono del interruptor según data-bs-theme (mismo criterio que ui-components.css, que auth no carga) */
+:root[data-bs-theme="dark"] .theme-icon-to-dark,
+:root:not([data-bs-theme="dark"]) .theme-icon-to-light {
+    display: none;
 }

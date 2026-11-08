@@ -1,196 +1,189 @@
 /**
- * index-audit.js — Audit Log page
- *
- * Responsibilities:
- *   1. Initialize DataTables on #tableAuditLog (columns 0-5 exported, column 6 excluded).
- *   2. Open #modalLogDetail and populate it from the single data-log JSON attribute on <tr>.
- *   3. Render the details object as a readable key-value table (no raw JSON exposed).
- *   4. Show a dynamic subtitle in the modal header (module badge + action).
- *
- * No AJAX calls — all data arrives server-rendered.
- *
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\AuditLog
- * @author jandrescodes
- * @version 1.2
+ * Registro de auditoría (solo lectura): tabla Tabulator con búsqueda, columnas
+ * visibles y reportes, filtro de fechas nativo y modal de detalle. Todas las
+ * filas llegan en `data-rows`; los valores del log (actor, acción, detalles)
+ * incluyen texto de visitantes sin sesión, así que van siempre por `escapeHtml`
+ * o `textContent`.
  */
+document.addEventListener('DOMContentLoaded', () => {
+    const MODULE_VARIANTS = {
+        auth: 'info',
+        users: 'primary',
+        roles: 'warning',
+        permissions: 'secondary',
+        audit_log: 'success',
+    };
+    const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
-$(document).ready(function () {
-
-    // -------------------------------------------------------------------------
-    // DataTables — columns 0-5 exported, column 6 (detail btn) excluded
-    // -------------------------------------------------------------------------
-
-    const config = createTableConfig('AuditLog', [0, 1, 2, 3, 4, 5], {
-        pageLength: 25,
-        order: [[0, 'desc']],
-        columnDefs: [
-            { targets: 6, orderable: false, searchable: false }
-        ]
+    const table = TableUtils.create('#tableAuditLog', {
+        searchInput: '#auditSearch',
+        columnMenu: '#auditColumnMenu',
+        pageSizes: [10, 25, 50, 100],
+        pageSize: 25,
+        pageSizeSelect: '#auditPageSize',
+        info: '#auditInfo',
+        pager: '#auditPager',
+        toolbar: '#auditTop, #auditBottom',
+        initialSort: [{ column: 'id', dir: 'desc' }],
+        columns: [
+            { title: '#', field: 'id', width: 60, hozAlign: 'center', responsive: 5, counter: true },
+            {
+                title: 'Date / Time',
+                field: 'created_at',
+                minWidth: 135,
+                responsive: 0,
+                sorter: 'string',
+                formatter: (cell) => escapeHtml(String(cell.getValue()).slice(0, 16)),
+                exportAs: (value) => String(value).slice(0, 16),
+            },
+            {
+                title: 'User',
+                field: 'actor_label',
+                minWidth: 130,
+                responsive: 2,
+                formatter: (cell) => (cell.getValue() ? escapeHtml(cell.getValue()) : '<span class="text-body-secondary">—</span>'),
+                exportAs: (value) => value || '—',
+            },
+            {
+                title: 'Module',
+                field: 'module',
+                width: 120,
+                responsive: 3,
+                hozAlign: 'center',
+                formatter: (cell) => {
+                    const module = String(cell.getValue());
+                    const variant = MODULE_VARIANTS[module] ?? 'dark';
+                    return `<span class="badge rounded-pill text-bg-${variant}">${escapeHtml(capitalize(module))}</span>`;
+                },
+                exportAs: (value) => capitalize(String(value)),
+            },
+            {
+                title: 'Action',
+                field: 'action',
+                minWidth: 110,
+                responsive: 1,
+                hozAlign: 'center',
+                formatter: (cell) => `<code class="small">${escapeHtml(cell.getValue())}</code>`,
+            },
+            {
+                title: 'IP',
+                field: 'ip',
+                width: 130,
+                responsive: 4,
+                hozAlign: 'center',
+                formatter: (cell) => `<span class="font-monospace small">${escapeHtml(cell.getValue() || '—')}</span>`,
+                exportAs: (value) => value || '—',
+            },
+            {
+                title: 'Detail',
+                headerSort: false,
+                download: false,
+                columnToggle: false,
+                responsive: 0,
+                width: 80,
+                hozAlign: 'center',
+                formatter: (cell) => `<button type="button" class="btn btn-info btn-sm btn-detail" data-id="${Number(cell.getRow().getData().id)}"
+                    data-bs-toggle="tooltip" title="View detail" aria-label="View detail">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>`,
+            },
+        ],
     });
 
-    const table = $('#tableAuditLog').DataTable(config);
-    table.buttons().container().appendTo('#tableAuditLog_wrapper .col-md-6:eq(0)');
-
-    // -------------------------------------------------------------------------
-    // Date filter — calendar trigger button opens the native picker
-    // -------------------------------------------------------------------------
-
-    $(document).on('click', '.btn-date-picker', function () {
-        const targetId = $(this).data('picker-target');
-        const input = document.getElementById(targetId);
-        if (input && typeof input.showPicker === 'function') {
-            input.showPicker();
-        }
+    document.querySelectorAll('#auditTop [data-export]').forEach((button) => {
+        button.addEventListener('click', () => {
+            TableUtils.exportTable(table, button.dataset.export, {
+                filename: 'audit_log',
+                title: 'Audit Log',
+                sheetName: 'Audit Log',
+            });
+        });
     });
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    // ---- Filtro de fechas: campos nativos operables con teclado. El botón abre el calendario nativo,
+    // que en móvil es la forma cómoda de elegir la fecha.
+    document.querySelectorAll('.btn-date-picker').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = document.getElementById(button.dataset.pickerTarget);
+            if (input && typeof input.showPicker === 'function') input.showPicker();
+        });
+    });
 
-    /** Badge classes per module — mirrors the PHP match() in the view */
-    const MODULE_BADGES = {
-        auth:        'badge-info',
-        users:       'badge-primary',
-        roles:       'badge-warning',
-        permissions: 'badge-secondary',
+    // «Desde» no puede pasar de «Hasta» y viceversa: el navegador lo impone con min/max y lo anuncia al teclado.
+    const dateFrom = document.getElementById('filterDateFrom');
+    const dateTo = document.getElementById('filterDateTo');
+    const today = dateFrom.max;
+    const linkDates = () => {
+        dateTo.min = dateFrom.value || '';
+        dateFrom.max = dateTo.value && dateTo.value < today ? dateTo.value : today;
+    };
+    dateFrom.addEventListener('change', linkDates);
+    dateTo.addEventListener('change', linkDates);
+    linkDates();
+
+    // ---- Detalle del evento: los datos ya están en la fila (`data-rows`), sin pedir nada al servidor.
+    const detailModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalLogDetail'));
+    const field = (id) => document.getElementById(id);
+
+    const moduleBadge = (module) => {
+        const variant = MODULE_VARIANTS[module] ?? 'dark';
+        return `<span class="badge rounded-pill text-bg-${variant}">${escapeHtml(capitalize(String(module)))}</span>`;
     };
 
-    /**
-     * Returns a Bootstrap badge HTML string for the given module.
-     *
-     * @param {string} module
-     * @returns {string}
-     */
-    /** Los campos del log (actor, acción, valores) incluyen texto de usuarios sin sesión: nunca como HTML. */
-    function esc(value) {
-        return $('<div>').text(String(value)).html();
-    }
+    /** snake_case o camelCase → «Identifier type». */
+    const humanizeKey = (key) => key
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/^./, (c) => c.toUpperCase());
 
-    function moduleBadge(module) {
-        const cls = MODULE_BADGES[module] || 'badge-dark';
-        const label = esc(module.charAt(0).toUpperCase() + module.slice(1));
-        return `<span class="badge ${cls} badge-pill px-2">${label}</span>`;
-    }
+    const MUTED_DASH = '<span class="text-body-secondary">—</span>';
 
-    /**
-     * Converts a snake_case or camelCase key into a human-readable label.
-     * Examples: "identifier_type" → "Identifier type"
-     *
-     * @param {string} key
-     * @returns {string}
-     */
-    function humanizeKey(key) {
-        return key
-            .replace(/_/g, ' ')
-            .replace(/([a-z])([A-Z])/g, '$1 $2')
-            .replace(/^./, c => c.toUpperCase());
-    }
-
-    /**
-     * Builds the rows of #detailTableBody from a flat or nested details object.
-     * Nested objects are serialized to a readable "key: value, …" string.
-     *
-     * @param {object} details
-     */
-    function renderDetailsTable(details) {
-        const $tbody = $('#detailTableBody').empty();
-
-        Object.entries(details).forEach(([key, value]) => {
-            let display;
-            if (value === null || value === undefined) {
-                display = '<span class="text-muted">—</span>';
-            } else if (typeof value === 'object') {
-                display = Object.entries(value)
-                    .map(([k, v]) => `${esc(humanizeKey(k))}: ${esc(v)}`)
-                    .join(', ');
-            } else if (typeof value === 'boolean') {
-                display = value
-                    ? '<span class="text-success"><i class="fas fa-check mr-1" aria-hidden="true"></i>Yes</span>'
-                    : '<span class="text-muted"><i class="fas fa-times mr-1" aria-hidden="true"></i>No</span>';
-            } else {
-                display = $('<span>').text(String(value)).html(); // XSS-safe
-            }
-
-            $tbody.append(
-                `<tr>
-                    <td class="text-muted small text-uppercase text-nowrap pr-3" style="width:35%;vertical-align:middle">
-                        ${esc(humanizeKey(key))}
-                    </td>
-                    <td style="vertical-align:middle">${display}</td>
-                </tr>`
-            );
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // Detail modal — populate from data-log on the parent <tr>
-    // -------------------------------------------------------------------------
-
-    /**
-     * Parses the single data-log JSON attribute from the row and populates
-     * #modalLogDetail fields, then opens the modal.
-     *
-     * @param {jQuery} $btn  The clicked .btn-detail button
-     */
-    function openDetailModal($btn) {
-        // In DataTables responsive mode, hidden columns are moved into a "child" <tr>.
-        // The data-log attribute lives on the original (parent) row, not the child.
-        let $tr = $btn.closest('tr');
-        if ($tr.hasClass('child')) {
-            $tr = $tr.prev('tr.parent');
+    const formatValue = (value) => {
+        if (value === null || value === undefined) return MUTED_DASH;
+        if (typeof value === 'object') {
+            return Object.entries(value).map(([k, v]) => `${escapeHtml(humanizeKey(k))}: ${escapeHtml(v)}`).join(', ');
         }
-
-        const raw = $tr.data('log');
-        if (!raw) return; // Guard: row not found (should not happen)
-
-        /** @type {{id:number, created_at:string, actor_id:number|null, actor_label:string,
-         *           module:string, action:string, description:string,
-         *           ip:string, user_agent:string, details:object|null}} */
-        const log = (typeof raw === 'string') ? JSON.parse(raw) : raw;
-
-        // Dynamic header subtitle: badge + action
-        $('#detailSubtitle').html(`${moduleBadge(log.module)}&nbsp;<code class="text-white-50 small">${esc(log.action || '')}</code>`);
-
-        // Meta fields
-        const actorText = log.actor_id
-            ? `${esc(log.actor_label || '—')} <span class="text-muted">(ID ${esc(log.actor_id)})</span>`
-            : (log.actor_label ? esc(log.actor_label) : '<span class="text-muted">Anonymous</span>');
-
-        $('#detailId').text(log.id || '—');
-        $('#detailCreatedAt').text(log.created_at || '—');
-        $('#detailModule').html(moduleBadge(log.module));
-        $('#detailAction').text(log.action || '—');
-        $('#detailActor').html(actorText);
-        $('#detailIp').text(log.ip || '—');
-        $('#detailUserAgent').text(log.user_agent || '—');
-
-        // Description — show callout only when there is content
-        if (log.description) {
-            $('#detailDescription').text(log.description);
-            $('#descriptionSection').removeClass('d-none');
-        } else {
-            $('#descriptionSection').addClass('d-none');
+        if (typeof value === 'boolean') {
+            return value
+                ? '<span class="text-success"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Yes</span>'
+                : '<span class="text-body-secondary"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>No</span>';
         }
+        return escapeHtml(String(value));
+    };
 
-        // Details table — show only when there is data
-        const hasDetails = log.details
-            && typeof log.details === 'object'
-            && Object.keys(log.details).length > 0;
+    const renderDetails = (details) => {
+        field('detailTableBody').innerHTML = Object.entries(details).map(([key, value]) => `<tr>
+            <td class="text-body-secondary small text-uppercase text-nowrap pe-3 align-middle" style="width:35%">${escapeHtml(humanizeKey(key))}</td>
+            <td class="align-middle">${formatValue(value)}</td>
+        </tr>`).join('');
+    };
 
-        if (hasDetails) {
-            renderDetailsTable(log.details);
-            $('#detailsSection').removeClass('d-none');
-        } else {
-            $('#detailsSection').addClass('d-none');
-        }
+    const openDetail = (log) => {
+        field('detailSubtitle').innerHTML = `${moduleBadge(log.module)}&nbsp;<code class="small">${escapeHtml(log.action || '')}</code>`;
+        field('detailId').textContent = log.id || '—';
+        field('detailCreatedAt').textContent = log.created_at || '—';
+        field('detailModule').innerHTML = moduleBadge(log.module);
+        field('detailAction').textContent = log.action || '—';
+        field('detailActor').innerHTML = log.actor_id
+            ? `${escapeHtml(log.actor_label || '—')} <span class="text-body-secondary">(ID ${escapeHtml(log.actor_id)})</span>`
+            : (log.actor_label ? escapeHtml(log.actor_label) : '<span class="text-body-secondary">Anonymous</span>');
+        field('detailIp').textContent = log.ip || '—';
+        field('detailUserAgent').textContent = log.user_agent || '—';
 
-        $('#modalLogDetail').modal('show');
-    }
+        field('detailDescription').textContent = log.description || '';
+        field('descriptionSection').classList.toggle('d-none', !log.description);
 
-    // Event delegation — works for DataTables rows on any page
-    $(document).on('click', '.btn-detail', function () {
-        openDetailModal($(this));
+        const hasDetails = log.details && typeof log.details === 'object' && Object.keys(log.details).length > 0;
+        if (hasDetails) renderDetails(log.details);
+        field('detailsSection').classList.toggle('d-none', !hasDetails);
+
+        detailModal.show();
+    };
+
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('.btn-detail');
+        if (!button) return;
+        const row = table.getRow(Number(button.dataset.id)); // `id` es el índice de Tabulator: sin recorrer las filas
+        if (row) openDetail(row.getData());
     });
-
 });

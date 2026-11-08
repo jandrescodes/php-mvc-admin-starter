@@ -274,6 +274,26 @@ class Role extends Model
     }
 
     /**
+     * IDs de permisos asignados a cada rol en una sola consulta (evita una consulta por rol en el listado).
+     *
+     * @return array<int, int[]>  role_id => permission_id[]
+     */
+    public function getAssignedPermissionIdsByRole(): array
+    {
+        try {
+            $stmt = $this->connection->query("SELECT role_id, permission_id FROM role_permissions");
+            $byRole = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $byRole[(int) $row['role_id']][] = (int) $row['permission_id'];
+            }
+            return $byRole;
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
      * Returns the names of active permissions assigned to a role.
      * Used by Auth::resolvePermNames() to build the UNION cache.
      *
@@ -299,8 +319,10 @@ class Role extends Model
     }
 
     /**
-     * Replaces all permissions for a role in a single transaction (DELETE + INSERT).
-     * Invalidates the permission cache for every user of the role.
+     * Reemplaza los permisos activos de un rol en una sola transacción. Los inactivos
+     * asignados se conservan: la UI solo lista activos, así que un guardado no debe
+     * borrarlos en silencio (reaparecen al reactivar el permiso).
+     * Invalida la caché de permisos de cada usuario del rol.
      *
      * @param int   $roleId
      * @param array $permissionIds
@@ -312,7 +334,9 @@ class Role extends Model
             $this->connection->beginTransaction();
 
             $stmt = $this->connection->prepare(
-                "DELETE FROM role_permissions WHERE role_id = :role_id"
+                "DELETE rp FROM role_permissions rp
+                 JOIN permissions p ON p.id = rp.permission_id
+                 WHERE rp.role_id = :role_id AND p.status = 1"
             );
             $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
             $stmt->execute();
@@ -323,7 +347,7 @@ class Role extends Model
                     continue;
                 }
                 $stmt = $this->connection->prepare(
-                    "INSERT INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
+                    "INSERT IGNORE INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
                 );
                 $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
                 $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);

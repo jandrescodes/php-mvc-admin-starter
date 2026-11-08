@@ -9,6 +9,7 @@
         "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
+        "almasaeed2010/adminlte": "^4.10",
         "laravel/pint": "^1.30",
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^11.0"

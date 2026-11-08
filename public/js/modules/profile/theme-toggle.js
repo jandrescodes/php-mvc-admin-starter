@@ -8,17 +8,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggle = document.getElementById('theme-toggle');
     if (!toggle) return;
 
-    const icon = toggle.querySelector('i');
+    // El icono visible lo decide el CSS según data-bs-theme (no hay parpadeo al cargar).
+    const icon = toggle;
+
+    const root = document.documentElement;
 
     /** Aplica el tema visualmente sin tocar localStorage. */
     function applyTheme(isDark) {
-        document.documentElement.classList.toggle('dark-mode', isDark);
+        const theme = isDark ? 'dark' : 'light';
+        root.setAttribute('data-bs-theme', theme);
+        root.style.colorScheme = theme;
         toggle.setAttribute('aria-pressed', String(isDark));
-        if (icon) {
-            icon.classList.toggle('fa-moon', !isDark);
-            icon.classList.toggle('fa-sun',  isDark);
-        }
     }
+
+    const isDarkNow = () => root.getAttribute('data-bs-theme') === 'dark';
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -43,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Sincronizar icono con el estado actual (ya aplicado por el script de <head>)
-    applyTheme(document.documentElement.classList.contains('dark-mode'));
+    applyTheme(isDarkNow());
 
     // Toggle al hacer clic
     toggle.addEventListener('click', function (e) {
         e.preventDefault();
-        const isDark   = document.documentElement.classList.contains('dark-mode');
+        const isDark   = isDarkNow();
         const newTheme = isDark ? 'light' : 'dark';
         animateIcon(function () {
             try { localStorage.setItem('theme', newTheme); } catch (err) {}

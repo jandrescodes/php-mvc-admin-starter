@@ -1,153 +1,68 @@
 /**
- * UI Components Custom Styles
- * 
- * Estilos personalizados para mejorar los componentes UI
- * como Select2, Tooltips, y otros elementos.
+ * Lo que Bootstrap 5 / AdminLTE 4 no cubren: colores de tema para Tom Select y
+ * tooltips, y las pestañas de las cards con outline.
  */
 
 /* ============================================
-   SELECT2 - Animación de flecha
+   INTERRUPTOR DE TEMA - icono según data-bs-theme
    ============================================ */
 
-/* Transición suave para la flecha */
-.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
-    transition: transform 0.3s ease-in-out;
-    transform-origin: center;
-}
-
-/* Rotar flecha cuando el dropdown está abierto */
-.select2-container--bootstrap4.select2-container--open .select2-selection--single .select2-selection__arrow b,
-.select2-container--bootstrap4.select2-container--arrow-up .select2-selection--single .select2-selection__arrow b {
-    transform: rotate(180deg);
-}
-
-/* Mejorar la apariencia de la flecha en el estado abierto */
-.select2-container--bootstrap4.select2-container--open .select2-selection--single,
-.select2-container--bootstrap4.select2-container--focus .select2-selection--single {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+:root[data-bs-theme="dark"] .theme-icon-to-dark,
+:root:not([data-bs-theme="dark"]) .theme-icon-to-light {
+    display: none;
 }
 
 /* ============================================
-   SELECT2 - Dropdown mejorado
+   TOM SELECT - Colores del tema
    ============================================ */
 
-/* Animación de entrada del dropdown */
-.select2-container--bootstrap4 .select2-dropdown {
-    animation: select2SlideDown 0.2s ease-out;
-    border-color: #80bdff;
+/* La hoja de Tom Select fija #d0d0d0 en .ts-dropdown; con el tema oscuro queda un borde claro */
+.ts-dropdown {
+    border-color: var(--bs-border-color);
 }
 
-@keyframes select2SlideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* La hoja de Tom Select fija #343a40 en el texto y #efefef en las etiquetas: ilegible en oscuro; se toman del tema */
+.ts-wrapper .ts-control,
+.ts-wrapper .ts-control input,
+.ts-wrapper .ts-dropdown {
+    color: var(--bs-body-color);
 }
 
-/* Mejorar el highlight de opciones */
-.select2-container--bootstrap4 .select2-results__option--highlighted {
-    background-color: #007bff;
-    color: white;
-    transition: background-color 0.15s ease-in-out;
+.ts-wrapper.multi .ts-control>div.item {
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
 }
 
-/* Scroll suave en el dropdown */
-.select2-container--bootstrap4 .select2-results__options {
-    scroll-behavior: smooth;
-}
-
-/* ============================================
-   SELECT2 - Estados de validación
-   ============================================ */
-
-/* Estado inválido - cuando el select original tiene la clase */
-.is-invalid+.select2-container--bootstrap4 .select2-selection {
-    border-color: #dc3545;
-}
-
-.is-invalid+.select2-container--bootstrap4.select2-container--focus .select2-selection,
-.is-invalid+.select2-container--bootstrap4.select2-container--open .select2-selection {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-
-/* Estado inválido - cuando el contenedor Select2 tiene la clase directamente */
-.select2-container--bootstrap4.is-invalid .select2-selection {
-    border-color: #dc3545 !important;
-}
-
-.select2-container--bootstrap4.is-invalid.select2-container--focus .select2-selection,
-.select2-container--bootstrap4.is-invalid.select2-container--open .select2-selection {
-    border-color: #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-}
-
-/* Estado válido - cuando el select original tiene la clase */
-.is-valid+.select2-container--bootstrap4 .select2-selection {
-    border-color: #28a745;
-}
-
-.is-valid+.select2-container--bootstrap4.select2-container--focus .select2-selection,
-.is-valid+.select2-container--bootstrap4.select2-container--open .select2-selection {
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-}
-
-/* Estado válido - cuando el contenedor Select2 tiene la clase directamente */
-.select2-container--bootstrap4.is-valid .select2-selection {
-    border-color: #28a745 !important;
-}
-
-.select2-container--bootstrap4.is-valid.select2-container--focus .select2-selection,
-.select2-container--bootstrap4.is-valid.select2-container--open .select2-selection {
-    border-color: #28a745 !important;
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+.ts-wrapper.multi .ts-control>div.item.active {
+    background: var(--bs-primary);
+    color: #fff;
 }
 
 /* ============================================
    TOOLTIPS - Estilos base
    ============================================ */
 
-/* Transición suave */
+/* Fondo y texto fijos en ambos temas (Bootstrap 5 los invierte con el tema); la flecha toma --bs-tooltip-bg */
 .tooltip {
     opacity: 1;
     z-index: 1060;
     transition: opacity 0.2s ease-in-out;
+    --bs-tooltip-bg: #212529;
+    --bs-tooltip-color: #fff;
+    --bs-tooltip-padding-x: 0.75rem;
+    --bs-tooltip-padding-y: 0.5rem;
+    --bs-tooltip-font-size: 0.85rem;
 }
 
-/* Estilo base del tooltip (fondo oscuro, texto blanco — funciona en light y dark) */
+/* En oscuro el fondo del tooltip coincide con el de la página: se aclara un poco */
+[data-bs-theme="dark"] .tooltip {
+    --bs-tooltip-bg: var(--dm-bg-hover, #454d55);
+}
+
 .tooltip .tooltip-inner {
-    background-color: #212529;
-    color: #fff;
-    border: 1px solid #343a40;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
     font-weight: 400;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    border-radius: 0.3rem;
-}
-
-.tooltip .arrow::before,
-.bs-tooltip-top .arrow::before,
-.bs-tooltip-auto[x-placement^=top] .arrow::before      { border-top-color:    #212529; }
-.bs-tooltip-bottom .arrow::before,
-.bs-tooltip-auto[x-placement^=bottom] .arrow::before   { border-bottom-color: #212529; }
-.bs-tooltip-left .arrow::before,
-.bs-tooltip-auto[x-placement^=left] .arrow::before     { border-left-color:   #212529; }
-.bs-tooltip-right .arrow::before,
-.bs-tooltip-auto[x-placement^=right] .arrow::before    { border-right-color:  #212529; }
-
-/* Tooltip con fondo primario para progress-bar */
-.tooltip .tooltip-inner.bg-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    font-weight: 500;
 }
 
 /* ============================================
@@ -157,12 +72,6 @@
 /* Animación del icono del input-group al hacer foco */
 .input-group-text {
     transition: all 0.2s ease-in-out;
-}
-
-.form-control:focus~.input-group-append .input-group-text,
-.form-control:focus~.input-group-prepend .input-group-text {
-    border-color: #80bdff;
-    background-color: #e7f3ff;
 }
 
 /* ============================================
@@ -202,60 +111,7 @@
 }
 
 /* ============================================
-   RESPONSIVE - Mejoras mobile
-   ============================================ */
-
-/* Mejorar select2 en móviles */
-@media (max-width: 576px) {
-    .select2-container--bootstrap4 .select2-dropdown {
-        font-size: 0.9rem;
-    }
-
-    .select2-container--bootstrap4 .select2-results__option {
-        padding: 0.75rem 1rem;
-    }
-}
-
-/* Utilidades de border responsivo (Bootstrap 4 no las incluye) */
-@media (min-width: 768px) {
-    .border-md-right {
-        border-right: 1px solid #dee2e6 !important;
-    }
-
-    .border-md-left {
-        border-left: 1px solid #dee2e6 !important;
-    }
-}
-
-@media (min-width: 992px) {
-    .border-lg-right {
-        border-right: 1px solid #dee2e6 !important;
-    }
-
-    .border-lg-left {
-        border-left: 1px solid #dee2e6 !important;
-    }
-}
-
-/* ============================================
-   ACCESIBILIDAD
-   ============================================ */
-
-/* Mejorar el foco para accesibilidad */
-.select2-container--bootstrap4.select2-container--focus .select2-selection,
-.select2-container--bootstrap4.select2-container--open .select2-selection {
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-}
-
-/* Indicador de foco para teclado */
-.select2-container--bootstrap4 .select2-selection:focus-visible {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* ============================================
-   BOTONES - Spinner en estado deshabilitado
+   BOTONES - Estado deshabilitado
    ============================================ */
 
 /* Mejorar cursor y opacidad de botones deshabilitados */
@@ -265,109 +121,68 @@
     opacity: 0.65;
 }
 
-/* Animación del spinner en botones */
-.btn:disabled .fa-spinner,
-.btn.disabled .fa-spinner {
-    animation: fa-spin 1s infinite linear;
-}
-
-/* Asegurar que el spinner gire suavemente */
-@keyframes fa-spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* ============================================
-   FOOTER - Versión responsiva
-   ============================================ */
-
-/* En pantallas pequeñas, centrar el contenido cuando la versión se oculta */
-@media (max-width: 575.98px) {
-    .main-footer .footer-content {
-        text-align: center;
-        width: 100%;
-    }
-}
-
-/* En pantallas grandes, mantener alineación a la izquierda */
-@media (min-width: 576px) {
-    .main-footer .footer-content {
-        text-align: left;
-    }
-}
-
-/* Estilo adicional para el ícono de versión */
-.main-footer .fas.fa-tag {
-    font-size: 0.8em;
-    margin-right: 3px;
-}
-
 /* ============================================
    CARD OUTLINE TABS - Estilos globales
    ============================================ */
 
 /**
- * Estilos para tabs dentro de cards con outline.
- * Uso: <div class="card card-{color} card-outline card-outline-tabs">
- * Colores soportados: info, success, primary, warning, danger
+ * Tabs dentro de una card con outline: <div class="card card-{color} card-outline card-outline-tabs">
+ * La card no lleva borde superior (AdminLTE 4 lo quita): el acento es el borde
+ * superior de la pestaña activa. Cualquier color de card funciona sin reglas
+ * propias porque todo sale de `--lte-card-variant-bg`, que AdminLTE 4 define
+ * en `.card-{color}`. AdminLTE 4 solo estiliza `.card-header a`, y las tabs de
+ * Bootstrap 5 son `<button class="nav-link">`, así que se cubren aquí.
  */
-
-/* Tabs activos - color neutro para todos (alta especificidad para override) */
-.card-outline-tabs .nav-link.active,
-.card-info.card-outline-tabs .nav-link.active,
-.card-success.card-outline-tabs .nav-link.active,
-.card-primary.card-outline-tabs .nav-link.active,
-.card-warning.card-outline-tabs .nav-link.active,
-.card-danger.card-outline-tabs .nav-link.active {
-    color: #495057;
+.card-outline-tabs .nav-tabs .nav-link {
+    border-top: 3px solid transparent;
+    /* reserva el alto del acento para que la pestaña activa no empuje al resto */
+    color: color-mix(in srgb, var(--lte-card-variant-bg) 55%, var(--bs-body-color));
 }
 
-/* --- Info (para vistas show) --- */
-.card-info.card-outline-tabs .nav-link {
-    color: #17a2b8;
+.card-outline-tabs .nav-tabs .nav-link:hover,
+.card-outline-tabs .nav-tabs .nav-link:focus-visible {
+    border-top-color: var(--bs-border-color);
+    color: color-mix(in srgb, var(--lte-card-variant-bg) 30%, var(--bs-body-color));
 }
 
-.card-info.card-outline-tabs .nav-link:hover {
-    color: #117a8b;
+.card-outline-tabs .nav-tabs .nav-link.active {
+    border-top-color: var(--lte-card-variant-bg);
+    color: var(--bs-body-color);
 }
 
-/* --- Success (para vistas edit) --- */
-.card-success.card-outline-tabs .nav-link {
-    color: #28a745;
+/* El submenú del sidebar claro (#777) queda en 4.47:1 sobre blanco; el oscuro ya cumple. */
+:root:not([data-bs-theme="dark"]) .app-sidebar {
+    --lte-sidebar-submenu-color: #6c6c6c;
 }
 
-.card-success.card-outline-tabs .nav-link:hover {
-    color: #1e7e34;
+/* El botón «Sign out» del menú de usuario: #6c757d sobre #f8f9fa queda en 4.44:1; en oscuro ya cumple. */
+:root:not([data-bs-theme="dark"]) .user-footer .btn-outline-secondary {
+    --bs-btn-color: #5c636a;
 }
 
-/* --- Primary (para vistas create) --- */
-.card-primary.card-outline-tabs .nav-link {
-    color: #007bff;
+/* Un `code` dentro de un encabezado de modal con color hereda el texto del encabezado (el rosa de `code` no contrasta con ese fondo). */
+.modal-header code {
+    color: inherit;
 }
 
-.card-primary.card-outline-tabs .nav-link:hover {
-    color: #0056b3;
-}
+/* Área táctil mínima de 44px (WCAG 2.5.5/2.5.8) en móvil: AdminLTE deja los .btn-sm y los
+   .btn-group-sm en ~31px y los .btn normales en ~38px. Los .small-box-footer no son .btn y conservan el estilo de AdminLTE. */
+@media (max-width: 576px) {
+    .btn,
+    .btn-tool,
+    .page-link,
+    .app-header .nav-link,
+    .app-sidebar .nav-link {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-/* --- Warning --- */
-.card-warning.card-outline-tabs .nav-link {
-    color: #ffc107;
-}
-
-.card-warning.card-outline-tabs .nav-link:hover {
-    color: #d39e00;
-}
-
-/* --- Danger --- */
-.card-danger.card-outline-tabs .nav-link {
-    color: #dc3545;
-}
-
-.card-danger.card-outline-tabs .nav-link:hover {
-    color: #bd2130;
+    .form-control,
+    .form-select,
+    .ts-wrapper .ts-control {
+        min-height: 44px;
+    }
 }

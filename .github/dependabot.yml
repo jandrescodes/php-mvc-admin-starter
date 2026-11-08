@@ -10,6 +10,36 @@ updates:
       - dependency-name: tecnickcom/tcpdf
         versions: [">=7.0"]
 
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Las seis librerías que AdminLTE 4 usa en conjunto se actualizan a la vez
+      adminlte-stack:
+        patterns:
+          - bootstrap
+          - bootstrap-icons
+          - overlayscrollbars
+          - tabulator-tables
+          - tom-select
+          - chart.js
+      # Siguen la última estable; se prueban juntas
+      client-libs:
+        patterns:
+          - sweetalert2
+          - jspdf
+          - jspdf-autotable
+    ignore:
+      # Solo se suben al subir AdminLTE; los avisos de seguridad siguen llegando
+      - dependency-name: bootstrap
+      - dependency-name: bootstrap-icons
+      - dependency-name: overlayscrollbars
+      - dependency-name: tabulator-tables
+      - dependency-name: tom-select
+      - dependency-name: chart.js
+
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

@@ -41,27 +41,11 @@
     opacity: 0.8;
 }
 
-/* text-secondary (#6c757d) drops to ~2.6:1 on the dark content background;
-   dm-text-muted is the token already used project-wide for this contrast case. */
-.dark-mode #btnToggleAccessMetrics {
-    color: var(--dm-text-muted) !important;
-}
-
-/* Touch target: same 44px minimum applied to [data-password-toggle] in login.css.
-   .small-box-footer defaults to ~27px (AdminLTE's 3px 0 padding) — only used
-   on this dashboard, so the fix is scoped here rather than in the shared lib. */
+/* Área táctil mínima de 44px, igual que [data-password-toggle] en login.css. */
 @media (max-width: 576px) {
     #btnToggleAccessMetrics {
         min-height: 44px;
         padding: 8px 0 !important;
-    }
-
-    .small-box-footer {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3px 0;
     }
 }
 
@@ -93,14 +77,14 @@
     }
 }
 
-.section.content .row:first-of-type > [class*="col"] {
+.app-content .row:first-of-type > [class*="col"] {
     animation: db-fadein-up 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.section.content .row:first-of-type > [class*="col"]:nth-child(1) { animation-delay: 40ms;  }
-.section.content .row:first-of-type > [class*="col"]:nth-child(2) { animation-delay: 110ms; }
-.section.content .row:first-of-type > [class*="col"]:nth-child(3) { animation-delay: 180ms; }
-.section.content .row:first-of-type > [class*="col"]:nth-child(4) { animation-delay: 250ms; }
+.app-content .row:first-of-type > [class*="col"]:nth-child(1) { animation-delay: 40ms;  }
+.app-content .row:first-of-type > [class*="col"]:nth-child(2) { animation-delay: 110ms; }
+.app-content .row:first-of-type > [class*="col"]:nth-child(3) { animation-delay: 180ms; }
+.app-content .row:first-of-type > [class*="col"]:nth-child(4) { animation-delay: 250ms; }
 
 /* ─── Chart cards entrance ────────────────────────────────────────────────── */
 
@@ -140,7 +124,7 @@
 }
 
 /* dark mode: keep shadow readable */
-.dark-mode .dashboard-charts .card:hover {
+[data-bs-theme="dark"] .dashboard-charts .card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -150,18 +134,16 @@
     animation: db-card-in 500ms cubic-bezier(0.4, 0, 0.2, 1) 520ms both;
 }
 
-/* ─── Table row subtle highlight ─────────────────────────────────────────── */
+/* ─── Small-box ──────────────────────────────────────────────────────────── */
 
-.dashboard-recent tbody tr {
-    transition: background-color 200ms ease;
-}
-
-.dashboard-recent tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.06);
-}
-
-.dark-mode .dashboard-recent tbody tr:hover {
-    background-color: rgba(77, 171, 247, 0.10);
+/* La cifra es un párrafo, no un encabezado: replica el `h3` de AdminLTE (que solo estiliza la etiqueta) y hereda el color del small-box en vez de --bs-heading-color. El tamaño responsivo lo da `.col-* .small-box .h3` de AdminLTE. */
+.small-box p.h3 {
+    margin: 0 0 10px;
+    padding: 0;
+    font-size: calc(1.345rem + 1.14vw);
+    font-weight: 700;
+    white-space: nowrap;
+    color: inherit;
 }
 
 /* ─── Reduced motion ──────────────────────────────────────────────────────── */
@@ -171,11 +153,10 @@
     #rowAccessMetrics.metrics-visible,
     #btnToggleAccessMetrics,
     #arrowToggleAccessMetrics,
-    .section.content .row:first-of-type > [class*="col"],
+    .app-content .row:first-of-type > [class*="col"],
     .dashboard-charts > [class*="col"],
     .dashboard-charts .card,
-    .dashboard-recent,
-    .dashboard-recent tbody tr {
+    .dashboard-recent {
         animation: none !important;
         transition: none !important;
     }

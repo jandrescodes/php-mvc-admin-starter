@@ -104,6 +104,28 @@ class RolePermissionTest extends IntegrationTestCase
         $this->assertSame([1], $this->model->getAssignedPermissionIds(2));
     }
 
+    public function test_sync_permissions_keeps_inactive_assignments(): void
+    {
+        $pdo = \App\Config\Connection::getInstance()->getConnection();
+        $pdo->exec("INSERT INTO permissions (id, name, description, status) VALUES (9, 'zz_inactive', 'x', 0)");
+        $pdo->exec('INSERT INTO role_permissions (role_id, permission_id) VALUES (2, 9)');
+
+        $this->assertTrue($this->model->syncPermissions(2, [2]));
+
+        $this->assertEqualsCanonicalizing([2, 9], array_map('intval', $this->model->getAssignedPermissionIds(2)));
+    }
+
+    public function test_sync_permissions_does_not_duplicate_a_kept_inactive_assignment(): void
+    {
+        $pdo = \App\Config\Connection::getInstance()->getConnection();
+        $pdo->exec("INSERT INTO permissions (id, name, description, status) VALUES (9, 'zz_inactive', 'x', 0)");
+        $pdo->exec('INSERT INTO role_permissions (role_id, permission_id) VALUES (2, 9)');
+
+        $this->assertTrue($this->model->syncPermissions(2, [1, 9]));
+
+        $this->assertEqualsCanonicalizing([1, 9], array_map('intval', $this->model->getAssignedPermissionIds(2)));
+    }
+
     // -------------------------------------------------------------------------
     // getUserIdsByRole
     // -------------------------------------------------------------------------

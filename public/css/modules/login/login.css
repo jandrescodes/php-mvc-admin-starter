@@ -2,25 +2,24 @@
 
 :root {
     --login-gradient-start: #f5f7fa;
-    --login-gradient-end:   #c3cfe2;
-    --login-heading:        #2c3e50;
-    --login-muted:          #6c757d;
-    --login-border-light:   #ced4da;
-    --login-surface-alt:    #f8f9fa;
-    --login-primary:        #007bff;
-    --login-primary-hover:  #0069d9;
-    --login-primary-active: #0062cc;
-    --login-danger:         #dc3545;
-    --login-success:        #28a745;
-    --login-warning:        #ffc107;
-    --login-info:           #17a2b8;
-    --login-ink:            #495057;
-    --login-focus-border:   #80bdff;
-    --login-focus-shadow:        rgba(0, 123, 255, 0.25);
+    --login-gradient-end: #c3cfe2;
+    --login-heading: #2c3e50;
+    --login-muted: #6c757d;
+    --login-border-light: #ced4da;
+    --login-surface-alt: #f8f9fa;
+    --login-primary: #0069d9;
+    --login-primary-hover: #0062cc;
+    --login-primary-active: #005cbf;
+    --login-danger: #dc3545;
+    --login-success: #28a745;
+    --login-warning: #ffc107;
+    --login-info: #17a2b8;
+    --login-ink: #495057;
+    --login-focus-border: #80bdff;
+    --login-focus-shadow: rgba(0, 123, 255, 0.25);
     --login-focus-shadow-strong: rgba(0, 123, 255, 0.5);
 }
 
-/* Fondo con gradiente y textura para un tema de zapatillas y carteras */
 .login-page {
     height: 100vh;
     overflow: hidden;
@@ -35,17 +34,6 @@
     z-index: 2;
     max-width: 400px;
     width: 100%;
-}
-
-/* Logo y nombre */
-.login-logo {
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.brand-image {
-    max-width: 70px;
-    max-height: 70px;
 }
 
 /* Tarjeta de login */
@@ -100,10 +88,14 @@
     padding: 0 15px;
 }
 
-/* Botones */
+/* Botones: Bootstrap 5 colorea con variables --bs-btn-*; así el tono ajustado de dark-mode.css (mayor especificidad) también se aplica aquí */
 .btn-primary {
-    background-color: var(--login-primary);
-    border-color: var(--login-primary);
+    --bs-btn-bg: var(--login-primary);
+    --bs-btn-border-color: var(--login-primary);
+    --bs-btn-hover-bg: var(--login-primary-hover);
+    --bs-btn-hover-border-color: var(--login-primary-active);
+    --bs-btn-active-bg: var(--login-primary-active);
+    --bs-btn-active-border-color: var(--login-primary-active);
     transition: all 0.3s ease;
     padding: 10px 20px;
     font-size: 1rem;
@@ -111,8 +103,6 @@
 }
 
 .btn-primary:hover {
-    background-color: var(--login-primary-hover);
-    border-color: var(--login-primary-active);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 105, 217, 0.4);
 }
@@ -166,34 +156,11 @@
     color: var(--login-danger);
 }
 
-/* Elementos decorativos para un tema de zapatillas y carteras */
-.login-page::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    opacity: 0.05;
-    z-index: 1;
-}
-
 /* Responsive adjustments */
 @media (max-width: 576px) {
     .login-box {
         margin-top: 1rem;
         width: 90%;
-    }
-
-    .brand-image-container {
-        width: 80px;
-        height: 80px;
-    }
-
-    .brand-image {
-        max-width: 55px;
-        max-height: 55px;
     }
 
     .card-header h1 {
@@ -212,7 +179,6 @@
 
 /* Estilos adicionales para SweetAlert2 Toast */
 .swal2-toast {
-    font-family: 'Source Sans Pro', sans-serif;
     padding: 0.75rem 1.5rem;
 }
 
@@ -274,8 +240,7 @@
 }
 
 /* Estilos para los botones */
-.btn-primary:focus,
-.btn-primary.focus {
+.btn-primary:focus {
     box-shadow: 0 0 0 0.2rem var(--login-focus-shadow-strong);
 }
 

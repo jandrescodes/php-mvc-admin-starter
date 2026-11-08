@@ -64,7 +64,7 @@ class User extends Model
     {
         try {
             $stmt = $this->connection->prepare("
-                SELECT u.*, r.name AS role_name
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.role_id = r.id
                 ORDER BY u.id DESC
