@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="<?= URL; ?>/css/lib/adminlte/adminlte.min.css">
     <!-- UI Components custom styles -->
     <link rel="stylesheet" href="<?= URL; ?>/css/core/ui-components.css">
-    <!-- Dark mode overrides (se migran a [data-bs-theme] en T44) -->
+    <!-- Dark mode overrides -->
     <link rel="stylesheet" href="<?= URL; ?>/css/core/dark-mode.css">
     <!-- Conditional plugin CSS -->
     <?php

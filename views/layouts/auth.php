@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="<?= URL ?>css/lib/bootstrap-icons/bootstrap-icons.min.css">
     <!-- AdminLTE 4 (incluye Bootstrap 5) -->
     <link rel="stylesheet" href="<?= URL ?>css/lib/adminlte/adminlte.min.css">
-    <!-- Dark mode tokens (se migran a [data-bs-theme] en T44) -->
+    <!-- Dark mode tokens -->
     <link rel="stylesheet" href="<?= URL ?>css/core/dark-mode.css">
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login.css">
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login-dark.css">
