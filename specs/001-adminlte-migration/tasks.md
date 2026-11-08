@@ -133,31 +133,37 @@ Tareas de menos de 30 min, ordenadas por dependencia. Todo el trabajo va en la r
 
 ## Fase G — Limpieza y verificación
 
-- [ ] T49. Borrar los archivos obsoletos de la lista del plan y quitar `css/core/webfonts.css`. (FR-33, NFR-7)
+- [x] T49. Borrar los archivos obsoletos de la lista del plan y quitar `css/core/webfonts.css`. (FR-33, NFR-7)
       Done when: `grep` de cada nombre borrado da cero resultados y ninguna página da 404.
-- [ ] T50. Barridos de cierre: atributos heredados, jQuery y Font Awesome. (FR-32, FR-35, NFR-7)
+- [x] T50. Barridos de cierre: atributos heredados, jQuery y Font Awesome. (FR-32, FR-35, NFR-7)
       Done when: cero resultados de `data-(toggle|dismiss|target|parent|card-widget|widget)=`, de `jQuery|\$\(|\$\.` en `views/` y `public/js/core|modules`, y de `fa-` en `views/` y `public/`.
-- [ ] T51. Auditoría axe-core por pantalla en claro y oscuro (transiciones desactivadas; tema con el control real tras limpiar `localStorage`). (FR-23, FR-24)
+- [x] T51. Auditoría axe-core por pantalla en claro y oscuro (transiciones desactivadas; tema con el control real tras limpiar `localStorage`). (FR-23, FR-24)
       Done when: cero violaciones de contraste y de accesibilidad en las pantallas del checklist C3.
-- [ ] T52. Ejecutar `composer check` y confirmar que Composer solo añadió `almasaeed2010/adminlte` en `require-dev` y que `npm ci && npm run assets` no deja cambios sin versionar. (NFR-1, NFR-3, NFR-4, NFR-6)
+- [x] T51b. Jerarquía de encabezados: `h2` en los títulos de card, cifras y avisos fuera de los encabezados. (FR-24)
+      Done when: axe-core sin `heading-order` en las pantallas de T51, en claro y oscuro.
+- [x] T52. Ejecutar `composer check` y confirmar que Composer solo añadió `almasaeed2010/adminlte` en `require-dev` y que `npm ci && npm run assets` no deja cambios sin versionar. (NFR-1, NFR-3, NFR-4, NFR-6)
       Done when: lint + stan + unit + integration verdes, `composer.json` solo difiere en esa línea y `git status` queda limpio tras `npm run assets` y el job `quality` del CI (T13b) pasa.
-- [ ] T53. Prueba manual del camino feliz (C3): login, CRUD de usuarios, roles y permisos, asignar/revocar, auditoría con exportaciones, dashboard, perfil, tema, menú. (FR-1 a FR-19, FR-20 a FR-23, NFR-5)
+- [x] T53. Prueba manual del camino feliz (C3): login, CRUD de usuarios, roles y permisos, asignar/revocar, auditoría con exportaciones, dashboard, perfil, tema, menú. (FR-1 a FR-19, FR-20 a FR-23, NFR-5)
       Done when: checklist completo con evidencia.
-- [ ] T54. Prueba manual de casos límite: formulario vacío, permiso denegado, token CSRF vencido, doble envío de borrado, unicidad repetida, tema persistido. (FR-14, FR-15, FR-20, FR-21, FR-30)
+- [x] T54. Prueba manual de casos límite: formulario vacío, permiso denegado, token CSRF vencido, doble envío de borrado, unicidad repetida, tema persistido. (FR-14, FR-15, FR-20, FR-21, FR-30)
       Done when: cada caso responde como en la versión anterior.
-- [ ] T55. Prueba en móvil y escritorio, y solo con teclado. (FR-1, FR-2, FR-24)
+- [x] T55. Prueba en móvil y escritorio, y solo con teclado. (FR-1, FR-2, FR-24)
       Done when: menú, modales y tablas operables en 375 px y 1280 px y con teclado.
-- [ ] T56b. Actualizar `README.md` (AdminLTE 3, jQuery y Moment, líneas ~60, 64 y 258-259) y `CONTRIBUTING.md` (enlaces a `docs/ACCESS_CONTROL.md` y compañía, que ahora están en `docs/legacy/`). (NFR-6)
+- [x] T56b. Actualizar `README.md` (AdminLTE 3, jQuery y Moment, líneas ~60, 64 y 258-259) y `CONTRIBUTING.md` (enlaces a `docs/ACCESS_CONTROL.md` y compañía, que ahora están en `docs/legacy/`). (NFR-6)
       Done when: ambos describen el stack nuevo y `grep -n 'docs/[A-Z_]*\.md'` solo apunta a archivos que existen.
-- [ ] T56. Actualizar `AGENTS.md`: pila (AdminLTE 4 / Bootstrap 5.3, sin jQuery), tabla de versiones, origen y sha384 de cada librería (SheetJS y jsPDF a vigilar a mano), orden de carga, tema por `data-bs-theme`, la regla de versiones (las seis librerías que usa AdminLTE se mantienen en su versión y suben juntas con AdminLTE; excepción: avisos de seguridad), lecciones nuevas (incluida la nota de que SweetAlert2 desde la 11.4.9 incluye protestware limitado a dominios `.ru`/`.su`/`.рф`, y el riesgo aceptado de la auditoría sin límite); corregir menciones obsoletas (`.fail` de jQuery, `$(document).on`). (NFR-6)
+- [x] T56. Actualizar `AGENTS.md`: pila (AdminLTE 4 / Bootstrap 5.3, sin jQuery), tabla de versiones, origen y sha384 de cada librería (SheetJS y jsPDF a vigilar a mano), orden de carga, tema por `data-bs-theme`, la regla de versiones (las seis librerías que usa AdminLTE se mantienen en su versión y suben juntas con AdminLTE; excepción: avisos de seguridad), lecciones nuevas (incluida la nota de que SweetAlert2 desde la 11.4.9 incluye protestware limitado a dominios `.ru`/`.su`/`.рф`, y el riesgo aceptado de la auditoría sin límite); corregir menciones obsoletas (`.fail` de jQuery, `$(document).on`). (NFR-6)
       Done when: `AGENTS.md` coincide con el estado final del repo.
+- [x] T57. Registrar el CHG-3: permisos inactivos conservados al sincronizar un rol, quitar solo lo que se posee, «Role not found», token CSRF en las respuestas de roles, acción por fila según permiso y mensajes CSRF. (FR-15, FR-30, FR-37, FR-38, FR-39)
+      Done when: `composer check` en verde con las pruebas de integración de `Role::syncPermissions` y de `User::getAll` (`role_is_system`), y el camino feliz y los casos límite de roles verificados en navegador.
 
 ## Cierre de la feature
 
 _Casillas sueltas, fuera de la numeración `Tn`; no se implementan con `/sdd:implement`._
 
-- [ ] Verificar todos los FR (`/sdd:validate` → `specs/001-adminlte-migration/validation.md`).
-- [ ] Confirmar que `/sdd:validate` movió la feature a `Done ✅` en `docs/roadmap.md`, enlazando esta carpeta.
-- [ ] Tras `/sdd:validate`, eliminar los documentos de trabajo `docs/adminlte3-class-inventory.md`, `docs/jquery-usage-inventory.md`, `docs/plugin-assets-inventory.md`, `docs/data-api-inventory.md` y `docs/research/`, y quitar sus enlaces de `AGENTS.md` y `docs/analisis-migracion-adminlte4.md`. Antes, confirmar que spec, plan y `AGENTS.md` recogen todo lo que aún sirva.
-- [ ] Actualizar `CHANGELOG.md` y el tag de versión (sin prefijo `v`).
-- [ ] Despliegue: no hay pasos manuales; `docs/`, `specs/` y `deliverables/` se excluyen del artefacto.
+- [x] Verificar todos los FR (`/sdd:validate` → `specs/001-adminlte-migration/validation.md`).
+- [x] Confirmar que `/sdd:validate` movió la feature a `Done ✅` en `docs/roadmap.md`, enlazando esta carpeta.
+- [x] Tras `/sdd:validate`, eliminar los documentos de trabajo `docs/adminlte3-class-inventory.md`, `docs/jquery-usage-inventory.md`, `docs/plugin-assets-inventory.md`, `docs/data-api-inventory.md` y `docs/research/`, y quitar sus enlaces de `AGENTS.md` y `docs/analisis-migracion-adminlte4.md`. Antes, confirmar que spec, plan y `AGENTS.md` recogen todo lo que aún sirva.
+- [x] Actualizar `CHANGELOG.md` con la versión 4.0.0 (sección `[4.0.0]` y enlaces de comparación).
+- [x] Despliegue: no hay pasos manuales; `docs/`, `specs/` y `deliverables/` se excluyen del artefacto (`.gitattributes`).
+
+El tag `4.0.0` (sin prefijo `v`) se crea sobre `main` tras fusionar la rama y con el CI en verde; es una operación de Git que no deja cambios en el repositorio.

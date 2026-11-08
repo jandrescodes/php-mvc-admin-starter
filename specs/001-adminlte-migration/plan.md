@@ -74,7 +74,8 @@ Sin cambios.
 - **Fechas (FR-36, C9):** `<input type="date">` nativo en el filtro de auditoría; sin Flatpickr.
 - **Iconos (FR-35, C8):** mapa de los 67 iconos distintos de Font Awesome a Bootstrap Icons (clase `bi bi-…`), verificado contra el CSS 1.13.1. `fa-spin` pasa a `spinner-border`; `fa-stack` no tiene equivalente y se rediseña.
 - **Orden de carga:** Bootstrap bundle → AdminLTE → OverlayScrollbars → SweetAlert2 → plugins (Tabulator, Tom Select, Chart.js; SheetJS y jsPDF solo donde hay exportación) → helpers propios (`http`, `form-validator`, `table-utils`, `ui-components`) → módulo de la pantalla.
-- **CSRF (FR-30):** sin cambio de comportamiento; `http.js` reutiliza el token devuelto tras cada envío.
+- **CSRF (FR-30):** la rotación del token no cambia; `http.js` reutiliza el token devuelto tras cada envío. Crear y editar un rol desde el modal devuelven `csrf_token` para encadenar la sincronización de permisos sin recargar. Los rechazos responden «Your session has expired. Reload the page and try again.» (AJAX, 403) o «Invalid security token. Please try again.» (envío normal) (CHG-3).
+- **Reglas de roles y acciones por fila (FR-15, FR-37, FR-38, FR-39, CHG-3):** `Role::syncPermissions` borra solo las asignaciones de permisos activos y reinserta con `INSERT IGNORE`, de modo que las asignaciones inactivas se conservan (el formulario solo lista activos). `RoleController::syncPermissions` calcula los permisos activos que se retiran y exige poseerlos con `Auth::canGrantPermissionIds()`. `update`, `toggleStatus` y `syncPermissions` responden «Role not found.» si el rol no existe. `User::getAll()` expone `role_is_system` y los controladores de usuarios y roles envían `manage` por fila (roles: administrador o rol no de sistema); el formatter solo dibuja los botones permitidos y el servidor sigue rechazando.
 - **Scripts inline de los layouts:** `baseUrl` y `csrfToken` pasan de `<script>` inline a `<meta name="base-url">` / `<meta name="csrf-token">` leídos por `http.js`; así los layouts quedan listos para una CSP (solo el anti-FOUC sigue inline, con nonce si se añade CSP). Alcance: `header.php`, `auth.php`, `error.php` y `messages.php` (T14, T17, T19, T20).
 - **Clases armadas en JS:** el barrido de clases de Bootstrap 4 incluye las que el JS genera (`badge-*`, `custom-file-*`, `form-group`, `mr-*`/`ml-*`, `fa-*`), no solo las vistas y el CSS.
 - **Peso de la auditoría:** `AuditLogController` no pone límite de filas y los datos viajan en el HTML. Se acepta como riesgo del proyecto (spec § Riesgos aceptados); T40 mide el tamaño del HTML y lo anota en `AGENTS.md`.
@@ -91,7 +92,7 @@ Sin cambios.
 
 ## Contrato de interfaz
 
-Rutas y endpoints sin cambios. Los endpoints AJAX siguen devolviendo `{success: bool, message?: string}` con `$this->jsonResponse()`; rechazos de negocio en HTTP 200 + `success:false`; 403 solo para CSRF/middleware. Las peticiones `fetch` llevan `X-Requested-With: XMLHttpRequest`.
+Rutas y endpoints sin cambios; las respuestas de crear y editar rol añaden `csrf_token` (CHG-3). Los endpoints AJAX siguen devolviendo `{success: bool, message?: string}` con `$this->jsonResponse()`; rechazos de negocio en HTTP 200 + `success:false`; 403 solo para CSRF/middleware. Las peticiones `fetch` llevan `X-Requested-With: XMLHttpRequest`.
 
 ## Estrategia de verificación
 
@@ -145,4 +146,5 @@ Rutas y endpoints sin cambios. Los endpoints AJAX siguen devolviendo `{success: 
 | `app/Core/AssetRegistry.php` y `public/**/{lib,plugins}` | FR-33, NFR-1, NFR-6, NFR-7                |
 | `.github/workflows/tests.yml`, `.gitattributes`          | NFR-9, NFR-1                              |
 | `README.md`, `CONTRIBUTING.md`, `AGENTS.md`              | NFR-6 (documentación)                     |
+| `Role::syncPermissions`, `RoleController`, `User::getAll`, `Controller::csrfCheck` | FR-15, FR-30, FR-37, FR-38, FR-39 (CHG-3) |
 | Todo el trabajo                                          | FR-24, NFR-2, NFR-4, NFR-5                |

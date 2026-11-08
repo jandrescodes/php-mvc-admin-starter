@@ -15,7 +15,7 @@ El proyecto sirve también de práctica del stack nuevo; otros proyectos siguen 
 
 - AdminLTE 3 y Bootstrap 4 están fuera de mantenimiento; hoy el proyecto mezcla CSS de Bootstrap 5.0.2 con JS de Bootstrap 4.6.1, y varias librerías están muy atrasadas.
 - AdminLTE 4 ya no incluye plugins jQuery y documenta alternativas sin jQuery para cada uno. Seguirlas evita arrastrar jQuery y sus incompatibilidades.
-- El plan previo (`docs/legacy/PLAN_ADMINLTE_MIGRATION.md`) recomendaba no migrar (opción B). Se revierte esa recomendación porque el desfase de versiones ya genera defectos visuales y de seguridad (dependencias con vulnerabilidades corregidas en versiones posteriores) y el costo de seguir pospuesto crece. El mismo plan queda como referencia histórica.
+- El plan previo (ya retirado del repositorio) recomendaba no migrar (opción B). Se revierte esa recomendación porque el desfase de versiones ya genera defectos visuales y de seguridad (dependencias con vulnerabilidades corregidas en versiones posteriores) y el costo de seguir pospuesto crece. El mismo plan queda como referencia histórica.
 
 ## Alcance
 
@@ -31,7 +31,7 @@ El proyecto sirve también de práctica del stack nuevo; otros proyectos siguen 
 
 ### Fuera
 
-- El comportamiento PHP: controladores, modelos, servicios, rutas, middlewares, autenticación, permisos, CSRF, base de datos. Se conserva tal cual; solo cambia el markup que las vistas imprimen.
+- El comportamiento PHP: controladores, modelos, servicios, rutas, middlewares, autenticación, permisos, CSRF, base de datos. Se conserva tal cual; solo cambia el markup que las vistas imprimen, con las excepciones de FR-15, FR-30 y FR-37 a FR-39 (CHG-3).
 - Funcionalidades de negocio nuevas.
 - Cambios de CI/CD, salvo la verificación de que `public/` coincide con los lockfiles (NFR-9).
 - Componentes de AdminLTE 4 que el proyecto no usa hoy (p. ej. calendarios, mapas, editores, widgets de demostración): solo se migran los componentes que ya existen en las pantallas actuales.
@@ -64,7 +64,7 @@ FR-11. THE SYSTEM shall listar usuarios, roles, permisos y eventos de auditoría
 FR-12. THE SYSTEM shall permitir crear, editar, activar/desactivar y eliminar usuarios, roles y permisos mediante formularios, modales y acciones AJAX.
 FR-13. THE SYSTEM shall permitir asignar y revocar permisos directos a usuarios y sincronizar los permisos de un rol.
 FR-14. WHEN la persona usuaria introduce un correo, documento o nombre de rol/permiso, THE SYSTEM shall comprobar su unicidad antes de guardar y mostrar el error junto al campo.
-FR-15. IF la persona autenticada no posee un privilegio, THEN THE SYSTEM shall impedir que lo conceda y mostrar el motivo.
+FR-15. IF la persona autenticada no posee un privilegio, THEN THE SYSTEM shall impedir que lo conceda o lo retire de un rol, y mostrar el motivo.
 FR-16. WHEN la persona usuaria inicia un borrado o una desactivación, THE SYSTEM shall pedir confirmación antes de ejecutarla.
 
 ### Dashboard y auditoría
@@ -88,11 +88,14 @@ FR-26. WHEN la persona usuaria enfoca o pasa el cursor sobre un elemento con ayu
 FR-27. WHEN la persona usuaria envía un formulario, THE SYSTEM shall validarlo en el cliente con la validación nativa del navegador y mostrar el error asociado a cada campo con el estilo de validación de Bootstrap 5.
 FR-28. WHEN se completa una acción mutante, THE SYSTEM shall notificar el resultado (éxito/error) sin recargar la página, salvo que el flujo requiera recarga.
 FR-29. WHILE una acción mutante AJAX está en curso, THE SYSTEM shall mostrar un indicador de carga.
-FR-30. WHEN un envío POST termina con éxito, o falla en una ruta sensible, THE SYSTEM shall seguir rotando el token CSRF y el cliente shall usar el token vigente en el siguiente envío. (Comportamiento existente; se conserva.)
+FR-30. WHEN un envío POST termina con éxito, o falla en una ruta sensible, THE SYSTEM shall seguir rotando el token CSRF y el cliente shall usar el token vigente en el siguiente envío; si la respuesta no recarga la página (crear o editar un rol), la respuesta shall incluir el token nuevo. WHEN el token es inválido, THE SYSTEM shall rechazar con el mensaje «Your session has expired. Reload the page and try again.» (AJAX, 403) o «Invalid security token. Please try again.» (envío normal).
 FR-32. THE SYSTEM shall usar la API de Bootstrap 5 en modales, pestañas, desplegables, colapsables y tooltips, sin atributos ni clases de Bootstrap 4 / AdminLTE 3 que ya no existan.
 FR-33. THE SYSTEM shall usar para cada función de interfaz la librería que AdminLTE 4 documenta o, si no documenta ninguna (diálogos, exportación), la que el plan justifique, en una versión estable, y no conservar archivos de librerías que ya no se usen.
 FR-35. THE SYSTEM shall presentar todos los iconos con el conjunto de iconos predeterminado de AdminLTE 4.
 FR-36. WHEN la persona usuaria elige fechas de un filtro, THE SYSTEM shall aceptar y mostrar fechas en un formato legible y operable por teclado.
+FR-37. WHEN se guardan los permisos de un rol, THE SYSTEM shall reemplazar solo los permisos activos y conservar los inactivos que el rol ya tenía asignados, sin duplicar asignaciones.
+FR-38. IF se intenta modificar, sincronizar o cambiar el estado de un rol que no existe, THEN THE SYSTEM shall responder «Role not found.» sin cambiar datos.
+FR-39. THE SYSTEM shall indicar en cada fila de las listas de usuarios y roles si la persona autenticada puede gestionarla, y la interfaz shall ofrecer solo las acciones permitidas; el rechazo del servidor sigue siendo la barrera real.
 
 ## Requisitos no funcionales
 
@@ -172,3 +175,9 @@ El `plan.md` recoge estas decisiones y las versiones concretas.
 - Type: modify
 - FRs: FR-33
 - Reason: dejar escrito cuándo un componente propio se reemplaza por el de AdminLTE 4 y cuándo se conserva, para que la decisión no se tome caso por caso.
+
+### CHG-3 — 2026-11-08 — Reglas de roles y acciones por fila que la migración ya aplica
+
+- Type: modify
+- FRs: FR-15, FR-30, FR-37, FR-38, FR-39
+- Reason: durante la migración se corrigieron en el servidor comportamientos que las nuevas pantallas hacían visibles: guardar los permisos de un rol borraba en silencio los inactivos, quien no poseía un permiso podía retirarlo de un rol, un rol inexistente no daba respuesta clara, y crear o editar un rol desde el modal no devolvía el token CSRF necesario para el segundo envío. La interfaz además dejó de ofrecer acciones que el servidor iba a rechazar.
