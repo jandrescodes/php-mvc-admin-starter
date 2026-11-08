@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.18.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -57,7 +57,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **Metrics dashboard** — Chart.js charts (donut active/inactive/pending, bar, line) + stat cards for users, permissions, roles, and today's audit events; toggleable access-metrics row (pending invitations, resets this week) with localStorage persistence and CSS slide+fade animation; staggered entrance animations for stat cards and chart cards; session-based cache with event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages sharing one layout (`views/layouts/error.php`), WCAG AA-compliant color tokens, and full dark mode support
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
-- **AdminLTE 4** — Production-ready responsive dashboard on Bootstrap 5.3, no jQuery (migration in progress on `feat/adminlte4-migration`; `main` is still AdminLTE 3)
+- **AdminLTE 4** — Production-ready responsive dashboard on Bootstrap 5.3, no jQuery
 - **PDF generation** — Built-in report generation with TCPDF: server-side PDF export of the audit log (respects the active filters, UTF-8, paginated header/footer)
 - **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules, auth standalone pages, and error pages
 - **Accessible by default** — labeled form inputs, `aria-pressed`/`aria-label` on icon-only toggles, `prefers-reduced-motion` respected, `<noscript>` fallback for flash messages
@@ -69,7 +69,7 @@ A PHP starter template with authentication, user management, and role-based perm
 
 Session-based login with brute-force lockout and remember-me support.
 
-![Login](docs/legacy/screenshots/login.png)
+![Login](docs/screenshots/login.png)
 
 ---
 
@@ -77,7 +77,7 @@ Session-based login with brute-force lockout and remember-me support.
 
 Metrics overview with Chart.js charts and event-driven cache invalidation.
 
-![Dashboard](docs/legacy/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/dashboard.png)
 
 ---
 
@@ -85,15 +85,15 @@ Metrics overview with Chart.js charts and event-driven cache invalidation.
 
 Full CRUD with profile images, activation/deactivation, and email invitations.
 
-![Users](docs/legacy/screenshots/users.png)
+![Users](docs/screenshots/users.png)
 
 ---
 
 ### Role & Permissions
 
-Role catalog with role↔permission assignment and system-role protection. Granting is bounded by what the actor holds (see [docs/legacy/ACCESS_CONTROL.md](docs/legacy/ACCESS_CONTROL.md)).
+Role catalog with role↔permission assignment and system-role protection. Granting is bounded by what the actor holds (see [docs/guides/ACCESS_CONTROL.md](docs/guides/ACCESS_CONTROL.md)).
 
-![Roles](docs/legacy/screenshots/roles.png)
+![Roles](docs/screenshots/roles.png)
 
 ## Requirements
 
@@ -128,7 +128,7 @@ Open `http://localhost/php-mvc-admin-starter/` in your browser.
 
 **Default credentials:** `admin@sistema.com` / `admin123`
 ⚠️ Change the default credentials immediately after installation.
-For all seeded test users and their permissions, see [docs/legacy/SEEDING.md](docs/legacy/SEEDING.md).
+For all seeded test users and their permissions, see [docs/guides/SEEDING.md](docs/guides/SEEDING.md).
 
 ## Configuration `.env`
 
@@ -142,7 +142,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=false
-APP_VERSION=3.18.1
+APP_VERSION=4.0.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -284,15 +284,16 @@ changes are skipped via `paths-ignore` (css/js changes run, since `quality` veri
 
 ## Developer Docs
 
-- [docs/legacy/SEEDING.md](docs/legacy/SEEDING.md) — seeded users, rerun behavior, and permission matrix
-- [docs/legacy/ACCESS_CONTROL.md](docs/legacy/ACCESS_CONTROL.md) — session guards and permission cache flow
-- [docs/legacy/AJAX_AND_MODULES.md](docs/legacy/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
-- [docs/legacy/TESTING.md](docs/legacy/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
+- [docs/guides/SEEDING.md](docs/guides/SEEDING.md) — seeded users, rerun behavior, and permission matrix
+- [docs/guides/ACCESS_CONTROL.md](docs/guides/ACCESS_CONTROL.md) — session guards and permission cache flow
+- [docs/guides/AJAX_AND_MODULES.md](docs/guides/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
+- [docs/guides/TESTING.md](docs/guides/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
+- [docs/guides/UPGRADE_4.0.md](docs/guides/UPGRADE_4.0.md) — porting views, JS and CSS from 3.x (AdminLTE 3 / jQuery) to 4.0.0
 
 ## AI Integration
 
 This project is configured for AI coding assistants like Claude Code. It includes custom skills, MCP server templates, and auto-approval settings.
-See [docs/legacy/AI_SETUP.md](docs/legacy/AI_SETUP.md) for full details on how to use and extend the AI configuration.
+See [docs/guides/AI_SETUP.md](docs/guides/AI_SETUP.md) for full details on how to use and extend the AI configuration.
 
 ## Contributing
 

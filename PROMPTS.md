@@ -4,7 +4,7 @@
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
 > El `AGENTS.md` (fuente única de convenciones; `CLAUDE.md` solo lo importa) siempre debe estar
 > disponible para el agente como contexto base.
-> **Migración en curso:** los bloques `Stack:` de abajo describen AdminLTE 3 + jQuery (estado de `main`). En la rama `feat/adminlte4-migration` el stack pasa a AdminLTE 4 / Bootstrap 5.3 sin jQuery (Tabulator, Tom Select, `fetch`); se actualizan al cerrar la migración (T56).
+> Los bloques `Stack:` describen AdminLTE 4 / Bootstrap 5.3 sin jQuery (Tabulator, Tom Select, `Http`, `FormValidator`); `docs/guides/UPGRADE_4.0.md` cubre el paso desde 3.x.
 
 ---
 
@@ -42,7 +42,7 @@ y patrones de diseño.
 
 [Contexto]
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
-Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
+Stack: AdminLTE 4, Bootstrap 5.3 (sin jQuery), Tabulator, Tom Select, SweetAlert2, Chart.js, PDO/MySQL.
 Módulo activo: _______________
 
 [Tarea]
@@ -59,8 +59,8 @@ _______________
 - Salida en JS: datos de usuario en SweetAlert (title/html) o .html() pasan por escapeHtml(); rechazos de negocio en AJAX = HTTP 200 + success:false
 - Uploads: siempre a través de ImageService
 - AJAX: devolver JSON con $this->jsonResponse(); sesión-feedback con $_SESSION['message'] + $_SESSION['icon'] antes del JSON si hay location.reload()
-- DataTables para listas; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
-- Select2 en modales: inicializar con dropdownParent explícito
+- Tablas con TableUtils.create (Tabulator): el controlador arma el JSON y la vista lo imprime en data-rows; peticiones AJAX con Http.get/post (nunca fetch a pelo); validación con FormValidator; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
+- Selects con <select class="tom-select"> (también dentro de modales, sin dropdownParent); sin jQuery ni librerías de Bootstrap 4
 - No introducir librerías nuevas (vía Composer o manual) sin aprobación del líder técnico
 
 [Formato de salida]
@@ -80,7 +80,7 @@ y patrones de diseño.
 
 [Contexto]
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
-Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
+Stack: AdminLTE 4, Bootstrap 5.3 (sin jQuery), Tabulator, Tom Select, SweetAlert2, Chart.js, PDO/MySQL.
 Módulo activo: [nombre del módulo — ej: users, permissions, dashboard]
 
 Estructura de archivos relevante:
@@ -102,8 +102,8 @@ Descripción: [criterios de aceptación]
 - Sanitización en el modelo, escape en la vista
 - AJAX endpoints devuelven JSON via $this->jsonResponse()
 - Feedback post-reload: $_SESSION['message'] + $_SESSION['icon'] antes del JSON
-- DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
-- Select2 para dropdowns; con dropdownParent si está dentro de un modal
+- Tablas con TableUtils.create (Tabulator) y datos en data-rows; Http.get/post para AJAX y FormValidator para formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
+- Tom Select para dropdowns (clase tom-select); sin dropdownParent dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
 - Audit: llamar AuditLogger::log(string $module, string $action, string $description = '', array $details = []) — firma posicional, nunca un array — en el controller tras cada acción exitosa que mute estado; nunca dentro del modelo
 - No inventar métodos de core que no existan en app/Core/
@@ -130,7 +130,7 @@ de aplicaciones MVC y MySQL.
 
 [Contexto]
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
-Stack: PHP 8.2+, PDO/MySQL, jQuery, AdminLTE 3.
+Stack: PHP 8.2+, PDO/MySQL, JS nativo (sin jQuery), AdminLTE 4.
 Archivo donde ocurre el error: [ruta completa]
 Método/función afectada: [nombre]
 
@@ -210,7 +210,7 @@ custom, diseño de base de datos y patrones de diseño (Repository, Service Laye
 
 [Contexto]
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
-Stack actual: App\Core\Router, middleware por ruta, PSR-4 custom autoloader,
+Stack actual: App\Core\Router, middleware por ruta, autoloader PSR-4 de Composer,
               PDO singleton (Connection::getInstance()), App\Core\Auth (hub de sesión/permisos).
 Módulos existentes: auth, users (con flujo de invitación por email — pending → accept → active), permissions, roles, dashboard (con métricas Chart.js, DashboardCache, animaciones CSS de entrada y toggle de métricas de acceso), audit-log (read-only, AuditLogger service), dark-mode (localStorage + prefers-color-scheme, sin BD).
 Patrón de modelos: fat model / thin controller — validación, formateo e invalidación de caché viven en el modelo. App\Core\Model provee CRUD genérico heredable (find, all, insert, update, delete, getLastInsertId, trimInput). User usa tres traits (UserAuthTrait, UserPasswordTrait, UserStatsTrait) bajo app/Models/Traits/.
@@ -250,7 +250,7 @@ diseño de base de datos y seguridad web.
 
 [Contexto]
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
-Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
+Stack: AdminLTE 4, Bootstrap 5.3 (sin jQuery), Tabulator, Tom Select, SweetAlert2, Chart.js, PDO/MySQL.
 Módulo nuevo: [nombre]
 
 BD existente relevante:
@@ -274,7 +274,7 @@ Criterios de aceptación:
 - Seguir el patrón MVC del módulo users como referencia exacta
 - Rutas declaradas en routes/web.php con middlewares auth + perm:[nombre] donde aplique
 - CSRF en todos los formularios POST y endpoints AJAX
-- DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo; Select2 para dropdowns
+- Tabulator (TableUtils) para listados; Http y FormValidator para AJAX y formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo; Tom Select para dropdowns
 - Borrado lógico con is_active — nunca DELETE físico en tablas de negocio
 - AJAX: $this->jsonResponse(); feedback con $_SESSION['message'] + $_SESSION['icon'] si el JS hace location.reload(); $_SESSION['welcome_user'] para popup de bienvenida
 - Permisos gateados con Auth::hasPermission() o middleware perm:NAME en routes/web.php
@@ -345,5 +345,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.18.1_
+_Última actualización: 4.0.0_
 _Mantener sincronizado con AGENTS.md al iniciar cada sprint._

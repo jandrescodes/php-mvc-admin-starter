@@ -91,7 +91,7 @@ Review each changed file against the checklist below. Group findings by severity
 
 ### 3. Logic & Quality — flag as warning, discuss before merge
 
-- [ ] Dual validation — jQuery Validate on the frontend AND matching PHP validation on the backend; frontend alone
+- [ ] Dual validation — `FormValidator` (native validation) on the frontend AND matching PHP validation on the backend; frontend alone
       is never sufficient
 - [ ] SweetAlert2 (`ToastUtils`/`AlertUtils`) used — no native `alert()`/`confirm()` in JS; destructive actions show
       a confirmation dialog first
@@ -150,17 +150,17 @@ If there are blocking issues, end with:
 
 ## Quick Reference — Most Common Issues
 
-| #   | File type  | Issue                                                                      | Severity   |
-| --- | ---------- | --------------------------------------------------------------------------- | ---------- |
-| 1   | Controller | Missing `middleware` key or wrong middleware in `routes/web.php`            | 🚨 Block   |
-| 2   | Controller | Missing `$this->csrfCheck()` on a state-changing POST/AJAX method            | 🚨 Block   |
-| 3   | Model      | SQL built with string concatenation instead of prepared statements          | 🚨 Block   |
-| 4   | View       | User output not escaped with `htmlspecialchars()`                           | 🚨 Block   |
-| 4b  | JS         | User data in SweetAlert `html`/`.html()` without `escapeHtml()`             | 🚨 Block   |
+| #   | File type  | Issue                                                                                        | Severity   |
+| --- | ---------- | -------------------------------------------------------------------------------------------- | ---------- |
+| 1   | Controller | Missing `middleware` key or wrong middleware in `routes/web.php`                             | 🚨 Block   |
+| 2   | Controller | Missing `$this->csrfCheck()` on a state-changing POST/AJAX method                            | 🚨 Block   |
+| 3   | Model      | SQL built with string concatenation instead of prepared statements                           | 🚨 Block   |
+| 4   | View       | User output not escaped with `htmlspecialchars()`                                            | 🚨 Block   |
+| 4b  | JS         | User data in SweetAlert `html`/`.html()` without `escapeHtml()`                              | 🚨 Block   |
 | 4c  | Controller | Grants a role/permission or edits an account without `canGrantPermissionIds`/`canManageUser` | 🚨 Block   |
-| 5   | Model      | Password changed without calling `clearRememberToken()`                     | 🚨 Block   |
-| 6   | Model      | Mutation missing matching `DashboardCache::forget()` call                   | ⚠️ Warning |
-| 7   | Controller | `AuditLogger::log()` missing after a state-changing action                  | ⚠️ Warning |
-| 8   | JS         | Native `alert()`/`confirm()` instead of `ToastUtils`/`AlertUtils`           | ⚠️ Warning |
-| 9   | Controller | Business logic that belongs in the Model                                    | ⚠️ Warning |
-| 10  | Any        | Frontend validation without matching backend validation                     | ⚠️ Warning |
+| 5   | Model      | Password changed without calling `clearRememberToken()`                                      | 🚨 Block   |
+| 6   | Model      | Mutation missing matching `DashboardCache::forget()` call                                    | ⚠️ Warning |
+| 7   | Controller | `AuditLogger::log()` missing after a state-changing action                                   | ⚠️ Warning |
+| 8   | JS         | Native `alert()`/`confirm()` instead of `ToastUtils`/`AlertUtils`                            | ⚠️ Warning |
+| 9   | Controller | Business logic that belongs in the Model                                                     | ⚠️ Warning |
+| 10  | Any        | Frontend validation without matching backend validation                                      | ⚠️ Warning |

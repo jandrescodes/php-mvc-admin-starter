@@ -15,7 +15,7 @@ only adds Claude Code–specific notes.
   branch). The SDD phases come from the `sdd:` plugin (`/sdd:constitution`, `/sdd:spec`, `/sdd:clarify`,
   `/sdd:plan`, `/sdd:tasks`, `/sdd:implement`, `/sdd:validate`, `/sdd:change`, `/sdd:docs`);
   `design-review` is also a plugin/agent, not a file in this repo. Invoke with `/<name>`.
-- **MCP servers** (`.mcp.json` — details in `docs/legacy/AI_SETUP.md`): `mysql`, `phpstorm`, `playwright`,
+- **MCP servers** (`.mcp.json` — details in `docs/guides/AI_SETUP.md`): `mysql`, `phpstorm`, `playwright`,
   `github`. Bash permission allowlist in `.claude/settings.example.json`.
 - **After fixing a mistake**, document the convention in `AGENTS.md` (project-specific) or
   `~/.claude/CLAUDE.md` (universal habit) — never here.

@@ -42,3 +42,6 @@ opencode.json.example
 
 # PHPStan
 /.phpstan.cache/
+
+# Documentos derivados de entrega (no se versionan)
+deliverables/

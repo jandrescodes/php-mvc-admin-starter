@@ -7,15 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-migration`, spec `specs/001-adminlte-migration/`). Work in progress: screens keep AdminLTE 3 markup until the layout and module phases land, so this branch is not releasable yet; `main` stays on AdminLTE 3.
+## [4.0.0] - 2026-11-08
+
+Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery. Major release: every screen has new markup and the frontend stack changed (AdminLTE 3 / Bootstrap 4 / jQuery / DataTables / Select2 / Font Awesome out; Tabulator / Tom Select / Bootstrap Icons in). Business behaviour and routes are unchanged, apart from the role and CSRF fixes listed under Fixed. The `3.x` tags remain on AdminLTE 3.
+
+### Removed
+
+- jQuery, jQuery Validate, DataTables (with its Buttons, JSZip and pdfmake files), Select2, iCheck, Moment, Bootstrap 4 and Font Awesome, plus `common-datatable.js`, `common-validate.js` and `webfonts.css`. Nothing in `views/` or `public/js/` uses jQuery any more.
+- The working documents of the migration (class, jQuery, plugin and `data-*` inventories, research reports, icon map and the earlier "do not migrate" plan).
 
 ### Changed
 
-- Migration scope adjusted after the project audit: CI check for `public/`, Tabulator instead of DataTables, accepted audit-log risk, and the adoption rule — replace what AdminLTE 4 covers, keep and adapt what it does not.
-- `AssetRegistry` maps rewritten for the new stack (`tabulator`, `tom-select`, `export`, `chart`); the `datatables`, `select2` and `validate` keys are gone and their controllers move in the module phase.
+- `AssetRegistry` maps rewritten for the new stack (`tabulator`, `tom-select`, `export`, `chart`); the `datatables`, `select2` and `validate` keys are gone.
 - CI: the `quality` job installs Node 22, runs `npm ci && npm run assets`, fails if `public/` differs from the lockfile (`git diff --exit-code -- public/`) and runs `scripts/check-asset-paths.php`; css/js changes no longer skip CI.
 - Dependabot now covers npm, with the AdminLTE-aligned libraries grouped and held until AdminLTE itself is bumped.
-
 - Layouts rewritten for AdminLTE 4: `header.php` (`app-header`, user menu, `data-lte-color-mode="off"`), `sidebar.php` (`app-sidebar`, treeview, Bootstrap Icons), `footer.php` (`app-footer`, script order Bootstrap → AdminLTE → OverlayScrollbars → SweetAlert2), `auth.php` and `error.php` as standalone pages. Bootstrap 4 and Font Awesome are no longer loaded by any layout.
 - Theme switch writes `data-bs-theme` (anti-FOUC is the only inline script of each layout); the toggle icon is chosen by CSS, which removes the moon→sun flicker on every page load.
 - `baseUrl` / `csrfToken` now come from `<meta>` tags instead of inline scripts; flash messages and the welcome popup go through a hidden `#flash-data` element handled in `sweetalert-utils.js`, with the `<noscript>` alert kept.
@@ -39,17 +44,21 @@ Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery (branch `feat/adminlte4-m
 - A non-admin can no longer remove permissions they do not hold from a role: `RoleController::syncPermissions` applies the same "nobody grants what they do not hold" rule when removing as when assigning (`You cannot remove permissions you do not hold.`).
 - The roles list no longer runs one query per role to read its permissions (`Role::getAssignedPermissionIdsByRole`), and `toggleStatus` / `syncPermissions` answer `Role not found.` for a missing role.
 - Removed the unused native Tabulator footer rules from `table.css` (every table draws its own `info` / `pager`).
+- Accessibility (axe-core 4.11, light and dark, no violations): Tom Select gives its visible control the accessible name of the `<label>` and hides the original `<select>`; the Tabulator grid exposes `rowgroup`/`presentation` roles for its body; headings follow one `h1` → `h2` card title → `h3` hierarchy, with dashboard figures and alerts no longer drawn as headings; several low-contrast colours (sidebar submenu, code in modal headers and tables, user-menu button, small-box footers in dark mode) were fixed.
+- Sortable table headers can be focused and sorted with Enter or Space (Tabulator draws them as non-focusable `div`s).
+- Row-action buttons in the users and permissions tables reach the 44 px touch size on phones again, and the dashboard small-box footer no longer grows there.
+- A rejected CSRF token answers "Your session has expired. Reload the page and try again." (AJAX, 403) or "Invalid security token. Please try again." (plain request); creating or editing a role from the modal returns the new `csrf_token` so a second request can follow without reloading.
 
 ### Added
 
 - Frontend dependencies come from Composer (`almasaeed2010/adminlte` 4.10.1, dev only) and npm (`package.json`, pinned versions, `.nvmrc`); `npm run assets` (`scripts/sync-assets.mjs`) copies them into `public/` without a bundler and the copy is versioned.
 - Bootstrap 5.3.8, Bootstrap Icons 1.13.1, OverlayScrollbars 2.16.0, Tabulator 6.6.1, Tom Select 2.6.2, Chart.js 4.5.1, SweetAlert2 11.26.25, jsPDF 4.2.1, jspdf-autotable 5.0.9 and SheetJS 0.20.3 (from `cdn.sheetjs.com`; the npm package has two CVEs) in `public/`.
 - `.gitattributes` with `export-ignore` for `package*.json`, `.nvmrc`, `scripts/`, `docs/`, `specs/`, `deliverables/` and `tests/`.
-- `scripts/check-asset-paths.php` and the inventories `docs/data-api-inventory.md` and the JS-generated classes section of `docs/adminlte3-class-inventory.md`.
+- `scripts/check-asset-paths.php`.
+- `docs/schema.md`, the persistent data structures derived from `database/schema.sql`; `docs/` is now `guides/`, `screenshots/`, `constitution.md`, `roadmap.md` and `schema.md`.
 - `public/js/core/http.js` (`Http.get/post/request`): `fetch` with `X-Requested-With`, `URLSearchParams`, the current CSRF token and JSON/error handling; it updates the `csrf-token` meta and hidden inputs when a response carries `csrf_token`. Loaded by `footer.php` and `auth.php`.
 - `public/js/core/form-validator.js` (`FormValidator.init/reset`): native validation with Bootstrap 5 `.is-invalid` / `.invalid-feedback`, `equalTo`, `remote` uniqueness (`fetch` + debounce + `AbortController`) and AJAX submit with a spinner; no duplicate AdminLTE `<id>-error`.
 - `public/js/core/table-utils.js` (`TableUtils`): Tabulator defaults (pagination, natural sort, Spanish texts), escaped formatters, global search, column-visibility dropdown and Copy / CSV / Print / Excel / PDF export with page-numbered footer.
-- `docs/icon-map.md`: Font Awesome → Bootstrap Icons map (62 icons, `fa-spin` and `fa-stack` redesigns).
 
 ## [3.18.1] - 2026-10-27
 
@@ -207,7 +216,7 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 ### Fixed
 
 - **XSS in `$user['image']` src attribute** — `views/users/show.php` and `views/users/update.php` (two locations) echoed the image filename directly into `src="..."` without escaping. Wrapped with `htmlspecialchars()` to prevent attribute-injection attacks.
-- **Undefined `$user['position']` in update view** — `views/users/update.php` profile-preview card referenced a `position` column that does not exist in the schema (removed in v3.10.0). Replaced with `$user['role_name'] ?? ''`.
+- **Undefined `$user['position']` in update view** — `views/users/update.php` profile-preview card referenced a `position` column that does not exist in the schema (removed in 3.10.0). Replaced with `$user['role_name'] ?? ''`.
 - **Open redirect in CSRF failure handler** — `app/Core/Controller::csrfCheck()` redirected to `$_SERVER['HTTP_REFERER']` without validation, allowing an attacker-controlled `Referer` header to send users to external URLs on CSRF token failure. Redirect now only follows the referrer if it starts with the application's `URL` constant; falls back to `URL` otherwise.
 - **Logout unprotected on GET route** — `GET /logout` triggered session destruction with no CSRF token, allowing any third-party page to log users out via `<img src="...">`. Route changed to `POST`; `views/layouts/header.php` logout link replaced with a `<form method="POST">` containing a CSRF token; `AuthController::logout()` now calls `$this->csrfCheck()`.
 - **Remember-me cookie not revoked on password change** — `User::updatePassword()` updated the password hash but left `remember_token` intact, meaning an attacker's stolen cookie stayed valid after the account owner changed their password. `clearRememberToken($id)` is now called unconditionally after a successful password update.
@@ -245,7 +254,7 @@ UI audit pass (via the `impeccable` skill) over `dashboard`, `users`, `permissio
 
 - **`DashboardController`** — imports `PasswordReset`; loads `pending_invitations` and `resets_this_week` via `DashboardCache::remember()`; passes both to the view.
 - **`DashboardCache` invalidation contract** updated in `CLAUDE.md` to document the two new cache keys and their invalidation controllers.
-- **Test suite** — 281 tests, 498 assertions (up from 275 / 486 in v3.14.0).
+- **Test suite** — 281 tests, 498 assertions (up from 275 / 486 in 3.14.0).
 
 ---
 
@@ -656,7 +665,7 @@ This release introduces a major architectural refactoring from scattered endpoin
 
 ### Migration Guide
 
-If upgrading from v3.0.x, follow these steps:
+If upgrading from 3.0.x, follow these steps:
 
 1. **Update Apache Configuration**
     - Set DocumentRoot to `public/` directory
@@ -1000,7 +1009,8 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[unreleased]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.1...main
+[unreleased]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/4.0.0...main
+[4.0.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.1...4.0.0
 [3.18.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.18.0...3.18.1
 [3.18.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.17.0...3.18.0
 [3.17.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/3.16.1...3.17.0
@@ -1031,12 +1041,12 @@ If upgrading from v3.0.x, follow these steps:
 [2.2.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/2.0.0...2.0.1
-[2.0.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.5.0...2.0.0
-[1.5.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.3.0...v1.4.0
-[1.3.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.1.2...v1.2.0
-[1.1.2]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/jandrescodes/php-mvc-admin-starter/releases/tag/v1.0.0
+[2.0.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.5.0...2.0.0
+[1.5.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.4.0...1.5.0
+[1.4.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.3.0...1.4.0
+[1.3.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.2.0...1.3.0
+[1.2.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.1.2...1.2.0
+[1.1.2]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/jandrescodes/php-mvc-admin-starter/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/jandrescodes/php-mvc-admin-starter/releases/tag/1.0.0
