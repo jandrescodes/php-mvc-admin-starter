@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-11-17
+
+Flat table style rolled out to every listing, plus two shared table fixes.
+
+### Changed
+
+- Users, Roles, Permissions, Audit Log and the permission detail lists use the flat table style (`tbl-flat` / `tbl-card`): a single toolbar in the card header (search, status filter, Reports and Columns icon menus, create button), footer with info, rows selector and pager (first/last buttons, compact indicator on mobile). Row actions collapse into a menu on phones.
+- Users list shows each user's avatar and flags system roles with a "System" badge.
+- Log Out button in the header uses the danger outline variant.
+
+### Fixed
+
+- The `#` counter column restarted at 1 on every page; it now continues across pages.
+- Tables rendered rows taller than their content with a blank gap below (fixed only by paging); rows are re-measured once fonts and final column widths are ready.
+
 ## [4.0.0] - 2026-11-08
 
 Migration to AdminLTE 4 / Bootstrap 5.3 without jQuery. Major release: every screen has new markup and the frontend stack changed (AdminLTE 3 / Bootstrap 4 / jQuery / DataTables / Select2 / Font Awesome out; Tabulator / Tom Select / Bootstrap Icons in). Business behaviour and routes are unchanged, apart from the role and CSRF fixes listed under Fixed. The `3.x` tags remain on AdminLTE 3.

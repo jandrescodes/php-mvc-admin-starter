@@ -69,6 +69,7 @@ git checkout -b feature/your-feature-name
 - Follow consistent naming conventions (camelCase)
 - Include JSDoc documentation for functions
 - Maintain proper code organization in module files
+- New list screens follow the flat table pattern (`tbl-card` + `tbl-flat`, `TableUtils.create`); see `views/roles/index.php` and `docs/guides/FRONTEND_HELPERS.md`. Do not copy the old "Show N entries" card layout.
 
 ### Database Standards
 
@@ -189,7 +190,7 @@ When adding a new feature or fixing a bug:
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
-When your change introduces or alters a **convention, cache key, or invalidation rule**, update `AGENTS.md` (the single source of truth for conventions — `CLAUDE.md` only imports it). When it affects a deeper flow — session/permissions, AJAX endpoint patterns, local seed data, the role/permission model, CI/tooling config, or AI/MCP tooling — update the corresponding file under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
+When your change introduces or alters a **convention, cache key, or invalidation rule**, update `AGENTS.md` (the single source of truth for conventions — `CLAUDE.md` only imports it). When it affects a deeper flow — session/permissions, AJAX endpoint patterns, local seed data, the role/permission model, CI/tooling config, or AI/MCP tooling — update the corresponding file under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `FRONTEND_HELPERS.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
 When adding a new standalone auth page (one that does not use `layouts/header.php`/`footer.php`), do **not** build a full `<html>` document in the view. Write only the page-specific card markup, then call `$this->renderStandalone('auth/your_view', $data, 'Page Title', ['module/script'])` from the controller — it requires the shared `views/layouts/auth.php`, which already owns the `<head>`, anti-FOUC dark-mode IIFE, `#theme-toggle`, and all script tags (`sweetalert-utils.js`, `http.js`, `form-validator.js`, `common-utils.js`, your module script, `theme-toggle.js`). See `views/auth/login.php` + `AuthController::showLoginForm()` as reference. Existing standalone auth pages: `login.php`, `forgot_password.php`, `reset_password.php`, `accept_invitation.php`. The same pattern applies to error pages via `views/layouts/error.php` (see `views/errors/404.php`).
 
