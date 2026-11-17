@@ -37,7 +37,7 @@ class PermissionController extends Controller
         $this->render(
             'permissions/index',
             compact('permissionsJson', 'statistics'),
-            ['tabulator', 'export'],
+            ['tabulator', 'export', 'tom-select'],
             ['permissions/modal-permission', 'permissions/index-permissions'],
             ['permissions/permissions']
         );

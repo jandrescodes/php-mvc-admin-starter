@@ -67,74 +67,66 @@
 
             <!-- Right column - Users with this permission -->
             <div class="col-md-8">
-                <div class="card card-info card-outline">
+                <div class="card tbl-card card-outline card-info">
                     <div class="card-header">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center">
-                            <h2 class="card-title"><i class="bi bi-people me-1" aria-hidden="true"></i> Users with this Permission</h2>
-                            <div class="card-tools">
-                                <?php if (!$isInactive): ?>
-                                    <button type="button" class="btn btn-success btn-sm" id="btnAssignUser">
-                                        <i class="bi bi-person-plus" aria-hidden="true"></i> Assign User
-                                    </button>
-                                <?php endif; ?>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
-                                    <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
-                                    <i data-lte-icon="expand" class="bi bi-plus-lg" aria-hidden="true"></i>
-                                </button>
+                        <div class="d-flex flex-wrap align-items-center gap-2 tbl-toolbar" id="detailTop">
+                            <h2 class="card-title me-auto"><i class="bi bi-people me-1" aria-hidden="true"></i> Users with this Permission</h2>
+                            <div class="input-group input-group-sm tbl-search">
+                                <label for="detailSearch" class="visually-hidden">Search users</label>
+                                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                                <input type="search" class="form-control" id="detailSearch" placeholder="Search users">
                             </div>
+                            <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Reports" title="Reports">
+                                        <i class="bi bi-download" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
+                                    </ul>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Columns" title="Columns">
+                                        <i class="bi bi-layout-three-columns" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="detailColumnMenu"></div>
+                                </div>
+                            </div>
+                            <?php if (!$isInactive): ?>
+                                <button type="button" class="btn btn-success btn-sm" id="btnAssignUser">
+                                    <i class="bi bi-person-plus" aria-hidden="true"></i> Assign User
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <?php if ($isInactive): ?>
-                            <div class="alert alert-warning">
+                    <?php if ($isInactive): ?>
+                        <div class="card-body border-bottom">
+                            <div class="alert alert-warning mb-0">
                                 <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
                                 This permission is <strong>inactive</strong>. No new users can be assigned until it is reactivated.
                             </div>
-                        <?php endif; ?>
-                        <div class="row g-2 mb-2 align-items-center tbl-toolbar" id="detailTop">
-                            <div class="col-12 col-md-6 text-center text-md-start">
-                                <label class="d-inline-flex align-items-center gap-2 mb-0">
-                                    Show
-                                    <select class="form-select form-select-sm w-auto" id="detailPageSize" aria-label="Entries per page"></select>
-                                    entries
-                                </label>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="d-flex align-items-center justify-content-md-end gap-2 mb-0">
-                                    Search:
-                                    <input type="search" class="form-control form-control-sm w-auto flex-grow-1 flex-md-grow-0" id="detailSearch">
-                                </label>
-                            </div>
-                            <div class="col-12">
-                                <div class="btn-group btn-group-sm">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Reports</button>
-                                        <ul class="dropdown-menu">
-                                            <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Columns</button>
-                                        <div class="dropdown-menu" id="detailColumnMenu"></div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        <div id="tablePermissionDetail" class="tbl-sm tbl-hover tbl-striped tbl-bordered"
+                    <?php endif; ?>
+                    <div class="card-body p-0">
+                        <div id="tablePermissionDetail" class="tbl-flat tbl-striped tbl-hover"
                             data-permission-id="<?= $permissionId; ?>"
                             data-rows="<?= htmlspecialchars($usersJson, ENT_QUOTES); ?>"></div>
-                        <div class="row g-2 mt-2 align-items-center tbl-toolbar" id="detailBottom">
-                            <div class="col-12 col-md-5 text-center text-md-start" id="detailInfo" role="status"></div>
-                            <div class="col-12 col-md-7">
-                                <nav aria-label="Users pagination">
-                                    <ul class="pagination pagination-sm mb-0 justify-content-center justify-content-md-end flex-wrap" id="detailPager"></ul>
-                                </nav>
-                            </div>
+                    </div>
+                    <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2 tbl-toolbar" id="detailBottom">
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-3 flex-grow-1 flex-sm-grow-0">
+                            <div id="detailInfo" role="status"></div>
+                            <label class="d-inline-flex align-items-center gap-2 mb-0">
+                                Rows
+                                <select class="form-select form-select-sm w-auto" id="detailPageSize" aria-label="Rows per page"></select>
+                            </label>
                         </div>
+                        <nav class="mx-auto mx-sm-0 ms-sm-auto" aria-label="Users pagination">
+                            <ul class="pagination pagination-sm mb-0 flex-wrap" id="detailPager"></ul>
+                        </nav>
                     </div>
                 </div>
             </div>
