@@ -339,6 +339,8 @@ ${table.getHtml('active', false)}
         },
         previous: 'Previous',
         next: 'Next',
+        first: 'First page',
+        last: 'Last page',
     },
 
     /** Rellena un `<select>` con los tamaños de página (como "Show N entries" de DataTables). */
@@ -390,12 +392,13 @@ ${table.getHtml('active', false)}
             }
             if (!pagerElement) return;
 
-            const item = (label, page, { disabled = false, active = false } = {}) => {
+            const item = (label, page, { disabled = false, active = false, aria = '' } = {}) => {
                 const li = document.createElement('li');
                 li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
                 const control = document.createElement(page === null ? 'span' : 'button');
                 control.className = 'page-link';
                 control.textContent = label;
+                if (aria) control.setAttribute('aria-label', aria);
                 if (page !== null) {
                     control.type = 'button';
                     control.dataset.page = String(page);
@@ -406,12 +409,22 @@ ${table.getHtml('active', false)}
                 return li;
             };
 
-            pagerElement.replaceChildren(
-                item(this.LABELS.previous, current - 1, { disabled: current <= 1 }),
-                ...this.pageNumbers(pages, current, compact.matches ? 5 : 7).map((page) =>
+            const slots = compact.matches ? 5 : 7;
+            // Primera/Última solo aparecen cuando hay más páginas de las que caben (los números se abrevian con «…»).
+            const jumps = pages > slots;
+            // En pantallas pequeñas, con botones de salto, los números no caben en una línea: se muestra «página / total».
+            const short = jumps && compact.matches;
+            const numbers = short
+                ? [item(`${current} / ${pages}`, null, { active: true })]
+                : this.pageNumbers(pages, current, slots).map((page) =>
                     page === '…' ? item('…', null, { disabled: true }) : item(String(page), page, { active: page === current })
-                ),
-                item(this.LABELS.next, current + 1, { disabled: current >= pages })
+                );
+            pagerElement.replaceChildren(
+                ...(jumps ? [item('«', 1, { disabled: current <= 1, aria: this.LABELS.first })] : []),
+                item(short ? '‹' : this.LABELS.previous, current - 1, { disabled: current <= 1, aria: short ? this.LABELS.previous : '' }),
+                ...numbers,
+                item(short ? '›' : this.LABELS.next, current + 1, { disabled: current >= pages, aria: short ? this.LABELS.next : '' }),
+                ...(jumps ? [item('»', pages, { disabled: current >= pages, aria: this.LABELS.last })] : [])
             );
         };
 
@@ -510,8 +523,10 @@ ${table.getHtml('active', false)}
         // Un contador se renumera al ordenar, filtrar o paginar: el formatter solo corre al crear la fila.
         if (counterField) {
             table.on('renderComplete', () => {
+                // La posición cuenta todas las filas filtradas y ordenadas, no solo las de la página visible.
+                const active = table.getRows('active');
                 table.getRows('visible').forEach((row) => {
-                    row.getCell(counterField)?.getElement().replaceChildren(String(row.getPosition(true)));
+                    row.getCell(counterField)?.getElement().replaceChildren(String(active.indexOf(row) + 1));
                 });
             });
         }
@@ -540,6 +555,32 @@ ${table.getHtml('active', false)}
             if (pager || info) this.bindPager(table, { info, pager });
             const toolbars = typeof toolbar === 'string' ? document.querySelectorAll(toolbar) : [toolbar];
             toolbars.forEach((toolbarElement) => toolbarElement?.classList.add('tbl-toolbar-ready'));
+
+            // Tabulator fija la altura de cada fila al crearla, antes de que la fuente de iconos y el ancho
+            // definitivo de las columnas estén listos, y las deja más altas que su contenido (con un hueco
+            // al pie de la tabla). Se vuelven a medir cuando la fuente carga y cuando cambia el ancho.
+            let remeasureTimer = null;
+            const remeasureRows = () => {
+                clearTimeout(remeasureTimer);
+                remeasureTimer = setTimeout(() => {
+                    table.rowManager.getDisplayRows().forEach((row) => {
+                        if (!row.initialized) return;
+                        row.clearCellHeight();
+                        row.calcHeight(true);
+                        row.setCellHeight();
+                    });
+                    table.rowManager.adjustTableSize();
+                }, 80);
+            };
+            remeasureRows();
+            document.fonts.ready.then(remeasureRows);
+            window.addEventListener('load', remeasureRows);
+            let lastWidth = element.clientWidth;
+            new ResizeObserver(() => {
+                if (element.clientWidth === lastWidth) return;
+                lastWidth = element.clientWidth;
+                remeasureRows();
+            }).observe(element);
         });
         return table;
     },
