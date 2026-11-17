@@ -113,71 +113,61 @@
         <!-- Log table -->
         <div class="row">
             <div class="col-12">
-                <div class="card card-outline card-primary">
+                <div class="card tbl-card card-outline card-primary">
                     <div class="card-header">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <h2 class="card-title">
+                        <div class="d-flex flex-wrap align-items-center gap-2 tbl-toolbar" id="auditTop">
+                            <h2 class="card-title me-auto">
                                 <i class="bi bi-clock-history me-1" aria-hidden="true"></i> Activity Log
-                                <span class="badge rounded-pill text-bg-secondary ms-2"><?= (int) $logCount ?> records</span>
+                                <span class="badge text-bg-secondary ms-2"><?= (int) $logCount ?> records</span>
                             </h2>
-                            <div class="card-tools">
-                                <?php if (\App\Core\Auth::hasPermission('audit_log_export')): ?>
-                                    <a href="<?= URL ?>audit-log/export?<?= htmlspecialchars(http_build_query($activeFilters)) ?>"
-                                        class="btn btn-success btn-sm"
-                                        title="Export full report (PDF)">
-                                        <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Export PDF
-                                    </a>
-                                <?php endif ?>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
-                                    <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
-                                    <i data-lte-icon="expand" class="bi bi-plus-lg" aria-hidden="true"></i>
-                                </button>
+                            <div class="input-group input-group-sm tbl-search">
+                                <label for="auditSearch" class="visually-hidden">Search log</label>
+                                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                                <input type="search" class="form-control" id="auditSearch" placeholder="Search log">
                             </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-2 mb-2 align-items-center tbl-toolbar" id="auditTop">
-                            <div class="col-12 col-md-6 text-center text-md-start">
-                                <label class="d-inline-flex align-items-center gap-2 mb-0">
-                                    Show
-                                    <select class="form-select form-select-sm w-auto" id="auditPageSize" aria-label="Entries per page"></select>
-                                    entries
-                                </label>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="d-flex align-items-center justify-content-md-end gap-2 mb-0">
-                                    Search:
-                                    <input type="search" class="form-control form-control-sm w-auto flex-grow-1 flex-md-grow-0" id="auditSearch">
-                                </label>
-                            </div>
-                            <div class="col-12">
-                                <div class="btn-group btn-group-sm">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Reports</button>
-                                        <ul class="dropdown-menu">
-                                            <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Columns</button>
-                                        <div class="dropdown-menu" id="auditColumnMenu"></div>
-                                    </div>
+                            <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Reports" title="Reports">
+                                        <i class="bi bi-download" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
+                                    </ul>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Columns" title="Columns">
+                                        <i class="bi bi-layout-three-columns" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="auditColumnMenu"></div>
                                 </div>
                             </div>
+                            <?php if (\App\Core\Auth::hasPermission('audit_log_export')): ?>
+                                <a href="<?= URL ?>audit-log/export?<?= htmlspecialchars(http_build_query($activeFilters)) ?>"
+                                    class="btn btn-success btn-sm"
+                                    title="Export full report (PDF)">
+                                    <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Export PDF
+                                </a>
+                            <?php endif ?>
                         </div>
-                        <div id="tableAuditLog" class="tbl-sm tbl-hover tbl-striped tbl-bordered" data-rows="<?= htmlspecialchars($logsJson, ENT_QUOTES); ?>"></div>
-                        <div class="row g-2 mt-2 align-items-center tbl-toolbar" id="auditBottom">
-                            <div class="col-12 col-md-5 text-center text-md-start" id="auditInfo" role="status"></div>
-                            <div class="col-12 col-md-7">
-                                <nav aria-label="Audit log pagination">
-                                    <ul class="pagination pagination-sm mb-0 justify-content-center justify-content-md-end flex-wrap" id="auditPager"></ul>
-                                </nav>
-                            </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="tableAuditLog" class="tbl-flat tbl-striped tbl-hover" data-rows="<?= htmlspecialchars($logsJson, ENT_QUOTES); ?>"></div>
+                    </div>
+                    <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2 tbl-toolbar" id="auditBottom">
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-3 flex-grow-1 flex-sm-grow-0">
+                            <div id="auditInfo" role="status"></div>
+                            <label class="d-inline-flex align-items-center gap-2 mb-0">
+                                Rows
+                                <select class="form-select form-select-sm w-auto" id="auditPageSize" aria-label="Rows per page"></select>
+                            </label>
                         </div>
+                        <nav class="mx-auto mx-sm-0 ms-sm-auto" aria-label="Audit log pagination">
+                            <ul class="pagination pagination-sm mb-0 flex-wrap" id="auditPager"></ul>
+                        </nav>
                     </div>
                 </div>
             </div>
