@@ -26,20 +26,21 @@ document.addEventListener('DOMContentLoaded', () => {
         toolbar: '#auditTop, #auditBottom',
         initialSort: [{ column: 'id', dir: 'desc' }],
         columns: [
-            { title: '#', field: 'id', width: 60, hozAlign: 'center', responsive: 5, counter: true },
+            { title: '#', field: 'id', width: 60, hozAlign: 'center', headerHozAlign: 'center', responsive: 5, counter: true },
             {
                 title: 'Date / Time',
                 field: 'created_at',
-                minWidth: 135,
+                minWidth: 165,
                 responsive: 0,
                 sorter: 'string',
-                formatter: (cell) => escapeHtml(String(cell.getValue()).slice(0, 16)),
+                formatter: (cell) => `<span class="text-nowrap">${escapeHtml(String(cell.getValue()).slice(0, 16))}</span>`,
                 exportAs: (value) => String(value).slice(0, 16),
             },
             {
                 title: 'User',
                 field: 'actor_label',
-                minWidth: 130,
+                minWidth: 170,
+                widthGrow: 2,
                 responsive: 2,
                 formatter: (cell) => (cell.getValue() ? escapeHtml(cell.getValue()) : '<span class="text-body-secondary">—</span>'),
                 exportAs: (value) => value || '—',
@@ -47,45 +48,53 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 title: 'Module',
                 field: 'module',
-                width: 120,
+                width: 115,
                 responsive: 3,
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => {
                     const module = String(cell.getValue());
                     const variant = MODULE_VARIANTS[module] ?? 'dark';
-                    return `<span class="badge rounded-pill text-bg-${variant}">${escapeHtml(capitalize(module))}</span>`;
+                    return `<span class="badge text-bg-${variant}">${escapeHtml(capitalize(module))}</span>`;
                 },
                 exportAs: (value) => capitalize(String(value)),
             },
             {
                 title: 'Action',
                 field: 'action',
-                minWidth: 110,
+                minWidth: 130,
                 responsive: 1,
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => `<code class="small">${escapeHtml(cell.getValue())}</code>`,
             },
             {
                 title: 'IP',
                 field: 'ip',
-                width: 130,
+                width: 125,
                 responsive: 4,
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => `<span class="font-monospace small">${escapeHtml(cell.getValue() || '—')}</span>`,
                 exportAs: (value) => value || '—',
             },
             {
                 title: 'Detail',
+                field: 'detail',
                 headerSort: false,
                 download: false,
                 columnToggle: false,
                 responsive: 0,
-                width: 80,
+                width: 105,
+                cssClass: 'tbl-col-actions',
                 hozAlign: 'center',
-                formatter: (cell) => `<button type="button" class="btn btn-info btn-sm btn-detail" data-id="${Number(cell.getRow().getData().id)}"
-                    data-bs-toggle="tooltip" title="View detail" aria-label="View detail">
-                    <i class="bi bi-eye" aria-hidden="true"></i>
-                </button>`,
+                headerHozAlign: 'center',
+                formatter: (cell) => `<div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-info btn-detail" data-id="${Number(cell.getRow().getData().id)}"
+                        data-bs-toggle="tooltip" title="View detail" aria-label="View detail">
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                </div>`,
             },
         ],
     });
@@ -127,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const moduleBadge = (module) => {
         const variant = MODULE_VARIANTS[module] ?? 'dark';
-        return `<span class="badge rounded-pill text-bg-${variant}">${escapeHtml(capitalize(String(module)))}</span>`;
+        return `<span class="badge text-bg-${variant}">${escapeHtml(capitalize(String(module)))}</span>`;
     };
 
     /** snake_case o camelCase → «Identifier type». */

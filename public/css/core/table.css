@@ -177,3 +177,102 @@
 :root:not([data-bs-theme="dark"]) .tabulator .tabulator-cell code {
     color: #a81f64;
 }
+
+/* Estilo plano (`tbl-flat`): sin bordes verticales ni rayas, solo separadores horizontales; pensado para una tabla que ocupa el card sin padding. */
+.tabulator.tbl-flat {
+    --tbl-cell-py: 0.5rem;
+    --tbl-cell-px: 1.25rem;
+    --tbl-header-py: 0.7rem;
+    --tbl-header-px: 1.25rem;
+
+    border: 0;
+    border-radius: 0;
+}
+
+/* El tema fija min-height: 40px por fila; con `tbl-flat` la altura la manda el contenido. */
+.tabulator.tbl-flat .tabulator-row {
+    min-height: 0;
+}
+
+.tabulator.tbl-flat .tabulator-header {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.tabulator.tbl-flat .tabulator-header .tabulator-col .tabulator-col-title {
+    font-weight: 600;
+}
+
+.tabulator.tbl-flat .tabulator-row {
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.tabulator.tbl-flat .tabulator-row:last-child {
+    border-bottom: 0;
+}
+
+/* Card de tabla: el header lleva título + controles en una sola fila y el pie el contador y la paginación. */
+.tbl-card .card-header .tbl-search {
+    width: 14rem;
+}
+
+.tbl-card .card-header .tbl-filter {
+    width: 10rem;
+}
+
+/* Si los controles no caben junto al título (según el ancho del card, no de la ventana), el título pasa a su propia fila y el buscador ocupa el resto de la fila de controles. */
+.tbl-card .card-header {
+    container-type: inline-size;
+}
+
+@container (max-width: 960px) {
+    .tbl-card .card-header .card-title {
+        flex: 0 0 100%;
+    }
+
+    .tbl-card .card-header .tbl-search {
+        flex: 1 1 12rem;
+        width: auto;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tbl-card .card-header .tbl-search {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    /* Rol y estado comparten fila. */
+    .tbl-card .card-header .tbl-filter {
+        flex: 1 1 8rem;
+        width: auto;
+        min-width: 0;
+    }
+}
+
+/* En móvil los botones de reportes/columnas y de alta quedan centrados en su fila. */
+@media (max-width: 575.98px) {
+    .tbl-card .card-header .tbl-toolbar {
+        justify-content: center;
+    }
+}
+
+/* En móvil el padding horizontal de 1.25rem deja sin sitio a la columna de acciones. */
+@media (max-width: 575.98px) {
+    .tabulator.tbl-flat {
+        --tbl-cell-px: 0.75rem;
+        --tbl-header-px: 0.75rem;
+    }
+}
+
+/* Icono de color de cada acción en el menú móvil: ancho fijo para alinear los textos. */
+.tbl-menu-icon {
+    display: inline-block;
+    width: 1.75rem;
+    text-align: center;
+}
+
+/* Ancho fijo (sin recalcular al redimensionar): el grupo de botones cabe con menos padding lateral. */
+.tabulator.tbl-flat .tabulator-col.tbl-col-actions,
+.tabulator.tbl-flat .tabulator-cell.tbl-col-actions {
+    padding-inline: 0.5rem;
+}

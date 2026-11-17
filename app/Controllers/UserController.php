@@ -42,7 +42,9 @@ class UserController extends Controller
                 'name'           => trim($user['name'] . ' ' . $user['first_surname']),
                 'document'       => trim($user['document_type'] . ' ' . $user['document_number']),
                 'email'          => $user['email'],
+                'image'          => !empty($user['image']) ? $user['image'] : 'user_default.jpg',
                 'role'           => $user['role_name'] ?? 'N/A',
+                'roleSystem'     => (int) ($user['role_is_system'] ?? 0) === 1,
                 'status'         => (int) $user['status'],
                 'self'           => (int) $user['id'] === $currentUserId,
                 // Mismo criterio que el servidor aplica al editar, cambiar el estado o reenviar la invitación.

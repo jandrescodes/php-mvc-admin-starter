@@ -19,18 +19,21 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder: 'No users have been assigned this permission.',
         initialSort: [{ column: 'name', dir: 'asc' }],
         columns: [
-            { title: '#', field: 'id', width: 60, hozAlign: 'center', responsive: 3, counter: true, headerSort: false },
-            { title: 'Name', field: 'name', minWidth: 120, responsive: 0, sorter: 'string' },
-            { title: 'Email', field: 'email', minWidth: 140, responsive: 4 },
-            { title: 'Role', field: 'role', minWidth: 90, responsive: 2 },
+            { title: '#', field: 'id', width: 60, hozAlign: 'center', headerHozAlign: 'center', responsive: 3, counter: true, headerSort: false },
+            { title: 'Name', field: 'name', minWidth: 170, responsive: 0, sorter: 'string' },
+            { title: 'Email', field: 'email', minWidth: 200, widthGrow: 2, responsive: 4 },
+            { title: 'Role', field: 'role', minWidth: 125, responsive: 2 },
             {
                 title: 'Actions',
+                field: 'actions',
                 headerSort: false,
                 download: false,
                 columnToggle: false,
                 responsive: 0,
                 width: 110,
+                cssClass: 'tbl-col-actions',
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => {
                     const user = cell.getRow().getData();
                     return `<div class="btn-group btn-group-sm">

@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-4.0.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/php-mvc-admin-starter/actions/workflows/tests.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -61,6 +61,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **PDF generation** — Built-in report generation with TCPDF: server-side PDF export of the audit log (respects the active filters, UTF-8, paginated header/footer)
 - **Dark mode** — system-aware toggle (moon/sun) in the navbar; preference stored in `localStorage`, falls back to `prefers-color-scheme`; anti-FOUC inline script prevents flash on reload; covers all modules, auth standalone pages, and error pages
 - **Accessible by default** — labeled form inputs, `aria-pressed`/`aria-label` on icon-only toggles, `prefers-reduced-motion` respected, `<noscript>` fallback for flash messages
+- **Consistent listings** — Users, Roles, Permissions and Audit Log share one flat table style (single toolbar with search, status filter, Reports/Columns menus; footer pager; row actions fold into a menu on phones; continuous `#` counter across pages)
 - **Full UI toolkit** — Tabulator, Tom Select, SweetAlert2, Chart.js, Bootstrap Icons and native form validation included
 
 ## Screenshots
@@ -142,7 +143,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=false
-APP_VERSION=4.0.0
+APP_VERSION=4.1.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -288,6 +289,7 @@ changes are skipped via `paths-ignore` (css/js changes run, since `quality` veri
 - [docs/guides/ACCESS_CONTROL.md](docs/guides/ACCESS_CONTROL.md) — session guards and permission cache flow
 - [docs/guides/AJAX_AND_MODULES.md](docs/guides/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
 - [docs/guides/TESTING.md](docs/guides/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
+- [docs/guides/FRONTEND_HELPERS.md](docs/guides/FRONTEND_HELPERS.md) — `TableUtils` options, the flat table pattern (`tbl-flat`), row actions, responsive behaviour and accessibility
 - [docs/guides/UPGRADE_4.0.md](docs/guides/UPGRADE_4.0.md) — porting views, JS and CSS from 3.x (AdminLTE 3 / jQuery) to 4.0.0
 
 ## AI Integration

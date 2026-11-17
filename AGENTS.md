@@ -10,7 +10,7 @@ PHP MVC admin starter — authentication, user / role / permission management, p
 control. AdminLTE 4 / Bootstrap 5.3 without jQuery (released as `4.0.0`; the `3.x` tags are AdminLTE 3,
 migration spec in `specs/001-adminlte-migration/`), PDO/MySQL, Composer native
 PSR-4 autoloading. Pure PHP, **no build process** (no Makefile, no bundler — frontend assets are static files in
-`public/`, copied from npm/Composer by `npm run assets`). Current release tag: `4.0.0`.
+`public/`, copied from npm/Composer by `npm run assets`). Current release tag: `4.1.0`.
 
 ## Setup
 
@@ -156,6 +156,7 @@ composer install && npm ci && npm run assets   # Node 22 (.nvmrc); idempotente
     - Toda petición AJAX usa `Http.post/get` (`core/http.js`): lleva `X-Requested-With` y el token CSRF vigente; sin la cabecera `csrfCheck` y `ErrorHandler` responden HTML. Un POST que no recarga la página debe devolver `csrf_token`.
     - `FormValidator` valida con `validity`, nunca con `checkValidity()`/`reportValidity()`; `minlength`/`maxlength` se comprueban a mano.
     - `TableUtils`: los datos viajan en `data-rows` (JSON armado en el controlador, nunca en la vista); toda celda con datos de usuario pasa por `escapeHtml`; las columnas usan `sorter: 'alphanum'`; Copiar y CSV exportan el dato crudo, así que una columna con marcado declara `exportAs`.
+    - Listados con `tbl-flat` (card `tbl-card`, barra única de herramientas, acciones plegadas en móvil), contador `#` global entre páginas y re-medido de alturas en `TableUtils.create`: detalle en `docs/guides/FRONTEND_HELPERS.md`. Un listado nuevo copia ese patrón, no el de card con `Show N entries` arriba.
     - Acciones por fila según permiso: el servidor manda `manage` por fila y el formatter solo dibuja los botones permitidos; el rechazo del servidor sigue siendo la barrera real.
     - `ComponentUtils`: todo `<select>` de formulario o filtro usa Tom Select (`<select class="tom-select">`); con `multiple`, copia `getValue()` (`[...ts.getValue()]`) antes de cerrar el modal.
     - `SwalTheme`: el tema de SweetAlert2 sale de `data-bs-theme`, nunca `auto`; botones con contraste ≥ 4.5:1 sobre texto blanco.

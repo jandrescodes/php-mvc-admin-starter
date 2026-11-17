@@ -59,7 +59,7 @@ _______________
 - Salida en JS: datos de usuario en SweetAlert (title/html) o .html() pasan por escapeHtml(); rechazos de negocio en AJAX = HTTP 200 + success:false
 - Uploads: siempre a través de ImageService
 - AJAX: devolver JSON con $this->jsonResponse(); sesión-feedback con $_SESSION['message'] + $_SESSION['icon'] antes del JSON si hay location.reload()
-- Tablas con TableUtils.create (Tabulator): el controlador arma el JSON y la vista lo imprime en data-rows; peticiones AJAX con Http.get/post (nunca fetch a pelo); validación con FormValidator; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
+- Listados con el patrón de tabla plana (`tbl-card` + `tbl-flat`, ver docs/guides/FRONTEND_HELPERS.md; referencia: views/roles/index.php + index-roles.js) y TableUtils.create (Tabulator): el controlador arma el JSON y la vista lo imprime en data-rows; peticiones AJAX con Http.get/post (nunca fetch a pelo); validación con FormValidator; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
 - Selects con <select class="tom-select"> (también dentro de modales, sin dropdownParent); sin jQuery ni librerías de Bootstrap 4
 - No introducir librerías nuevas (vía Composer o manual) sin aprobación del líder técnico
 
@@ -102,7 +102,7 @@ Descripción: [criterios de aceptación]
 - Sanitización en el modelo, escape en la vista
 - AJAX endpoints devuelven JSON via $this->jsonResponse()
 - Feedback post-reload: $_SESSION['message'] + $_SESSION['icon'] antes del JSON
-- Tablas con TableUtils.create (Tabulator) y datos en data-rows; Http.get/post para AJAX y FormValidator para formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
+- Tabla plana (tbl-card + tbl-flat, referencia: módulo de roles) con TableUtils.create (Tabulator) y datos en data-rows; Http.get/post para AJAX y FormValidator para formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
 - Tom Select para dropdowns (clase tom-select); sin dropdownParent dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
 - Audit: llamar AuditLogger::log(string $module, string $action, string $description = '', array $details = []) — firma posicional, nunca un array — en el controller tras cada acción exitosa que mute estado; nunca dentro del modelo
@@ -274,7 +274,7 @@ Criterios de aceptación:
 - Seguir el patrón MVC del módulo users como referencia exacta
 - Rutas declaradas en routes/web.php con middlewares auth + perm:[nombre] donde aplique
 - CSRF en todos los formularios POST y endpoints AJAX
-- Tabulator (TableUtils) para listados; Http y FormValidator para AJAX y formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo; Tom Select para dropdowns
+- Tabulator (TableUtils) con el patrón de tabla plana (tbl-flat) para listados; Http y FormValidator para AJAX y formularios; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo; Tom Select para dropdowns
 - Borrado lógico con is_active — nunca DELETE físico en tablas de negocio
 - AJAX: $this->jsonResponse(); feedback con $_SESSION['message'] + $_SESSION['icon'] si el JS hace location.reload(); $_SESSION['welcome_user'] para popup de bienvenida
 - Permisos gateados con Auth::hasPermission() o middleware perm:NAME en routes/web.php
@@ -345,5 +345,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: 4.0.0_
+_Última actualización: 4.1.0_
 _Mantener sincronizado con AGENTS.md al iniciar cada sprint._

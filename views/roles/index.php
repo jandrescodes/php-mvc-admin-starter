@@ -50,64 +50,62 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card card-primary card-outline">
+                <div class="card tbl-card card-outline card-primary">
                     <div class="card-header">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center">
-                            <h2 class="card-title">System Roles</h2>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-primary btn-sm" id="btnNewRole">
-                                    <i class="bi bi-plus-lg" aria-hidden="true"></i> New Role
-                                </button>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" aria-label="Collapse card">
-                                    <i data-lte-icon="collapse" class="bi bi-dash-lg" aria-hidden="true"></i>
-                                    <i data-lte-icon="expand" class="bi bi-plus-lg" aria-hidden="true"></i>
-                                </button>
+                        <div class="d-flex flex-wrap align-items-center gap-2 tbl-toolbar" id="rolesTop">
+                            <h2 class="card-title me-auto">System Roles</h2>
+                            <div class="input-group input-group-sm tbl-search">
+                                <label for="rolesSearch" class="visually-hidden">Search roles</label>
+                                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                                <input type="search" class="form-control" id="rolesSearch" placeholder="Search roles">
                             </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-2 mb-2 align-items-center tbl-toolbar" id="rolesTop">
-                            <div class="col-12 col-md-6 text-center text-md-start">
-                                <label class="d-inline-flex align-items-center gap-2 mb-0">
-                                    Show
-                                    <select class="form-select form-select-sm w-auto" id="rolesPageSize" aria-label="Entries per page"></select>
-                                    entries
-                                </label>
+                            <div class="tbl-filter">
+                                <label for="rolesStatusFilter" class="visually-hidden">Filter by status</label>
+                                <select class="form-select form-select-sm tom-select" id="rolesStatusFilter">
+                                    <option value="">All statuses</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="d-flex align-items-center justify-content-md-end gap-2 mb-0">
-                                    Search:
-                                    <input type="search" class="form-control form-control-sm w-auto flex-grow-1 flex-md-grow-0" id="rolesSearch">
-                                </label>
-                            </div>
-                            <div class="col-12">
-                                <div class="btn-group btn-group-sm">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Reports</button>
-                                        <ul class="dropdown-menu">
-                                            <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
-                                            <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Columns</button>
-                                        <div class="dropdown-menu" id="rolesColumnMenu"></div>
-                                    </div>
+                            <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Reports" title="Reports">
+                                        <i class="bi bi-download" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button type="button" class="dropdown-item" data-export="copy">Copy</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="pdf">PDF</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="xlsx">Excel</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="csv">CSV</button></li>
+                                        <li><button type="button" class="dropdown-item" data-export="print">Print</button></li>
+                                    </ul>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Columns" title="Columns">
+                                        <i class="bi bi-layout-three-columns" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" id="rolesColumnMenu"></div>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnNewRole">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> New role
+                            </button>
                         </div>
-                        <div id="tableRoles" class="tbl-sm tbl-hover tbl-striped tbl-bordered" data-rows="<?= htmlspecialchars($rolesJson, ENT_QUOTES); ?>"></div>
-                        <div class="row g-2 mt-2 align-items-center tbl-toolbar" id="rolesBottom">
-                            <div class="col-12 col-md-5 text-center text-md-start" id="rolesInfo" role="status"></div>
-                            <div class="col-12 col-md-7">
-                                <nav aria-label="Roles pagination">
-                                    <ul class="pagination pagination-sm mb-0 justify-content-center justify-content-md-end flex-wrap" id="rolesPager"></ul>
-                                </nav>
-                            </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="tableRoles" class="tbl-flat tbl-striped tbl-hover" data-rows="<?= htmlspecialchars($rolesJson, ENT_QUOTES); ?>"></div>
+                    </div>
+                    <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2 tbl-toolbar" id="rolesBottom">
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-3 flex-grow-1 flex-sm-grow-0">
+                            <div id="rolesInfo" role="status"></div>
+                            <label class="d-inline-flex align-items-center gap-2 mb-0">
+                                Rows
+                                <select class="form-select form-select-sm w-auto" id="rolesPageSize" aria-label="Rows per page"></select>
+                            </label>
                         </div>
+                        <nav class="mx-auto mx-sm-0 ms-sm-auto" aria-label="Roles pagination">
+                            <ul class="pagination pagination-sm mb-0 flex-wrap" id="rolesPager"></ul>
+                        </nav>
                     </div>
                 </div>
             </div>
