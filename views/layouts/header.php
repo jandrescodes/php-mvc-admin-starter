@@ -106,7 +106,7 @@
                                 <?php endif; ?>
                                 <form method="POST" action="<?= URL; ?>logout" class="d-inline float-end">
                                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
-                                    <button type="submit" class="btn btn-outline-secondary">Log Out</button>
+                                    <button type="submit" class="btn btn-outline-danger">Log Out</button>
                                 </form>
                             </li>
                         </ul>

@@ -21,38 +21,69 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput: '#usersSearch',
         columnMenu: '#usersColumnMenu',
         pageSizes: [5, 10, 25, 50, 100],
-        pageSize: 5,
+        pageSize: 10,
         pageSizeSelect: '#usersPageSize',
         info: '#usersInfo',
         pager: '#usersPager',
         toolbar: '#usersTop, #usersBottom',
         initialSort: [{ column: 'id', dir: 'desc' }],
         columns: [
-            { title: '#', field: 'id', width: 60, hozAlign: 'center', responsive: 3, counter: true },
-            { title: 'Name', field: 'name', minWidth: 120, responsive: 0, sorter: 'string' },
-            { title: 'Document', field: 'document', minWidth: 110, responsive: 5 },
-            { title: 'Email', field: 'email', minWidth: 160, responsive: 6, sorter: 'string' },
-            { title: 'Role', field: 'role', minWidth: 90, responsive: 4, sorter: 'string' },
+            { title: '#', field: 'id', width: 60, hozAlign: 'center', headerHozAlign: 'center', responsive: 3, counter: true },
+            {
+                title: 'User',
+                field: 'name',
+                minWidth: 190,
+                responsive: 0,
+                sorter: 'string',
+                formatter: (cell) => {
+                    const user = cell.getRow().getData();
+                    return `<span class="d-flex align-items-center gap-2">
+                        <img src="${baseUrl}uploads/users/${encodeURIComponent(user.image)}" alt="" width="32" height="32" class="rounded-circle object-fit-cover flex-shrink-0" loading="lazy">
+                        <span>${escapeHtml(user.name)}</span>
+                    </span>`;
+                },
+                exportAs: TableUtils.exporters.plain,
+            },
+            { title: 'Email', field: 'email', minWidth: 240, widthGrow: 2, responsive: 6, sorter: 'string' },
+            { title: 'Document', field: 'document', minWidth: 140, responsive: 5 },
+            {
+                title: 'Role',
+                field: 'role',
+                minWidth: 130,
+                responsive: 4,
+                hozAlign: 'center',
+                headerHozAlign: 'center',
+                sorter: 'string',
+                formatter: (cell) => {
+                    const user = cell.getRow().getData();
+                    return `<span class="badge text-bg-${user.roleSystem ? 'danger' : 'secondary'}">${escapeHtml(user.role)}</span>`;
+                },
+                exportAs: TableUtils.exporters.plain,
+            },
             {
                 title: 'Status',
                 field: 'status',
-                width: 95,
+                width: 115,
                 responsive: 2,
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => {
                     const entry = STATUS[cell.getValue()] ?? STATUS[0];
-                    return `<span class="badge rounded-pill text-bg-${entry.variant}">${entry.label}</span>`;
+                    return `<span class="badge text-bg-${entry.variant}">${entry.label}</span>`;
                 },
                 exportAs: TableUtils.exporters.badge(STATUS),
             },
             {
                 title: 'Actions',
+                field: 'actions',
                 headerSort: false,
                 download: false,
                 columnToggle: false,
                 responsive: 0,
-                width: 150,
+                width: 120,
+                cssClass: 'tbl-col-actions',
                 hozAlign: 'center',
+                headerHozAlign: 'center',
                 formatter: (cell) => {
                     const user = cell.getRow().getData();
                     const id = Number(user.id);
@@ -79,12 +110,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>`;
                         }
                     }
-                    return `<div class="btn-group btn-group-sm" role="group" aria-label="Actions for user ${name}">
+                    const buttons = `<div class="btn-group btn-group-sm d-none d-sm-inline-flex" role="group" aria-label="Actions for user ${name}">
                         <a href="${baseUrl}users/${id}" class="btn btn-info" data-bs-toggle="tooltip" title="View user" aria-label="View user ${name}">
                             <i class="bi bi-eye" aria-hidden="true"></i>
                         </a>
                         ${edit}
                         ${status}
+                    </div>`;
+                    // En móvil las acciones se pliegan en un menú (una sola celda estrecha); `fixed` evita que la celda lo recorte.
+                    const item = (html) => html
+                        .replace(/class="btn [^"]*?(btn-resend-invitation|btn-toggle-status)?"/, (m, k) => `class="dropdown-item${k ? ` ${k}` : ''}"`)
+                        .replace(/ data-bs-toggle="tooltip" title="[^"]*"/, '');
+                    // El icono lleva el color de su botón en escritorio, sobre una pastilla `text-bg-*` para conservar el contraste.
+                    const label = (html, text, icon, color) => item(html).replace(/<i class="bi [^"]*"[^>]*><\/i>/, `<span class="badge text-bg-${color} me-2 tbl-menu-icon"><i class="bi ${icon}" aria-hidden="true"></i></span>${text}`);
+                    const statusColor = pending ? 'secondary' : (active ? 'danger' : 'success');
+                    const menu = [
+                        `<li>${label(`<a href="${baseUrl}users/${id}" class="btn btn-info" aria-label="View user ${name}"><i class="bi bi-eye"></i></a>`, 'View', 'bi-eye', 'info')}</li>`,
+                        edit ? `<li>${label(edit, 'Edit', 'bi-pencil-square', 'warning')}</li>` : '',
+                        status ? `<li>${label(status, pending ? 'Resend invitation' : (active ? 'Deactivate' : 'Activate'), pending ? 'bi-send' : (active ? 'bi-person-slash' : 'bi-person-check'), statusColor)}</li>` : '',
+                    ].join('');
+                    return `${buttons}
+                    <div class="dropdown d-sm-none">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" aria-label="Actions for user ${name}">
+                            <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">${menu}</ul>
                     </div>`;
                 },
             },
