@@ -642,16 +642,16 @@
     "packages-dev": [
         {
             "name": "almasaeed2010/adminlte",
-            "version": "v4.10.1",
+            "version": "v4.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ColorlibHQ/AdminLTE.git",
-                "reference": "e13df78a4d0c287e5fa57308e293f63e44e9dd0f"
+                "reference": "c441e48a6653ca46fa8057a8935b5103eb11ae74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ColorlibHQ/AdminLTE/zipball/e13df78a4d0c287e5fa57308e293f63e44e9dd0f",
-                "reference": "e13df78a4d0c287e5fa57308e293f63e44e9dd0f",
+                "url": "https://api.github.com/repos/ColorlibHQ/AdminLTE/zipball/c441e48a6653ca46fa8057a8935b5103eb11ae74",
+                "reference": "c441e48a6653ca46fa8057a8935b5103eb11ae74",
                 "shasum": ""
             },
             "type": "library",
@@ -679,7 +679,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ColorlibHQ/AdminLTE/issues",
-                "source": "https://github.com/ColorlibHQ/AdminLTE/tree/v4.10.1"
+                "source": "https://github.com/ColorlibHQ/AdminLTE/tree/v4.10.2"
             },
             "funding": [
                 {
@@ -691,7 +691,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-08T06:14:22+00:00"
+            "time": "2026-11-16T11:39:19+00:00"
         },
         {
             "name": "laravel/pint",
